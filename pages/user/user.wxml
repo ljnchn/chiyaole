@@ -1,0 +1,53 @@
+<!--pages/user/user.wxml-->
+<view class="container">
+  <!-- User Card -->
+  <view class="user-card" bindtap="onEditProfile">
+    <view class="avatar">
+      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" />
+      <view wx:else class="avatar-placeholder">
+        <text>{{userInfo.nickName[0]}}</text>
+      </view>
+    </view>
+    <view class="user-info">
+      <text class="user-name">{{userInfo.nickName}}</text>
+      <view class="user-stats">
+        <text>健康分: {{userInfo.healthScore}}</text>
+        <text class="divider">|</text>
+        <text>已加入 {{userInfo.joinDays}} 天</text>
+      </view>
+      <view class="user-status">
+        <view class="status-dot"></view>
+        <text>{{userInfo.status}}</text>
+      </view>
+    </view>
+    <t-icon name="chevron-right" size="40rpx" color="#c4c4c9" />
+  </view>
+
+  <!-- Settings List -->
+  <view class="settings-group">
+    <view
+      wx:for="{{settings}}"
+      wx:key="id"
+      class="setting-item"
+      bindtap="onSettingTap"
+      data-id="{{item.id}}"
+    >
+      <view class="setting-icon" style="background-color: {{item.iconColor}}20;">
+        <t-icon name="{{item.icon}}" size="40rpx" color="{{item.iconColor}}" />
+      </view>
+      <view class="setting-content">
+        <text class="setting-title">{{item.title}}</text>
+        <text class="setting-desc">{{item.desc}}</text>
+      </view>
+      <view class="setting-extra">
+        <text wx:if="{{item.value}}" class="setting-value">{{item.value}}</text>
+        <t-icon name="chevron-right" size="32rpx" color="#c4c4c9" />
+      </view>
+    </view>
+  </view>
+
+  <!-- Logout Button -->
+  <view class="logout-section">
+    <button class="btn-logout" bindtap="onLogout">退出登录</button>
+  </view>
+</view>

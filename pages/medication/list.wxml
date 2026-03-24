@@ -1,0 +1,57 @@
+<!--pages/medication/list.wxml-->
+<view class="container">
+  <view class="stats-section">
+    <view class="stat-card">
+      <text class="stat-label">药品总数</text>
+      <view class="stat-value">
+        <text class="stat-number">{{stats.total}}</text>
+        <text class="stat-unit">项</text>
+      </view>
+    </view>
+    <view class="stat-card warning">
+      <text class="stat-label">库存告急</text>
+      <view class="stat-value">
+        <text class="stat-number">{{stats.lowStock}}</text>
+        <text class="stat-unit">项</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="medication-grid">
+    <view
+      wx:for="{{medications}}"
+      wx:key="id"
+      class="medication-card"
+      bindtap="onMedicationTap"
+      data-id="{{item.id}}"
+    >
+      <view class="card-image">
+        <view class="placeholder-image" style="background-color: {{item.color}}20;">
+          <t-icon name="{{item.icon}}" size="64rpx" color="{{item.color}}" />
+        </view>
+        <view wx:if="{{item.lowStock}}" class="low-stock-badge">
+          <text>库存告急</text>
+        </view>
+      </view>
+      <view class="card-content">
+        <text class="medication-name">{{item.name}}</text>
+        <text class="medication-spec">{{item.specification}}</text>
+        <view class="stock-info">
+          <text class="stock-text {{item.lowStock ? 'warning' : ''}}">
+            剩余 {{item.remaining}}/{{item.total}} {{item.unit}}
+          </text>
+          <view class="stock-progress">
+            <view
+              class="progress-bar"
+              style="width: {{(item.remaining / item.total) * 100}}%; background-color: {{item.lowStock ? '#e53935' : item.color}};"
+            />
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="onAddMedication">
+    <t-icon name="add" size="48rpx" color="#ffffff" />
+  </view>
+</view>

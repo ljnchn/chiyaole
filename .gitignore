@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+miniprogram_npm/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+*.stackdump
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Local config (may contain sensitive info)
+project.private.config.json
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# WeChat DevTools
+.wechatide/
+
+# Coverage
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.*.local

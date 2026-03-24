@@ -1,0 +1,104 @@
+<!--pages/record/record.wxml-->
+<view class="container">
+  <!-- Calendar Card -->
+  <view class="calendar-card">
+    <view class="calendar-header">
+      <text class="month-year">{{currentYear}}年{{currentMonth}}月</text>
+      <view class="nav-buttons">
+        <t-icon name="chevron-left" size="40rpx" bindtap="onPrevMonth" />
+        <t-icon name="chevron-right" size="40rpx" bindtap="onNextMonth" />
+      </view>
+    </view>
+
+    <view class="week-header">
+      <text wx:for="{{weekDays}}" wx:key="index">{{item}}</text>
+    </view>
+
+    <view class="calendar-grid">
+      <view
+        wx:for="{{calendarDays}}"
+        wx:key="index"
+        class="calendar-day {{item.currentMonth ? '' : 'other-month'}} {{item.selected ? 'selected' : ''}}"
+        bindtap="onSelectDate"
+        data-day="{{item}}"
+      >
+        <text>{{item.day}}</text>
+        <view wx:if="{{item.status}}" class="status-dot {{item.status}}"></view>
+      </view>
+    </view>
+
+    <view class="legend">
+      <view class="legend-item">
+        <view class="dot taken"></view>
+        <text>已服药</text>
+      </view>
+      <view class="legend-item">
+        <view class="dot missed"></view>
+        <text>漏服</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Stats Row -->
+  <view class="stats-row">
+    <view class="stat-box">
+      <text class="stat-label">连续打卡</text>
+      <view class="stat-value-row">
+        <text class="stat-num">{{streakDays}}</text>
+        <text class="stat-unit">天</text>
+      </view>
+    </view>
+    <view class="stat-box">
+      <text class="stat-label">本月依从性</text>
+      <view class="stat-value-row">
+        <text class="stat-num" style="color: #006e28;">{{compliance}}</text>
+        <text class="stat-unit" style="color: #006e28;">%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Recent Records -->
+  <view class="records-section">
+    <view class="section-header">
+      <text class="section-title">最近记录</text>
+      <text class="view-more" bindtap="onViewMore">查看更多</text>
+    </view>
+
+    <view class="record-list">
+      <view
+        wx:for="{{records}}"
+        wx:key="id"
+        class="record-item {{item.status}}"
+      >
+        <view class="record-icon" style="background-color: {{item.color}}20;">
+          <t-icon name="{{item.icon}}" size="40rpx" color="{{item.color}}" />
+        </view>
+        <view class="record-info">
+          <text class="record-name">{{item.name}}</text>
+          <text class="record-dosage">{{item.dosage}}</text>
+          <text wx:if="{{item.warning}}" class="record-warning">{{item.warning}}</text>
+        </view>
+        <view class="record-meta">
+          <text class="record-time {{item.status}}">{{item.time}}</text>
+          <view wx:if="{{item.status === 'missed'}}" class="makeup-btn" bindtap="onMakeup">
+            <text>补录</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Health Report Card -->
+  <view class="report-card">
+    <text class="report-title">健康分析报告</text>
+    <text class="report-desc">您的服药规律性极佳，请继续保持良好的生活习惯。</text>
+    <view class="report-progress">
+      <view class="progress-track">
+        <view class="progress-fill" style="width: 85%;"></view>
+      </view>
+      <view class="add-btn">
+        <t-icon name="add" size="32rpx" color="#ffffff" />
+      </view>
+    </view>
+  </view>
+</view>

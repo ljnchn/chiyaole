@@ -1,0 +1,334 @@
+/* pages/record/record.wxss */
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 120rpx;
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+/* Calendar Card */
+.calendar-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.month-year {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 32rpx;
+}
+
+.week-header {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 16rpx;
+}
+
+.week-header text {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  width: 80rpx;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendar-day {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 8rpx 10rpx;
+  border-radius: 16rpx;
+  position: relative;
+}
+
+.calendar-day text {
+  font-size: 28rpx;
+  color: var(--on_surface);
+}
+
+.calendar-day.other-month text {
+  color: var(--surface-variant);
+}
+
+.calendar-day.selected {
+  background-color: var(--primary);
+}
+
+.calendar-day.selected text {
+  color: #ffffff;
+}
+
+.status-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 12rpx;
+}
+
+.status-dot.taken {
+  background-color: #006e28;
+}
+
+.status-dot.missed {
+  background-color: #e53935;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 48rpx;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid var(--surface-container);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.legend-item .dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.legend-item .dot.taken {
+  background-color: #006e28;
+}
+
+.legend-item .dot.missed {
+  background-color: #e53935;
+}
+
+.legend-item text {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+}
+
+/* Stats Row */
+.stats-row {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.stat-box {
+  flex: 1;
+  background-color: var(--surface-container);
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.stat-label {
+  display: block;
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 12rpx;
+}
+
+.stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-unit {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+}
+
+/* Records Section */
+.records-section {
+  background-color: var(--surface-container);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+.view-more {
+  font-size: 26rpx;
+  color: var(--primary);
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.record-item {
+  display: flex;
+  align-items: flex-start;
+  background-color: var(--surface-container-lowest);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  border-left: 6rpx solid transparent;
+}
+
+.record-item.taken {
+  border-left-color: #006e28;
+}
+
+.record-item.missed {
+  border-left-color: #e53935;
+}
+
+.record-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.record-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.record-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+  margin-bottom: 8rpx;
+}
+
+.record-dosage {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 8rpx;
+}
+
+.record-warning {
+  font-size: 22rpx;
+  color: #e53935;
+}
+
+.record-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12rpx;
+}
+
+.record-time {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+}
+
+.record-time.missed {
+  color: #e53935;
+}
+
+.makeup-btn {
+  background-color: var(--surface-container);
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+}
+
+.makeup-btn text {
+  font-size: 22rpx;
+  color: var(--on_surface);
+}
+
+/* Report Card */
+.report-card {
+  background: linear-gradient(135deg, #0058bc 0%, #0070eb 100%);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  color: #ffffff;
+}
+
+.report-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.report-desc {
+  display: block;
+  font-size: 26rpx;
+  opacity: 0.9;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
+}
+
+.report-progress {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.progress-track {
+  flex: 1;
+  height: 12rpx;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #6ffb85;
+  border-radius: 6rpx;
+}
+
+.add-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

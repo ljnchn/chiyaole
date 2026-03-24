@@ -1,0 +1,161 @@
+/* pages/medication/list.wxss */
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 120rpx;
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+.stats-section {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 40rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.stat-card.warning {
+  background-color: #fff5f5;
+}
+
+.stat-label {
+  display: block;
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 16rpx;
+}
+
+.stat-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.stat-number {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-card.warning .stat-number {
+  color: #e53935;
+}
+
+.stat-unit {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+}
+
+.medication-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+}
+
+.medication-card {
+  width: calc(50% - 12rpx);
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.medication-card:active {
+  opacity: 0.8;
+}
+
+.card-image {
+  position: relative;
+  height: 240rpx;
+  overflow: hidden;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.low-stock-badge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  background-color: #e53935;
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.card-content {
+  padding: 24rpx;
+}
+
+.medication-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+  margin-bottom: 8rpx;
+}
+
+.medication-spec {
+  display: block;
+  font-size: 22rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 16rpx;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.stock-text {
+  font-size: 24rpx;
+  color: var(--on_surface);
+}
+
+.stock-text.warning {
+  color: #e53935;
+}
+
+.stock-progress {
+  height: 8rpx;
+  background-color: var(--surface-container);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 4rpx;
+}
+
+.fab {
+  position: fixed;
+  bottom: 160rpx;
+  right: 32rpx;
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(0, 110, 40, 0.3);
+}
+
+.fab:active {
+  transform: scale(0.9);
+}

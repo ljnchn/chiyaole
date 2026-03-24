@@ -1,0 +1,74 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="date-info">
+      <text class="date">{{currentDate}}</text>
+      <text class="weekday">{{weekDay}}</text>
+    </view>
+    <view class="streak-badge">
+      <t-icon name="fire" size="32rpx" color="#ff6b6b" />
+      <text>连续打卡 {{streakDays}} 天</text>
+    </view>
+  </view>
+
+  <!-- Progress Card -->
+  <view class="progress-card">
+    <view class="progress-info">
+      <text class="progress-label">今日进度</text>
+      <text class="progress-value">{{completedCount}}/{{totalCount}}</text>
+    </view>
+    <view class="progress-ring">
+      <view class="ring-bg"></view>
+      <view class="ring-fill" style="--progress: {{progress}};"></view>
+      <view class="ring-content">
+        <text class="percentage">{{progress}}%</text>
+        <text class="label">已完成</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Today's Medications -->
+  <view class="medication-section">
+    <view class="section-header">
+      <text class="section-title">今日用药</text>
+      <text class="view-all" bindtap="onViewAll">查看全部</text>
+    </view>
+
+    <view class="medication-list">
+      <view
+        wx:for="{{todayMedications}}"
+        wx:key="id"
+        class="medication-item {{item.taken ? 'taken' : ''}} {{item.urgent ? 'urgent' : ''}}"
+        bindtap="onCheckIn"
+        data-id="{{item.id}}"
+      >
+        <view class="medication-icon" style="background-color: {{item.color}}20;">
+          <t-icon name="{{item.icon}}" size="40rpx" color="{{item.color}}" />
+        </view>
+        <view class="medication-info">
+          <text class="medication-name">{{item.name}}</text>
+          <text class="medication-dosage">{{item.dosage}}</text>
+        </view>
+        <view class="medication-meta">
+          <text class="medication-time">{{item.time}}</text>
+          <view class="check-status">
+            <t-icon
+              name="{{item.taken ? 'check-circle-filled' : 'circle'}}"
+              size="40rpx"
+              color="{{item.taken ? '#006e28' : '#c4c4c9'}}"
+            />
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Quick Actions -->
+  <view class="quick-actions">
+    <button class="btn-add" bindtap="onAddMedication">
+      <t-icon name="add" size="32rpx" />
+      <text>添加药品</text>
+    </button>
+  </view>
+</view>

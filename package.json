@@ -1,0 +1,20 @@
+{
+  "name": "chiyaome",
+  "version": "1.0.0",
+  "description": "吃药么 - WeChat Mini Program for medication management",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "medication",
+    "reminder",
+    "health",
+    "wechat-miniprogram"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "tdesign-miniprogram": "^1.13.0"
+  }
+}

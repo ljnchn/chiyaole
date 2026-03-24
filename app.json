@@ -1,0 +1,54 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/medication/list",
+    "pages/medication/add",
+    "pages/record/record",
+    "pages/user/user"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f9f9fe",
+    "navigationBarTitleText": "吃药么",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f9f9fe"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#414755",
+    "selectedColor": "#0058bc",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "今日提醒"
+      },
+      {
+        "pagePath": "pages/record/record",
+        "text": "吃药记录"
+      },
+      {
+        "pagePath": "pages/medication/list",
+        "text": "药品管理"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "个人中心"
+      }
+    ]
+  },
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-progress": "tdesign-miniprogram/progress/progress",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-switch": "tdesign-miniprogram/switch/switch",
+    "t-stepper": "tdesign-miniprogram/stepper/stepper",
+    "t-calendar": "tdesign-miniprogram/calendar/calendar"
+  },
+  "sitemapLocation": "sitemap.json"
+}

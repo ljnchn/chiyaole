@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>吃药记录统计</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-primary": "#adc6ff",
+              "inverse-on-surface": "#f0f0f5",
+              "on-tertiary-container": "#fffbff",
+              "surface-container-highest": "#e2e2e7",
+              "secondary-container": "#6ffb85",
+              "primary-fixed-dim": "#adc6ff",
+              "surface-container": "#ededf2",
+              "on-primary-fixed": "#001a41",
+              "on-surface-variant": "#414755",
+              "secondary-fixed-dim": "#53e16f",
+              "on-primary-container": "#fefcff",
+              "tertiary": "#4c4aca",
+              "outline-variant": "#c1c6d7",
+              "background": "#f9f9fe",
+              "on-tertiary-fixed": "#0c006a",
+              "surface-bright": "#f9f9fe",
+              "error": "#ba1a1a",
+              "tertiary-container": "#6664e4",
+              "surface": "#f9f9fe",
+              "primary": "#0058bc",
+              "on-primary-fixed-variant": "#004493",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-fixed-variant": "#3631b4",
+              "surface-container-high": "#e8e8ed",
+              "inverse-surface": "#2e3034",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-secondary-fixed": "#002107",
+              "on-background": "#1a1c1f",
+              "primary-fixed": "#d8e2ff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f3f3f8",
+              "secondary-fixed": "#72fe88",
+              "on-secondary": "#ffffff",
+              "primary-container": "#0070eb",
+              "outline": "#717786",
+              "on-secondary-container": "#00732a",
+              "on-secondary-fixed-variant": "#00531c",
+              "surface-variant": "#e2e2e7",
+              "surface-tint": "#005bc1",
+              "error-container": "#ffdad6",
+              "surface-dim": "#d9dade",
+              "secondary": "#006e28",
+              "on-surface": "#1a1c1f",
+              "tertiary-fixed": "#e2dfff",
+              "tertiary-fixed-dim": "#c2c1ff",
+              "surface-container-lowest": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9f9fe;
+      }
+      .headline-font {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#f9f9fe]/70 backdrop-blur-xl flex items-center justify-between px-4 h-12 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#0058bc]" data-icon="healing">healing</span>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-lg tracking-tight text-[#0058bc]">吃药记录</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#414755]" data-icon="calendar_month">calendar_month</span>
+<span class="material-symbols-outlined text-[#414755]" data-icon="more_vert">more_vert</span>
+</div>
+</header>
+<main class="pt-16 px-4 space-y-8">
+<!-- Monthly Calendar Card -->
+<section class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_-4px_24px_rgba(0,88,188,0.04)]">
+<div class="flex items-center justify-between mb-6">
+<h2 class="headline-font font-bold text-on-surface text-lg">2023年10月</h2>
+<div class="flex gap-2">
+<button class="p-1 rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-1 rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-y-4 text-center">
+<!-- Weekdays labels -->
+<div class="text-on-surface-variant font-medium text-xs">日</div>
+<div class="text-on-surface-variant font-medium text-xs">一</div>
+<div class="text-on-surface-variant font-medium text-xs">二</div>
+<div class="text-on-surface-variant font-medium text-xs">三</div>
+<div class="text-on-surface-variant font-medium text-xs">四</div>
+<div class="text-on-surface-variant font-medium text-xs">五</div>
+<div class="text-on-surface-variant font-medium text-xs">六</div>
+<!-- Calendar Days (Simulated) -->
+<!-- First row empty slots -->
+<div class="text-surface-dim text-sm py-2">28</div>
+<div class="text-surface-dim text-sm py-2">29</div>
+<div class="text-surface-dim text-sm py-2">30</div>
+<!-- Month days -->
+<div class="relative py-2 text-sm">1</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>2</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>3</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm">4</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>5</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>6</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm">7</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>8</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center">
+<span>9</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm flex flex-col items-center justify-center bg-primary/10 rounded-lg text-primary font-bold">
+<span>10</span>
+<div class="w-1.5 h-1.5 bg-secondary rounded-full mt-1"></div>
+</div>
+<div class="relative py-2 text-sm text-surface-dim">11</div>
+<div class="relative py-2 text-sm text-surface-dim">12</div>
+<div class="relative py-2 text-sm text-surface-dim">13</div>
+<div class="relative py-2 text-sm text-surface-dim">14</div>
+<!-- Simplified rows -->
+</div>
+<div class="mt-6 flex items-center justify-center gap-6 border-t border-surface-container pt-4">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 bg-secondary rounded-full"></div>
+<span class="text-xs text-on-surface-variant">已服药</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 bg-error/30 rounded-full"></div>
+<span class="text-xs text-on-surface-variant">漏服</span>
+</div>
+</div>
+</section>
+<!-- Insights Summary Bento -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-primary/5 p-4 rounded-xl space-y-1">
+<span class="text-xs text-on-surface-variant font-medium">连续打卡</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold headline-font text-primary">12</span>
+<span class="text-sm text-primary/70">天</span>
+</div>
+</div>
+<div class="bg-secondary/5 p-4 rounded-xl space-y-1">
+<span class="text-xs text-on-surface-variant font-medium">本月依从性</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold headline-font text-secondary">94</span>
+<span class="text-sm text-secondary/70">%</span>
+</div>
+</div>
+</section>
+<!-- Recent Records -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="headline-font font-bold text-on-surface text-lg">最近记录</h2>
+<span class="text-primary text-sm font-medium">查看更多</span>
+</div>
+<div class="space-y-4">
+<!-- Record 1: Today -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="done_all" data-weight="fill">done_all</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-semibold text-on-surface">阿司匹林</h3>
+<span class="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-medium">已服 08:00</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-0.5">每日1次 · 100mg</p>
+</div>
+</div>
+<!-- Record 2: Yesterday Morning -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 border-l-4 border-secondary">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="medication">medication</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-semibold text-on-surface">维生素 C</h3>
+<span class="text-xs text-on-surface-variant">昨日 09:30</span>
+</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="text-[10px] text-secondary font-medium">按时服用</span>
+</div>
+</div>
+</div>
+<!-- Record 3: Missed -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 border-l-4 border-error">
+<div class="w-12 h-12 rounded-full bg-error/5 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="error" data-weight="fill">error</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-semibold text-on-surface">降压灵</h3>
+<span class="text-xs text-error font-medium">昨日 20:00</span>
+</div>
+<p class="text-[10px] text-error mt-0.5 font-medium">漏服记录 · 建议咨询医生</p>
+</div>
+<button class="bg-surface-container-high px-3 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant">
+                        补录
+                    </button>
+</div>
+<!-- Record 4: History -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="pill">pill</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<h3 class="font-semibold text-on-surface">辅酶 Q10</h3>
+<span class="text-xs text-on-surface-variant">10月8日 12:00</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant/60">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span class="text-[10px] font-medium">确认已服</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Compliance Graphic Card -->
+<section class="bg-gradient-to-br from-primary to-tertiary p-6 rounded-2xl text-white relative overflow-hidden shadow-lg shadow-primary/20">
+<div class="relative z-10">
+<h3 class="headline-font font-bold text-lg mb-1">健康分析报告</h3>
+<p class="text-white/80 text-xs mb-6">您的服药规律性极佳，请继续保持良好的生活习惯。</p>
+<div class="flex items-center gap-4">
+<div class="flex-1 bg-white/15 h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full w-[94%]"></div>
+</div>
+<span class="font-bold headline-font">94%</span>
+</div>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe h-16 bg-[#f9f9fe]/70 backdrop-blur-xl z-50 rounded-t-2xl shadow-[0_-4px_24px_rgba(0,88,188,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#414755] dark:text-slate-500 px-3 py-1 scale-90 duration-150 ease-out" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="today">today</span>
+<span class="font-['Inter'] text-[10px] font-medium">今日提醒</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#0058bc]/10 dark:bg-blue-500/20 text-[#0058bc] dark:text-blue-300 rounded-xl px-3 py-1 scale-90 duration-150 ease-out" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="history_edu" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-['Inter'] text-[10px] font-medium">吃药记录</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#414755] dark:text-slate-500 px-3 py-1 scale-90 duration-150 ease-out" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="medication">medication</span>
+<span class="font-['Inter'] text-[10px] font-medium">药品管理</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#414755] dark:text-slate-500 px-3 py-1 scale-90 duration-150 ease-out" href="#">
+<span class="material-symbols-outlined mb-0.5" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] font-medium">个人中心</span>
+</a>
+</nav>
+<!-- Floating Action Button - Hidden based on suppression rule for "Details/Stat" screen, 
+         but technically this is a main destination. Inclusion for "Add Record" intent. -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-white rounded-full shadow-lg shadow-primary/30 flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</body></html>
