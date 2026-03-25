@@ -2,10 +2,12 @@
 const userService = require('../../utils/userService')
 const checkinService = require('../../utils/checkinService')
 const medicationService = require('../../utils/medicationService')
+const authService = require('../../utils/authService')
 
 Page({
   data: {
     userInfo: {},
+    isLogged: false,
     settings: [
       {
         id: 'reminder',
@@ -13,7 +15,7 @@ Page({
         iconColor: '#0058bc',
         title: '提醒设置',
         desc: '管理服药提醒频率',
-        value: '静音、震动'
+        value: ''
       },
       {
         id: 'family',
@@ -21,7 +23,7 @@ Page({
         iconColor: '#4c4aca',
         title: '家庭成员绑定',
         desc: '关联老人或小孩的账号',
-        value: '+1'
+        value: ''
       },
       {
         id: 'help',
@@ -54,15 +56,13 @@ Page({
   },
 
   loadUserInfo() {
-    const user = userService.get()
-
-    // 计算并更新健康分
     const activeMeds = medicationService.getActive()
     const compliance = checkinService.getComplianceRate(7, activeMeds)
     userService.updateHealthScore(compliance)
 
     const updatedUser = userService.get()
     this.setData({
+      isLogged: authService.isLogged(),
       userInfo: {
         nickName: updatedUser.nickName,
         avatarUrl: updatedUser.avatarUrl,
@@ -70,6 +70,22 @@ Page({
         joinDays: updatedUser.joinDays,
         status: updatedUser.healthScore >= 80 ? '健康守护中' : '需要更加坚持'
       }
+    })
+  },
+
+  /**
+   * 获取微信头像和昵称（需用户主动触发）
+   */
+  onSyncWxProfile() {
+    authService.getUserProfile().then(profile => {
+      userService.update({
+        nickName: profile.nickName,
+        avatarUrl: profile.avatarUrl
+      })
+      wx.showToast({ title: '同步成功', icon: 'success' })
+      this.loadUserInfo()
+    }).catch(() => {
+      wx.showToast({ title: '授权已取消', icon: 'none' })
     })
   },
 
@@ -97,6 +113,7 @@ Page({
       content: '确定要退出登录吗？将清除所有本地数据。',
       success: (res) => {
         if (res.confirm) {
+          authService.logout()
           userService.clear()
           wx.showToast({ title: '已退出登录', icon: 'success' })
           this.loadUserInfo()

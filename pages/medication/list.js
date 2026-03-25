@@ -6,7 +6,6 @@ Page({
     medications: [],
     stats: {
       total: 0,
-      active: 0,
       lowStock: 0
     }
   },

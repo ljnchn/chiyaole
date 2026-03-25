@@ -14,7 +14,7 @@ When tackling development tasks or bug fixes:
 
 ## Project Overview
 
-**chiyaome** (吃药么) - WeChat Mini Program for medication management/reminders.
+**chiyaole** (吃药了) - WeChat Mini Program for medication management/reminders.
 Editorial "Living Sanctuary" design philosophy - premium wellness magazine aesthetic, not clinical coldness.
 
 - **Platform:** Native WeChat Mini Program (WXML/WXSS/JS/JSON)
@@ -50,7 +50,7 @@ No test runner, linter, or build scripts are configured. Development and preview
 
 1. **Always prefer TDesign components** and their native API (Props, Events, Slots, CSS Variables, externalClasses) over custom implementations
 2. **Style overrides:** use TDesign CSS Variables or externalClasses - global overrides are in `app.wxss` (`--td-brand-color`, etc.)
-3. **Global components** already registered in `app.json`: t-button, t-cell, t-cell-group, t-input, t-progress, t-tag, t-icon, t-switch, t-stepper, t-calendar
+3. **Global components** already registered in `app.json`: t-icon, t-input, t-textarea, t-stepper, t-picker, t-picker-item
 4. **Adding new TDesign components:** register in `app.json` (global) or page `.json` (local) `usingComponents`
 
 ## Architecture

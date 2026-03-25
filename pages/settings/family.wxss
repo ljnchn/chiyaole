@@ -1,0 +1,51 @@
+/* pages/settings/family.wxss */
+
+.container {
+  padding: 32rpx;
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 160rpx 40rpx;
+  gap: 16rpx;
+}
+
+.empty-icon {
+  margin-bottom: 16rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 32rpx;
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  border-radius: 9999rpx;
+  padding: 24rpx 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 88, 188, 0.2);
+}
+
+.btn-add:active {
+  transform: scale(0.98);
+}

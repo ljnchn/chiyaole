@@ -2,7 +2,7 @@
 
 **版本:** 1.0
 **日期:** 2026-03-25
-**Base URL:** `https://api.chiyaome.com/v1`
+**Base URL:** `https://api.chiyaole.com/v1`
 
 ---
 

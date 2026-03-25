@@ -1,0 +1,14 @@
+<!--pages/settings/family.wxml-->
+<view class="container">
+  <view class="empty-state">
+    <view class="empty-icon">
+      <t-icon name="user-group" size="96rpx" color="#c4c4c9" />
+    </view>
+    <text class="empty-title">暂无家庭成员</text>
+    <text class="empty-desc">绑定家人账号后，可以帮助他们管理用药提醒</text>
+    <button class="btn-add" bindtap="onAddMember">
+      <t-icon name="add" size="32rpx" color="#ffffff" />
+      <text>添加成员</text>
+    </button>
+  </view>
+</view>

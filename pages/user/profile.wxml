@@ -1,0 +1,42 @@
+<!--pages/user/profile.wxml-->
+<view class="container">
+  <view class="form-section">
+    <text class="section-title">基本信息</text>
+    <view class="form-item">
+      <text class="form-label">昵称</text>
+      <t-input
+        placeholder="请输入昵称"
+        value="{{nickName}}"
+        bindchange="onNickNameInput"
+        borderless
+      />
+    </view>
+  </view>
+
+  <view class="form-section">
+    <text class="section-title">紧急联系人</text>
+    <view class="form-item">
+      <text class="form-label">姓名</text>
+      <t-input
+        placeholder="联系人姓名"
+        value="{{emergencyName}}"
+        bindchange="onEmergencyNameInput"
+        borderless
+      />
+    </view>
+    <view class="form-item">
+      <text class="form-label">电话</text>
+      <t-input
+        placeholder="联系人电话"
+        value="{{emergencyPhone}}"
+        bindchange="onEmergencyPhoneInput"
+        type="number"
+        borderless
+      />
+    </view>
+  </view>
+
+  <view class="save-section">
+    <button class="btn-save" bindtap="onSave">保存</button>
+  </view>
+</view>

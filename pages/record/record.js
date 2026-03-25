@@ -155,10 +155,56 @@ Page({
   },
 
   onMakeup(e) {
-    wx.showToast({ title: '补录功能开发中', icon: 'none' })
+    const { id } = e.currentTarget.dataset
+    if (!id) return
+
+    wx.showModal({
+      title: '补录打卡',
+      content: '确认将此条漏服记录标记为已服用？',
+      success: (res) => {
+        if (!res.confirm) return
+
+        const record = this.data.records.find(r => r.id === id)
+        if (!record) return
+
+        const existing = checkinService.getById(id)
+        if (existing) {
+          checkinService.update(id, {
+            status: 'taken',
+            actualTime: existing.scheduledTime,
+            note: '补录'
+          })
+        } else {
+          const parts = id.split('_')
+          const medId = parts[0] + '_' + parts[1]
+          const time = parts[2] || ''
+          const { currentYear, currentMonth, selectedDate } = this.data
+          const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+
+          checkinService.add({
+            medicationId: medId,
+            date: dateStr,
+            scheduledTime: time,
+            actualTime: time,
+            status: 'taken',
+            dosage: record.dosage || '',
+            note: '补录'
+          })
+        }
+
+        wx.showToast({ title: '补录成功', icon: 'success' })
+        this.loadData()
+      }
+    })
   },
 
   onViewMore() {
-    wx.showToast({ title: '查看更多', icon: 'none' })
+    const { currentYear, currentMonth, selectedDate } = this.data
+    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+    wx.showModal({
+      title: `${dateStr} 用药详情`,
+      content: `当日共 ${this.data.records.length} 条记录`,
+      showCancel: false
+    })
   }
 })

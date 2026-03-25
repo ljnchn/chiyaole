@@ -3,14 +3,20 @@
     "pages/index/index",
     "pages/medication/list",
     "pages/medication/add",
+    "pages/medication/detail",
     "pages/record/record",
-    "pages/user/user"
+    "pages/user/user",
+    "pages/user/profile",
+    "pages/settings/reminder",
+    "pages/settings/family",
+    "pages/settings/help",
+    "pages/settings/about"
   ],
   "lazyCodeLoading": "requiredComponents",
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#f9f9fe",
-    "navigationBarTitleText": "吃药么",
+    "navigationBarTitleText": "吃药了",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f9f9fe"
   },
@@ -40,23 +46,12 @@
     ]
   },
   "usingComponents": {
-    "t-button": "tdesign-miniprogram/button/button",
-    "t-cell": "tdesign-miniprogram/cell/cell",
-    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-icon": "tdesign-miniprogram/icon/icon",
     "t-input": "tdesign-miniprogram/input/input",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
-    "t-progress": "tdesign-miniprogram/progress/progress",
-    "t-tag": "tdesign-miniprogram/tag/tag",
-    "t-icon": "tdesign-miniprogram/icon/icon",
-    "t-switch": "tdesign-miniprogram/switch/switch",
     "t-stepper": "tdesign-miniprogram/stepper/stepper",
-    "t-calendar": "tdesign-miniprogram/calendar/calendar",
     "t-picker": "tdesign-miniprogram/picker/picker",
-    "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
-    "t-popup": "tdesign-miniprogram/popup/popup",
-    "t-message": "tdesign-miniprogram/message/message",
-    "t-dialog": "tdesign-miniprogram/dialog/dialog",
-    "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet"
+    "t-picker-item": "tdesign-miniprogram/picker-item/picker-item"
   },
   "sitemapLocation": "sitemap.json"
 }

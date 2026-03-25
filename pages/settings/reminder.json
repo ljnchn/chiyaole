@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "提醒设置",
+  "usingComponents": {
+    "t-switch": "tdesign-miniprogram/switch/switch"
+  }
+}
