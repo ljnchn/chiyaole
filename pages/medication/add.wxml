@@ -1,2 +1,189 @@
 <!--pages/medication/add.wxml-->
-<text>pages/medication/add.wxml</text>
+<view class="container">
+  <!-- 预览卡片 -->
+  <view class="preview-card" style="background-color: {{color}}10;">
+    <view class="preview-icon" style="background-color: {{color}}20;">
+      <t-icon name="{{icon}}" size="64rpx" color="{{color}}" />
+    </view>
+    <text class="preview-name">{{name || '药品名称'}}</text>
+    <text class="preview-dosage">{{dosage || '剂量'}}</text>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="form-section">
+    <text class="section-title">基本信息</text>
+
+    <view class="form-item">
+      <text class="form-label">药品名称 *</text>
+      <t-input
+        placeholder="如：阿莫西林胶囊"
+        value="{{name}}"
+        bindchange="onNameInput"
+        borderless
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">每次剂量 *</text>
+      <t-input
+        placeholder="如：1粒、2片、5ml"
+        value="{{dosage}}"
+        bindchange="onDosageInput"
+        borderless
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">规格</text>
+      <t-input
+        placeholder="如：0.25g x 24粒"
+        value="{{specification}}"
+        bindchange="onSpecInput"
+        borderless
+      />
+    </view>
+  </view>
+
+  <!-- 图标选择 -->
+  <view class="form-section">
+    <text class="section-title">图标</text>
+    <view class="option-grid">
+      <view
+        wx:for="{{iconOptions}}"
+        wx:key="value"
+        class="icon-option {{icon === item.value ? 'active' : ''}}"
+        bindtap="onSelectIcon"
+        data-value="{{item.value}}"
+        style="border-color: {{icon === item.value ? color : 'transparent'}};"
+      >
+        <t-icon name="{{item.value}}" size="48rpx" color="{{icon === item.value ? color : '#999'}}" />
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 颜色选择 -->
+  <view class="form-section">
+    <text class="section-title">主题色</text>
+    <view class="color-grid">
+      <view
+        wx:for="{{colorOptions}}"
+        wx:key="value"
+        class="color-option {{color === item.value ? 'active' : ''}}"
+        bindtap="onSelectColor"
+        data-value="{{item.value}}"
+      >
+        <view class="color-circle" style="background-color: {{item.value}};"></view>
+        <view wx:if="{{color === item.value}}" class="color-check">
+          <t-icon name="check" size="24rpx" color="#ffffff" />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 库存管理 -->
+  <view class="form-section">
+    <text class="section-title">库存管理</text>
+
+    <view class="form-row">
+      <view class="form-row-item">
+        <text class="form-label">总量</text>
+        <t-stepper value="{{total}}" min="{{0}}" max="{{9999}}" theme="filled" bindchange="onTotalChange" />
+      </view>
+      <view class="form-row-item">
+        <text class="form-label">剩余</text>
+        <t-stepper value="{{remaining}}" min="{{0}}" max="{{total || 9999}}" theme="filled" bindchange="onRemainingChange" />
+      </view>
+    </view>
+
+    <view class="form-item" bindtap="onShowUnitPicker">
+      <text class="form-label">单位</text>
+      <view class="picker-value">
+        <text>{{unit}}</text>
+        <t-icon name="chevron-right" size="32rpx" color="#c4c4c9" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 服药时间 -->
+  <view class="form-section">
+    <text class="section-title">每日服药时间</text>
+
+    <view class="time-list">
+      <view wx:for="{{times}}" wx:key="index" class="time-tag">
+        <t-icon name="time" size="28rpx" color="{{color}}" />
+        <text>{{item}}</text>
+        <view class="time-remove" bindtap="onRemoveTime" data-index="{{index}}">
+          <t-icon name="close" size="24rpx" color="#999" />
+        </view>
+      </view>
+      <view class="time-add" bindtap="onAddTime">
+        <t-icon name="add" size="32rpx" color="{{color}}" />
+        <text style="color: {{color}};">添加时间</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 餐食关系 -->
+  <view class="form-section">
+    <text class="section-title">餐食关系</text>
+    <view class="food-options">
+      <view
+        wx:for="{{foodOptions}}"
+        wx:key="value"
+        class="food-option {{withFood === item.value ? 'active' : ''}}"
+        bindtap="onSelectFood"
+        data-value="{{item.value}}"
+        style="{{withFood === item.value ? 'background-color:' + color + '10; color:' + color + '; border-color:' + color : ''}}"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="form-section">
+    <text class="section-title">备注</text>
+    <t-textarea
+      placeholder="可选填写备注信息"
+      value="{{remark}}"
+      bindchange="onRemarkInput"
+      maxlength="{{200}}"
+      autosize
+      bordered="{{false}}"
+      t-class="textarea-field"
+    />
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-section">
+    <button class="btn-save" bindtap="onSave">保存药品</button>
+  </view>
+</view>
+
+<!-- 时间选择器 -->
+<t-picker
+  visible="{{showTimePicker}}"
+  title="选择时间"
+  cancelBtn="取消"
+  confirmBtn="确认"
+  value="{{['12', '00']}}"
+  bindconfirm="onTimePickerChange"
+  bindcancel="onTimePickerCancel"
+>
+  <t-picker-item options="{{['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']}}" />
+  <t-picker-item options="{{['00','05','10','15','20','25','30','35','40','45','50','55']}}" />
+</t-picker>
+
+<!-- 单位选择器 -->
+<t-picker
+  visible="{{showUnitPicker}}"
+  title="选择单位"
+  cancelBtn="取消"
+  confirmBtn="确认"
+  value="{{unitPickerValue}}"
+  bindconfirm="onUnitPickerConfirm"
+  bindcancel="onUnitPickerCancel"
+>
+  <t-picker-item options="{{unitOptions}}" />
+</t-picker>

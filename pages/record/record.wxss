@@ -13,7 +13,7 @@
   border-radius: 20rpx;
   padding: 32rpx;
   margin-bottom: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-primary);
 }
 
 .calendar-header {
@@ -35,31 +35,29 @@
 }
 
 .week-header {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
   margin-bottom: 16rpx;
 }
 
 .week-header text {
   font-size: 26rpx;
   color: var(--on_surface_variant);
-  width: 80rpx;
   text-align: center;
 }
 
 .calendar-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8rpx;
 }
 
 .calendar-day {
-  width: 80rpx;
-  height: 80rpx;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 8rpx 10rpx;
   border-radius: 16rpx;
   position: relative;
 }
@@ -93,6 +91,10 @@
   background-color: #006e28;
 }
 
+.status-dot.partial {
+  background-color: #ff9800;
+}
+
 .status-dot.missed {
   background-color: #e53935;
 }
@@ -120,6 +122,10 @@
 
 .legend-item .dot.taken {
   background-color: #006e28;
+}
+
+.legend-item .dot.partial {
+  background-color: #ff9800;
 }
 
 .legend-item .dot.missed {
@@ -199,6 +205,13 @@
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+}
+
+.empty-records {
+  text-align: center;
+  padding: 40rpx;
+  color: var(--on_surface_variant);
+  font-size: 26rpx;
 }
 
 .record-item {
@@ -324,11 +337,15 @@
 }
 
 .add-btn {
-  width: 64rpx;
-  height: 64rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.report-score {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
 }

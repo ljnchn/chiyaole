@@ -1,46 +1,23 @@
 // custom-tab-bar/index.js
 Component({
   data: {
-    selected: 0,
-    color: '#414755',
-    selectedColor: '#0058bc',
-    backgroundColor: '#ffffff',
+    value: 'index',
     list: [
-      {
-        pagePath: '/pages/index/index',
-        text: '今日提醒',
-        icon: 'home',
-        selectedIcon: 'home'
-      },
-      {
-        pagePath: '/pages/record/record',
-        text: '吃药记录',
-        icon: 'calendar',
-        selectedIcon: 'calendar'
-      },
-      {
-        pagePath: '/pages/medication/list',
-        text: '药品管理',
-        icon: 'pill',
-        selectedIcon: 'pill'
-      },
-      {
-        pagePath: '/pages/user/user',
-        text: '个人中心',
-        icon: 'user',
-        selectedIcon: 'user'
-      }
+      { value: 'index', label: '今日提醒', icon: 'home', path: '/pages/index/index' },
+      { value: 'record', label: '吃药记录', icon: 'calendar', path: '/pages/record/record' },
+      { value: 'medication', label: '药品管理', icon: 'pill', path: '/pages/medication/list' },
+      { value: 'user', label: '个人中心', icon: 'user', path: '/pages/user/user' }
     ]
   },
 
   methods: {
-    switchTab(e) {
-      const data = e.currentTarget.dataset
-      const url = data.path
-      wx.switchTab({ url })
-      this.setData({
-        selected: data.index
-      })
+    onChange(e) {
+      const value = e.detail.value
+      const item = this.data.list.find(i => i.value === value)
+      if (item) {
+        wx.switchTab({ url: item.path })
+      }
+      this.setData({ value })
     }
   }
 })

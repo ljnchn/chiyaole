@@ -1,5 +1,7 @@
 {
   "usingComponents": {},
   "navigationBarTitleText": "今日提醒",
-  "navigationBarBackgroundColor": "#f9f9fe"
+  "navigationBarBackgroundColor": "#f9f9fe",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }

@@ -30,7 +30,11 @@
     <view class="legend">
       <view class="legend-item">
         <view class="dot taken"></view>
-        <text>已服药</text>
+        <text>已完成</text>
+      </view>
+      <view class="legend-item">
+        <view class="dot partial"></view>
+        <text>部分完成</text>
       </view>
       <view class="legend-item">
         <view class="dot missed"></view>
@@ -65,6 +69,11 @@
     </view>
 
     <view class="record-list">
+      <!-- 空态 -->
+      <view wx:if="{{records.length === 0}}" class="empty-records">
+        <text>该日暂无用药记录</text>
+      </view>
+
       <view
         wx:for="{{records}}"
         wx:key="id"
@@ -91,14 +100,12 @@
   <!-- Health Report Card -->
   <view class="report-card">
     <text class="report-title">健康分析报告</text>
-    <text class="report-desc">您的服药规律性极佳，请继续保持良好的生活习惯。</text>
+    <text class="report-desc">{{compliance >= 80 ? '您的服药规律性极佳，请继续保持良好的生活习惯。' : compliance >= 50 ? '您的服药规律性一般，建议设置提醒帮助坚持。' : '您的服药规律性较低，请注意按时服药。'}}</text>
     <view class="report-progress">
       <view class="progress-track">
-        <view class="progress-fill" style="width: 85%;"></view>
+        <view class="progress-fill" style="width: {{compliance}}%;"></view>
       </view>
-      <view class="add-btn">
-        <t-icon name="add" size="32rpx" color="#ffffff" />
-      </view>
+      <text class="report-score">{{compliance}}%</text>
     </view>
   </view>
 </view>

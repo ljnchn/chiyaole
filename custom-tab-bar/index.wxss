@@ -1,53 +1,9 @@
 /* custom-tab-bar/index.wxss */
 
-.tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(100rpx + env(safe-area-inset-bottom));
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  padding-top: 12rpx;
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
-  z-index: 9999;
-}
-
-.tab-bar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100rpx;
-  flex: 1;
-}
-
-.tab-icon {
-  width: 48rpx;
-  height: 48rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8rpx;
-}
-
-.tab-text {
-  font-size: 22rpx;
-  line-height: 1;
-  font-weight: 500;
-}
-
-.tab-bar-item.active .tab-icon {
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
-}
-
-.safe-area-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-bottom);
-  background-color: inherit;
+:host {
+  --td-tab-bar-active-color: #0058bc;
+  --td-tab-bar-default-color: #414755;
+  --td-tab-bar-bg-color: #ffffff;
+  --td-tab-bar-border-color: transparent;
+  --td-tab-bar-round-shadow: none;
 }

@@ -1,75 +1,66 @@
 // pages/record/record.js
+const medicationService = require('../../utils/medicationService')
+const checkinService = require('../../utils/checkinService')
+
 Page({
   data: {
-    currentYear: 2023,
-    currentMonth: 10,
+    currentYear: 0,
+    currentMonth: 0,
     weekDays: ['日', '一', '二', '三', '四', '五', '六'],
     calendarDays: [],
-    selectedDate: 10,
-    streakDays: 12,
-    compliance: 94,
-    records: [
-      {
-        id: 1,
-        name: '阿司匹林',
-        dosage: '100mg',
-        time: '08:00',
-        status: 'taken',
-        icon: 'pill',
-        color: '#0058bc'
-      },
-      {
-        id: 2,
-        name: '维生素 C',
-        dosage: '500mg',
-        time: '昨日 09:30',
-        status: 'taken',
-        icon: 'capsule',
-        color: '#006e28'
-      },
-      {
-        id: 3,
-        name: '降压灵',
-        dosage: '1片',
-        time: '昨日 20:00',
-        status: 'missed',
-        icon: 'tablet',
-        color: '#e53935',
-        warning: '漏服记录 - 建议咨询医生'
-      },
-      {
-        id: 4,
-        name: '辅酶 Q10',
-        dosage: '100mg',
-        time: '10月8日 12:00',
-        status: 'taken',
-        icon: 'capsule',
-        color: '#4c4aca'
-      }
-    ]
+    selectedDate: 0,
+    streakDays: 0,
+    compliance: 0,
+    records: []
   },
 
   onLoad() {
-    this.generateCalendar()
+    const now = new Date()
+    this.setData({
+      currentYear: now.getFullYear(),
+      currentMonth: now.getMonth() + 1,
+      selectedDate: now.getDate()
+    }, () => {
+      this.loadData()
+    })
   },
 
   onShow() {
+    this.loadData()
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({
-        selected: 1
-      })
+      this.getTabBar().setData({ value: 'record' })
     }
   },
 
-  generateCalendar() {
-    const { currentYear, currentMonth } = this.data
+  /**
+   * 加载日历和记录数据
+   */
+  loadData() {
+    const activeMeds = medicationService.getActive()
+    this.generateCalendar(activeMeds)
+    this.loadSelectedDateRecords(activeMeds)
+
+    const streak = checkinService.getStreak()
+    const compliance = checkinService.getComplianceRate(30, activeMeds)
+
+    this.setData({ streakDays: streak, compliance })
+  },
+
+  /**
+   * 生成日历数据
+   */
+  generateCalendar(activeMeds) {
+    const { currentYear, currentMonth, selectedDate } = this.data
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
     const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay()
+
+    // 获取本月打卡状态
+    const monthlyStatus = checkinService.getMonthlyStatus(currentYear, currentMonth, activeMeds || medicationService.getActive())
 
     const calendarDays = []
     const prevMonthDays = new Date(currentYear, currentMonth - 1, 0).getDate()
 
-    // Previous month padding
+    // 上月补位
     for (let i = firstDay - 1; i >= 0; i--) {
       calendarDays.push({
         day: prevMonthDays - i,
@@ -78,32 +69,65 @@ Page({
       })
     }
 
-    // Current month
-    const takenDays = [2, 3, 5, 6, 8, 9, 10]
-    const missedDays = [4]
-
+    // 本月
     for (let i = 1; i <= daysInMonth; i++) {
-      let status = null
-      if (takenDays.includes(i)) status = 'taken'
-      if (missedDays.includes(i)) status = 'missed'
-
+      const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`
       calendarDays.push({
         day: i,
         currentMonth: true,
-        status,
-        selected: i === this.data.selectedDate
+        status: monthlyStatus[dateStr] || null,
+        selected: i === selectedDate
       })
     }
 
     this.setData({ calendarDays })
   },
 
+  /**
+   * 加载选中日期的打卡记录
+   */
+  loadSelectedDateRecords(activeMeds) {
+    const { currentYear, currentMonth, selectedDate } = this.data
+    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+
+    const dayCheckins = checkinService.getByDate(dateStr)
+    const medications = activeMeds || medicationService.getActive()
+
+    // 组合药品信息和打卡记录
+    const records = []
+    medications.forEach(med => {
+      const times = med.times || ['']
+      times.forEach(time => {
+        const checkin = dayCheckins.find(
+          c => c.medicationId === med.id && c.scheduledTime === time
+        )
+        records.push({
+          id: checkin ? checkin.id : `${med.id}_${time}_pending`,
+          name: med.name,
+          dosage: med.dosage,
+          time: time || '未设定',
+          status: checkin ? checkin.status : 'pending',
+          icon: med.icon,
+          color: med.color,
+          warning: checkin && checkin.status === 'missed' ? '漏服记录 - 建议咨询医生' : ''
+        })
+      })
+    })
+
+    // 按时间排序
+    records.sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+
+    this.setData({ records })
+  },
+
   onSelectDate(e) {
     const { day } = e.currentTarget.dataset
     if (!day.currentMonth) return
 
-    this.setData({ selectedDate: day.day })
-    this.generateCalendar()
+    this.setData({ selectedDate: day.day }, () => {
+      this.generateCalendar()
+      this.loadSelectedDateRecords()
+    })
   },
 
   onPrevMonth() {
@@ -113,8 +137,8 @@ Page({
       currentMonth = 12
       currentYear--
     }
-    this.setData({ currentYear, currentMonth }, () => {
-      this.generateCalendar()
+    this.setData({ currentYear, currentMonth, selectedDate: 1 }, () => {
+      this.loadData()
     })
   },
 
@@ -125,22 +149,16 @@ Page({
       currentMonth = 1
       currentYear++
     }
-    this.setData({ currentYear, currentMonth }, () => {
-      this.generateCalendar()
+    this.setData({ currentYear, currentMonth, selectedDate: 1 }, () => {
+      this.loadData()
     })
   },
 
   onMakeup(e) {
-    wx.showToast({
-      title: '补录功能开发中',
-      icon: 'none'
-    })
+    wx.showToast({ title: '补录功能开发中', icon: 'none' })
   },
 
   onViewMore() {
-    wx.showToast({
-      title: '查看更多',
-      icon: 'none'
-    })
+    wx.showToast({ title: '查看更多', icon: 'none' })
   }
 })

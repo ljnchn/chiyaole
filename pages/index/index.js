@@ -1,66 +1,103 @@
 // pages/index/index.js
+const medicationService = require('../../utils/medicationService')
+const checkinService = require('../../utils/checkinService')
+const storage = require('../../utils/storage')
+
 Page({
   data: {
-    userName: '小明',
     currentDate: '',
     weekDay: '',
-    progress: 75,
-    completedCount: 3,
-    totalCount: 4,
-    streakDays: 12,
-    todayMedications: [
-      {
-        id: 1,
-        name: '阿司匹林',
-        dosage: '100mg',
-        time: '08:00',
-        taken: true,
-        icon: 'pill',
-        color: '#0058bc'
-      },
-      {
-        id: 2,
-        name: '维生素 C',
-        dosage: '500mg',
-        time: '12:30',
-        taken: true,
-        icon: 'capsule',
-        color: '#006e28'
-      },
-      {
-        id: 3,
-        name: '降压灵',
-        dosage: '1片',
-        time: '20:00',
-        taken: false,
-        icon: 'tablet',
-        color: '#e53935',
-        urgent: true
-      },
-      {
-        id: 4,
-        name: '辅酶 Q10',
-        dosage: '100mg',
-        time: '21:00',
-        taken: false,
-        icon: 'capsule',
-        color: '#4c4aca'
-      }
-    ]
+    streakDays: 0,
+    progress: 0,
+    completedCount: 0,
+    totalCount: 0,
+    todayMedications: []
   },
 
   onLoad() {
     this.updateDate()
-    this.updateProgress()
   },
 
   onShow() {
     this.updateDate()
+    this.loadTodayData()
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({
-        selected: 0
-      })
+      this.getTabBar().setData({ value: 'index' })
     }
+  },
+
+  /**
+   * 加载今日数据：活跃药品 + 时间点 → 今日待办列表 → 比对打卡记录
+   */
+  loadTodayData() {
+    const medications = medicationService.getActive()
+    const todayCheckins = checkinService.getTodayCheckins()
+    const todayStr = storage.today()
+
+    // 将每个药品的每个时间点展开为独立的待办项
+    const todayMedications = []
+    medications.forEach(med => {
+      const times = med.times || []
+      if (times.length === 0) {
+        // 没有设定时间的药品，显示一条不带时间的
+        const existing = checkinService.findCheckin(med.id, todayStr, '')
+        todayMedications.push({
+          id: med.id,
+          medicationId: med.id,
+          name: med.name,
+          dosage: med.dosage,
+          time: '',
+          scheduledTime: '',
+          taken: existing ? existing.status === 'taken' : false,
+          icon: med.icon,
+          color: med.color,
+          urgent: false
+        })
+        return
+      }
+
+      times.forEach(time => {
+        const existing = checkinService.findCheckin(med.id, todayStr, time)
+        const taken = existing ? existing.status === 'taken' : false
+
+        // 判断是否紧急：未服用且当前时间已过计划时间
+        let urgent = false
+        if (!taken) {
+          const now = storage.formatTime(new Date())
+          urgent = now > time
+        }
+
+        todayMedications.push({
+          id: `${med.id}_${time}`,
+          medicationId: med.id,
+          name: med.name,
+          dosage: med.dosage,
+          time: time,
+          scheduledTime: time,
+          taken,
+          icon: med.icon,
+          color: med.color,
+          urgent
+        })
+      })
+    })
+
+    // 按时间排序
+    todayMedications.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
+
+    // 计算进度
+    const total = todayMedications.length
+    const completed = todayMedications.filter(m => m.taken).length
+    const progress = total > 0 ? Math.round((completed / total) * 100) : 0
+    const streak = checkinService.getStreak()
+
+    this.setData({
+      todayMedications,
+      totalCount: total,
+      completedCount: completed,
+      progress,
+      streakDays: streak
+    })
   },
 
   updateDate() {
@@ -76,60 +113,48 @@ Page({
     })
   },
 
-  updateProgress() {
-    const { todayMedications } = this.data
-    const taken = todayMedications.filter(m => m.taken).length
-    const total = todayMedications.length
-    const progress = total > 0 ? Math.round((taken / total) * 100) : 0
-
-    this.setData({
-      progress,
-      completedCount: taken,
-      totalCount: total
-    })
-  },
-
+  /**
+   * 打卡：点击药品项
+   */
   onCheckIn(e) {
     const { id } = e.currentTarget.dataset
-    const { todayMedications } = this.data
-    const medication = todayMedications.find(m => m.id === id)
+    const item = this.data.todayMedications.find(m => m.id === id)
+    if (!item) return
 
-    if (medication.taken) {
-      wx.showToast({
-        title: '已经打卡过了',
-        icon: 'none'
-      })
+    if (item.taken) {
+      wx.showToast({ title: '已经打卡过了', icon: 'none' })
       return
     }
 
-    // Update taken status
-    const updatedMedications = todayMedications.map(m => {
-      if (m.id === id) {
-        return { ...m, taken: true }
-      }
-      return m
+    // 写入打卡记录
+    checkinService.add({
+      medicationId: item.medicationId,
+      date: storage.today(),
+      scheduledTime: item.scheduledTime,
+      actualTime: storage.formatTime(new Date()),
+      status: 'taken',
+      dosage: item.dosage
     })
 
-    this.setData({
-      todayMedications: updatedMedications
-    }, () => {
-      this.updateProgress()
-      wx.showToast({
-        title: '打卡成功',
-        icon: 'success'
-      })
-    })
+    // 扣减库存
+    medicationService.updateStock(item.medicationId, -1)
+
+    wx.showToast({ title: '打卡成功', icon: 'success' })
+
+    // 刷新数据
+    this.loadTodayData()
   },
 
   onAddMedication() {
-    wx.navigateTo({
-      url: '/pages/medication/add'
-    })
+    wx.navigateTo({ url: '/pages/medication/add' })
   },
 
   onViewAll() {
-    wx.switchTab({
-      url: '/pages/record/record'
-    })
+    wx.switchTab({ url: '/pages/record/record' })
+  },
+
+  onPullDownRefresh() {
+    this.loadTodayData()
+    wx.stopPullDownRefresh()
   }
 })

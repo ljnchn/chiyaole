@@ -1,13 +1,11 @@
 // pages/user/user.js
+const userService = require('../../utils/userService')
+const checkinService = require('../../utils/checkinService')
+const medicationService = require('../../utils/medicationService')
+
 Page({
   data: {
-    userInfo: {
-      nickName: '林静雅',
-      avatarUrl: '',
-      healthScore: 98,
-      joinDays: 126,
-      status: '健康守护中'
-    },
+    userInfo: {},
     settings: [
       {
         id: 'reminder',
@@ -38,7 +36,7 @@ Page({
         icon: 'info-circle',
         iconColor: '#666',
         title: '关于',
-        desc: '版本 v2.4.0 (Build 2024)',
+        desc: '版本 v1.0.0',
         value: ''
       }
     ]
@@ -49,18 +47,30 @@ Page({
   },
 
   onShow() {
+    this.loadUserInfo()
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({
-        selected: 3
-      })
+      this.getTabBar().setData({ value: 'user' })
     }
   },
 
   loadUserInfo() {
-    const userInfo = wx.getStorageSync('userInfo')
-    if (userInfo) {
-      this.setData({ userInfo })
-    }
+    const user = userService.get()
+
+    // 计算并更新健康分
+    const activeMeds = medicationService.getActive()
+    const compliance = checkinService.getComplianceRate(7, activeMeds)
+    userService.updateHealthScore(compliance)
+
+    const updatedUser = userService.get()
+    this.setData({
+      userInfo: {
+        nickName: updatedUser.nickName,
+        avatarUrl: updatedUser.avatarUrl,
+        healthScore: updatedUser.healthScore,
+        joinDays: updatedUser.joinDays,
+        status: updatedUser.healthScore >= 80 ? '健康守护中' : '需要更加坚持'
+      }
+    })
   },
 
   onSettingTap(e) {
@@ -73,29 +83,23 @@ Page({
     }
 
     if (settingMap[id]) {
-      wx.navigateTo({
-        url: settingMap[id]
-      })
+      wx.navigateTo({ url: settingMap[id] })
     }
   },
 
   onEditProfile() {
-    wx.navigateTo({
-      url: '/pages/user/profile'
-    })
+    wx.navigateTo({ url: '/pages/user/profile' })
   },
 
   onLogout() {
     wx.showModal({
       title: '提示',
-      content: '确定要退出登录吗？',
+      content: '确定要退出登录吗？将清除所有本地数据。',
       success: (res) => {
         if (res.confirm) {
-          wx.clearStorage()
-          wx.showToast({
-            title: '已退出登录',
-            icon: 'success'
-          })
+          userService.clear()
+          wx.showToast({ title: '已退出登录', icon: 'success' })
+          this.loadUserInfo()
         }
       }
     })

@@ -36,6 +36,13 @@
     </view>
 
     <view class="medication-list">
+      <!-- 空态 -->
+      <view wx:if="{{todayMedications.length === 0}}" class="empty-state">
+        <t-icon name="calendar" size="96rpx" color="#c4c4c9" />
+        <text class="empty-title">今日暂无用药计划</text>
+        <text class="empty-desc">点击下方按钮添加药品，开始健康管理</text>
+      </view>
+
       <view
         wx:for="{{todayMedications}}"
         wx:key="id"

@@ -1,214 +1,441 @@
-Excellent! As a Product Manager, I've designed a comprehensive Project PRD (Product Requirements Document) / Brief template that you can fill out with your specific context.
+# 吃药么 (chiyaome) - 产品需求文档 (PRD)
 
-This template is structured to be adaptable:
-
-*   **For a Brief:** Focus on filling out the `Executive Summary`, `Problem Statement`, `Goals`, `Target Audience`, and `High-Level Features`.
-*   **For a Full PRD:** Elaborate on *all* sections, especially `Detailed Requirements`, `Technical Considerations`, `UX/Design`, `Dependencies`, and `Success Metrics`.
-
----
-
-## [Project Name] - Product Requirements Document (PRD) / Project Brief
-
-**Document Version:** 1.0
-**Date:** [Current Date]
-**Author(s):** [Your Name/Team]
-**Status:** [Draft / Under Review / Approved / Archived]
+**版本:** 1.0
+**日期:** 2026-03-25
+**状态:** 开发中 (Phase 1 已完成)
 
 ---
 
-### 1. Document Control & Approvals
+## 1. 产品概述
 
-| Role                | Name         | Date Approved | Signature (if physical) |
-| :------------------ | :----------- | :------------ | :---------------------- |
-| Product Manager     | [Your Name]  |               |                         |
-| Engineering Lead    | [Lead's Name]|               |                         |
-| Design Lead         | [Lead's Name]|               |                         |
-| Marketing Lead      | [Lead's Name]|               |                         |
-| Stakeholder/Sponsor | [Sponsor's Name]|               |                         |
+**产品名称：** 吃药么 (chiyaome)
+**产品类型：** 微信小程序
+**一句话描述：** 一款高端杂志风格的用药管理小程序，帮助用户规律服药、追踪记录、管理药品库存。
 
----
+### 核心价值
 
-### 2. Executive Summary
+| 用户痛点 | 解决方案 |
+|----------|---------|
+| 忘记吃药、漏服 | 多时段提醒 + 一键打卡 |
+| 不知道药吃了没 | 日历视图 + 完成进度 |
+| 药品库存不清楚 | 库存追踪 + 告急提醒 |
+| 医疗 App 冰冷压抑 | 杂志风设计，温馨体验 |
 
-*   **Briefly describe the project, its main purpose, and the key problem it solves.**
-*   **What is the core value proposition?**
-*   **What is the expected outcome or impact?**
+### 目标用户
 
-*(Example: "This project aims to develop a new 'Personalized Recipe Recommendation Engine' for our food delivery app. Its primary goal is to increase user engagement and order frequency by offering tailored meal suggestions based on past orders, dietary preferences, and real-time trends. We anticipate a 10% uplift in weekly active users and a 5% increase in average order value within 3 months post-launch.")*
-
----
-
-### 3. Problem Statement & Opportunity
-
-*   **What specific pain point, challenge, or unmet need does this project address for our users or business?**
-*   **Provide evidence or data supporting the existence of this problem.**
-*   **What is the size or scale of this problem/opportunity?**
-
-*(Example: "Users often experience decision fatigue when choosing meals, leading to cart abandonment or ordering the same items repeatedly. Our current recommendation system is generic and doesn't leverage individual user data effectively. Market research shows that personalized experiences increase customer loyalty by up to 20%, and a significant portion of our user base (40%) has expressed a desire for more tailored suggestions.")*
+- 需要长期/定期服药的慢性病患者
+- 帮家人（老人/儿童）管理用药的家属
+- 短期用药（感冒、术后恢复等）需要按时提醒的普通用户
 
 ---
 
-### 4. Goals & Objectives
+## 2. 功能模块总览
 
-*   **What measurable outcomes do we expect this project to achieve?**
-*   **Define SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound).**
-*   **How does this project align with our broader company vision or OKRs?**
+| # | 模块 | 优先级 | 状态 | 页面数 |
+|---|------|--------|------|--------|
+| M1 | 首页（今日提醒） | P0 | **已完成 UI** | 1 |
+| M2 | 药品管理 | P0 | **部分完成** | 4 |
+| M3 | 打卡与记录 | P0 | **已完成 UI** | 1+2 |
+| M4 | 服药计划 | P1 | 未开始 | 2 |
+| M5 | 提醒与通知 | P1 | 未开始 | 1 |
+| M6 | 统计与洞察 | P2 | 未开始 | 2 |
+| M7 | 用户与设置 | P2 | **已完成 UI** | 4 |
 
-*(Example:)*
-*   *Increase average order frequency by 15% within 6 months post-launch.*
-*   *Improve user satisfaction score (CSAT) related to meal discovery by 10 points within 3 months.*
-*   *Reduce cart abandonment rate by 5% for users who interact with the recommendation engine.*
-*   *Grow the number of unique items ordered per user by 20% within the first year.*
-
----
-
-### 5. Target Audience
-
-*   **Who are the primary users or beneficiaries of this project?**
-*   **Describe their characteristics, needs, behaviors, and pain points relevant to this project.**
-*   **Are there any secondary target audiences?**
-
-*(Example: "Our primary target audience includes existing active users of our food delivery app, particularly those who order 2-4 times a week and have diverse culinary interests but struggle with choice. They are tech-savvy, value convenience, and are open to trying new dishes if recommended appropriately. Secondary audience might include new users looking for a curated onboarding experience.")*
+> **状态说明：** "已完成 UI" 表示页面布局和交互已实现，但使用硬编码 mock 数据，尚未接入真实数据层。
 
 ---
 
-### 6. Scope (In-Scope & Out-of-Scope)
+## 3. 功能模块详细需求
 
-*   **Clearly define what features and functionalities ARE included in this project (V1).**
-*   **Equally important, specify what IS NOT included to manage expectations and prevent scope creep.**
+### M1 - 首页（今日提醒）
 
-*(Example:)*
-**In-Scope (V1):**
-*   *Algorithm to suggest 5 personalized recipes on the app's homepage based on past order history and stated preferences.*
-*   *Ability for users to 'like' or 'dislike' recommended recipes to refine future suggestions.*
-*   *Integration with existing ordering flow for recommended recipes.*
-*   *Basic A/B testing framework to evaluate algorithm performance.*
+**页面：** `pages/index/index`
+**Tab 位置：** 第 1 个 (value: `'index'`)
 
-**Out-of-Scope (V1):**
-*   *Real-time recommendations based on inventory levels or weather.*
-*   *Social sharing features for recommended recipes.*
-*   *Recipe ingredient shopping lists or meal kit integration.*
-*   *Recommendations for non-food items (e.g., drinks, desserts, grocery).*
-*   *Integration with third-party fitness trackers or health apps.*
+#### 功能清单
 
----
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M1-01 | 日期显示 | 顶部展示当前日期和星期 | 已完成 |
+| M1-02 | 连续打卡徽章 | 显示连续打卡天数（火焰图标） | 已完成 |
+| M1-03 | 今日进度卡片 | 圆形进度环，展示 已完成/总数 和百分比 | 已完成 |
+| M1-04 | 今日用药列表 | 展示今日所有待服药品，含名称、剂量、时间 | 已完成 |
+| M1-05 | 一键打卡 | 点击药品项标记为已服用，更新进度 | 已完成 |
+| M1-06 | 紧急标记 | 未服用且时间已过的药品高亮提示 | 已完成 |
+| M1-07 | 快速添加药品 | 底部按钮跳转至添加药品页 | 已完成 |
+| M1-08 | 查看全部记录 | 跳转至吃药记录 Tab | 已完成 |
 
-### 7. Key Features & Functionality (High-Level)
+#### 数据依赖
 
-*   **List the main features that will be delivered. Provide a brief description of each.**
-*   **These can be user-facing or backend capabilities.**
-
-*(Example:)*
-*   **Personalized Homepage Feed:** Users see a dynamic feed of 5-7 recipe recommendations on app launch.
-*   **Preference Management:** Users can explicitly state dietary restrictions (e.g., vegetarian, gluten-free) and cuisine preferences.
-*   **Feedback Mechanism:** Thumbs-up/down buttons on each recommendation to provide implicit feedback.
-*   **Recommendation Engine Backend:** A scalable service to process user data and generate suggestions.
-*   **Performance Analytics:** Dashboard to track recommendation effectiveness (clicks, orders, skips).
+- 今日用药列表来源：Schedule（服药计划）按当日筛选
+- 打卡状态来源：CheckIn（打卡记录）按当日匹配
+- 连续天数：需计算逻辑（目前 mock 为 12）
 
 ---
 
-### 8. Detailed Requirements (For PRD: Elaborate with User Stories & Acceptance Criteria)
+### M2 - 药品管理
 
-*   **For each key feature, break it down into more granular requirements.**
-*   **User Stories (As a [User Role], I want to [Action], so that [Benefit]):**
-    *   *As a regular user, I want to see recipe recommendations tailored to my past orders, so I can discover new dishes I'm likely to enjoy.*
-    *   *As a new user, I want to be prompted to select my dietary preferences, so the recommendations I see are immediately relevant.*
-    *   *As a product manager, I want to track which recommendations lead to orders, so I can optimize the algorithm.*
-*   **Acceptance Criteria (Given [context], when [action], then [outcome]):**
-    *   *Given a user has ordered chicken pad thai and tom yum soup multiple times, when they open the app, then the recommendation engine should suggest similar Thai or Southeast Asian dishes.*
-    *   *Given a user has indicated they are vegetarian, when they view recommendations, then no meat-based dishes should be displayed.*
+**Tab 位置：** 第 3 个 (value: `'medication'`)
 
----
+#### 页面与功能
 
-### 9. User Experience (UX) & Design Considerations
+**M2-A 药品列表** `pages/medication/list` — **已完成 UI**
 
-*   **What is the desired user experience? (e.g., intuitive, delightful, efficient)**
-*   **Are there any specific design principles, brand guidelines, or accessibility requirements?**
-*   **Key wireframes, mockups, or prototypes (reference links).**
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M2-01 | 药品卡片列表 | 展示所有药品，含名称、规格、库存进度 | 已完成 |
+| M2-02 | 库存告急标记 | 剩余量低于 20% 时显示红色告急标签 | 已完成 |
+| M2-03 | 库存统计 | 顶部显示药品总数和告急数量 | 已完成 |
+| M2-04 | 点击查看详情 | 跳转至药品详情页 | 已完成(跳转) |
+| M2-05 | 添加药品入口 | 浮动按钮跳转至添加页 | 已完成 |
+| M2-06 | 状态筛选 | 按「服用中/已暂停/已完结」筛选 | 未开始 |
 
-*(Example: "The recommendation UI should feel seamless and native to the existing app design. Visuals for recipes must be high-quality and enticing. Interactions (like/dislike) should be clear and provide immediate feedback. Ensure compliance with WCAG 2.1 AA for accessibility regarding contrast and screen reader support. Refer to Figma link: [link to Figma prototype]")*
+**M2-B 添加药品** `pages/medication/add` — **未实现（空页面）**
 
----
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M2-07 | 药品名称输入 | 文本输入，必填 | 未开始 |
+| M2-08 | 剂量设置 | 每次用量 + 单位选择（片/粒/ml/喷） | 未开始 |
+| M2-09 | 规格录入 | 包装规格（如 0.25g x 24粒） | 未开始 |
+| M2-10 | 图标与颜色 | 选择药品图标类型和主题色 | 未开始 |
+| M2-11 | 库存初始化 | 设定初始库存量和总量 | 未开始 |
+| M2-12 | 备注 | 可选备注文本 | 未开始 |
+| M2-13 | 保存至本地 | `wx.setStorageSync` 存储 | 未开始 |
 
-### 10. Technical Considerations
+**M2-C 药品详情** `pages/medication/detail` — **页面未创建**
 
-*   **Key architectural decisions or constraints (e.g., microservices, cloud platform, specific programming languages).**
-*   **Any significant integrations with existing systems or third-party APIs.**
-*   **Performance, scalability, security requirements.**
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M2-14 | 药品信息展示 | 名称、规格、剂量、备注 | 未开始 |
+| M2-15 | 库存进度 | 可视化剩余量 | 未开始 |
+| M2-16 | 服用记录 | 该药品的打卡历史 | 未开始 |
+| M2-17 | 编辑药品 | 跳转编辑页 | 未开始 |
+| M2-18 | 暂停/恢复 | 切换药品 active/paused 状态 | 未开始 |
+| M2-19 | 删除药品 | 二次确认后删除 | 未开始 |
 
-*(Example: "The recommendation engine will be built as a new microservice using Python and hosted on AWS Lambda. It will integrate with our existing user profile service and order history database. Data processing for recommendations must occur within 200ms. All PII data handled by the engine must be encrypted both in transit and at rest, adhering to GDPR standards. API endpoints need robust rate limiting.")*
+**M2-D 编辑药品** `pages/medication/edit` — **页面未创建**
 
----
-
-### 11. Success Metrics & KPIs
-
-*   **How will we measure the success of this project? (Directly tied to Goals).**
-*   **Define specific Key Performance Indicators (KPIs) and how they will be tracked.**
-
-*(Example:)*
-*   ***Primary KPI:** % increase in average weekly order frequency per user (tracked via Amplitude).*
-*   ***Secondary KPIs:***
-    *   *% of users interacting with the recommendation feed (clicks, swipes).*
-    *   *Conversion rate from recommendation click to order completion.*
-    *   *Average order value for orders originating from recommendations.*
-    *   *User satisfaction scores from in-app surveys related to discovery.*
-    *   *Churn rate reduction for active users.*
-
----
-
-### 12. Release Plan & Timeline (High-Level)
-
-*   **Proposed phases for rollout (e.g., internal testing, beta, staggered release, full launch).**
-*   **Key milestones and target dates (high-level, detailed project plans will be separate).**
-
-*(Example:)*
-*   ***Phase 1 (Alpha):** Internal testing with employees - Month 1*
-*   ***Phase 2 (Beta):** Limited release to 5% of active users - Month 2-3*
-*   ***Phase 3 (Full Launch):** Gradual rollout to 100% of users - Month 4*
-*   ***Target GA Date:** [Date]*
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M2-20 | 预填表单 | 加载已有药品数据 | 未开始 |
+| M2-21 | 更新保存 | 覆盖 Storage 中的药品数据 | 未开始 |
 
 ---
 
-### 13. Dependencies, Assumptions & Risks
+### M3 - 打卡与记录
 
-*   **What other projects, teams, or resources is this project reliant upon?**
-*   **What critical assumptions are we making? (e.g., data availability, resource allocation).**
-*   **What are the potential risks to achieving our goals, and how might we mitigate them?**
+**Tab 位置：** 第 2 个 (value: `'record'`)
 
-*(Example:)*
-*   **Dependencies:**
-    *   *Availability of dedicated Data Science resources for algorithm refinement.*
-    *   *Completion of the user profile service update by the Platform team.*
-    *   *Marketing team bandwidth for launch communication.*
-*   **Assumptions:**
-    *   *Existing user order history data is sufficiently rich and accurate for effective personalization.*
-    *   *Users are willing to provide feedback on recommendations.*
-    *   *Performance of the new microservice will meet latency targets.*
-*   **Risks & Mitigation:**
-    *   *Risk: Algorithm provides irrelevant recommendations, leading to user dissatisfaction.*
-        *   *Mitigation: Implement extensive A/B testing, gather early user feedback during beta, constant algorithm monitoring and refinement by Data Science.*
-    *   *Risk: Technical integration challenges with existing legacy systems.*
-        *   *Mitigation: Early engagement with relevant engineering teams, dedicated integration testing environment.*
-    *   *Risk: Scope creep during development.*
-        *   *Mitigation: Strict adherence to defined in/out of scope, clear change request process.*
+**M3-A 吃药记录** `pages/record/record` — **已完成 UI**
 
----
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M3-01 | 月度日历视图 | 按月展示，每日标注「已服/漏服/无任务」 | 已完成 |
+| M3-02 | 月份切换 | 左右箭头切换上/下月 | 已完成 |
+| M3-03 | 日期选择 | 点击具体日期查看当日记录 | 已完成 |
+| M3-04 | 当日记录列表 | 展示选中日期的药品服用记录 | 已完成 |
+| M3-05 | 连续打卡天数 | 统计卡片展示 | 已完成 |
+| M3-06 | 依从率 | 统计卡片展示服药合规百分比 | 已完成 |
+| M3-07 | 漏服警告 | 漏服记录附带「建议咨询医生」提示 | 已完成 |
+| M3-08 | 补打卡 | 对历史漏服记录进行补录 | 未实现(占位) |
 
-### 14. Open Questions & Future Considerations
+**M3-B 打卡日历** `pages/checkin/calendar` — **页面未创建**
 
-*   **What remains undecided or needs further investigation?**
-*   **What are potential future enhancements or V2 features that are explicitly out of scope for V1 but worth noting?**
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M3-09 | 全屏日历 | 更详细的月/周视图 | 未开始 |
+| M3-10 | 热力图模式 | 用颜色深浅表示当日完成度 | 未开始 |
 
-*(Example:)*
-*   **Open Questions:**
-    *   *How will we handle cold-start problem for new users with no order history? (Initial thought: generic popular items + preference selection).*
-    *   *What is the ideal number of recommendations to display on the homepage? (To be determined by A/B test).*
-*   **Future Considerations (V2+):**
-    *   *Real-time recommendations based on time of day, weather, or current restaurant promotions.*
-    *   *Integrate 'shop by ingredient' or 'meal plan' features.*
-    *   *Expand recommendations to include complementary items (e.g., drinks with a meal).*
-    *   *Social sharing of favorite recipes.*
+**M3-C 打卡历史** `pages/checkin/history` — **页面未创建**
+
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M3-11 | 时间线列表 | 按时间倒序展示所有打卡记录 | 未开始 |
+| M3-12 | 筛选 | 按药品/状态筛选 | 未开始 |
 
 ---
 
-**Remember to fill this out with as much detail as your context allows! The more thorough you are, the clearer the project will be for everyone involved.**
+### M4 - 服药计划
+
+**优先级：P1 — 页面均未创建**
+
+**M4-A 添加计划** `pages/schedule/add`
+
+| ID | 功能 | 描述 |
+|----|------|------|
+| M4-01 | 关联药品 | 从已有药品中选择 |
+| M4-02 | 服药时间 | 设置每日服药时间点（支持多个） |
+| M4-03 | 每次剂量 | 设定该时间点的剂量 |
+| M4-04 | 重复规则 | 每天 / 特定星期 / 自定义周期 |
+| M4-05 | 服用周期 | 开始日期 ~ 结束日期（可选永久） |
+| M4-06 | 餐食关系 | 饭前 / 饭后 / 空腹 |
+| M4-07 | 提前提醒 | 设置提前 N 分钟推送提醒 |
+
+**M4-B 编辑计划** `pages/schedule/edit`
+
+| ID | 功能 | 描述 |
+|----|------|------|
+| M4-08 | 预填表单 | 加载已有计划数据 |
+| M4-09 | 暂停/恢复 | 切换计划 active/paused |
+| M4-10 | 删除计划 | 二次确认后删除 |
+
+---
+
+### M5 - 提醒与通知
+
+**优先级：P1 — 未开始**
+
+**页面：** `pages/settings/reminder`（集成在设置中）
+
+| ID | 功能 | 描述 |
+|----|------|------|
+| M5-01 | 订阅消息授权 | 引导用户授权微信订阅消息 |
+| M5-02 | 消息推送 | 到达服药时间时发送微信服务通知 |
+| M5-03 | 提醒开关 | 全局开启/关闭提醒 |
+| M5-04 | 延迟提醒 | 5分钟/10分钟/15分钟后再次提醒 |
+| M5-05 | 振动设置 | 开启/关闭振动反馈 |
+
+**技术方案：** 微信订阅消息 (`wx.requestSubscribeMessage`) + 后端定时触发
+
+---
+
+### M6 - 统计与洞察
+
+**优先级：P2 — 未开始**
+
+**M6-A 统计首页** `pages/stats/index`
+
+| ID | 功能 | 描述 |
+|----|------|------|
+| M6-01 | 依从率趋势 | 周/月/年视图的折线图 |
+| M6-02 | 打卡热力图 | 类 GitHub 贡献图 |
+| M6-03 | 连续打卡记录 | 当前 streak + 历史最长 streak |
+| M6-04 | 药品排行 | 按服用频率/依从率排序 |
+
+**M6-B 健康报告** `pages/stats/report`
+
+| ID | 功能 | 描述 |
+|----|------|------|
+| M6-05 | 周报/月报 | 自动生成周期健康报告 |
+| M6-06 | 分享报告 | 生成图片分享给家人/医生 |
+
+---
+
+### M7 - 用户与设置
+
+**Tab 位置：** 第 4 个 (value: `'user'`)
+
+**M7-A 个人中心** `pages/user/user` — **已完成 UI**
+
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M7-01 | 用户头像与昵称 | 展示头像（首字母占位）+ 昵称 | 已完成 |
+| M7-02 | 健康分 + 加入天数 | 统计数据展示 | 已完成 |
+| M7-03 | 设置入口列表 | 提醒设置/家庭成员/帮助/关于 | 已完成 |
+| M7-04 | 退出登录 | 清除本地数据 | 已完成 |
+
+**M7-B 资料编辑** `pages/user/profile` — **页面未创建**
+
+| ID | 功能 | 描述 | 状态 |
+|----|------|------|------|
+| M7-05 | 修改昵称 | 文本输入 | 未开始 |
+| M7-06 | 修改头像 | 微信头像或相册选取 | 未开始 |
+
+**M7-C 设置子页面** — **页面均未创建**
+
+| 页面 | 功能 |
+|------|------|
+| `pages/settings/reminder` | 提醒频率、振动、静音设置 |
+| `pages/settings/family` | 绑定家庭成员账号 |
+| `pages/settings/help` | 常见问题 + 在线客服 |
+| `pages/settings/about` | 版本信息、协议、开源许可 |
+
+---
+
+## 4. 数据模型
+
+### Medication（药品）
+
+```javascript
+{
+  id: string,
+  name: string,           // 药品名称
+  dosage: string,         // 剂量（"1片"、"2粒"）
+  specification: string,  // 规格（"0.25g x 24粒"）
+  icon: string,           // 图标类型（pill/capsule/tablet/spray）
+  color: string,          // 主题色 hex
+  remark: string,         // 备注
+  remaining: number,      // 当前库存
+  total: number,          // 总量
+  unit: string,           // 单位（片/粒/ml/喷）
+  status: 'active' | 'paused' | 'completed',
+  createdAt: number,      // 时间戳
+  updatedAt: number
+}
+```
+
+### Schedule（服药计划）
+
+```javascript
+{
+  id: string,
+  medicationId: string,
+  times: [{ hour: number, minute: number, dosage: string }],
+  frequency: 'daily' | 'weekly' | 'cycle',
+  daysOfWeek: number[],   // 0-6，weekly 时有效
+  cycleDays: number,       // cycle 时有效
+  startDate: string,       // "2026-03-25"
+  endDate: string | null,  // null 表示持续
+  withFood: 'before' | 'after' | 'empty',
+  reminderMinutes: number, // 提前提醒分钟数
+  status: 'active' | 'paused'
+}
+```
+
+### CheckIn（打卡记录）
+
+```javascript
+{
+  id: string,
+  medicationId: string,
+  scheduleId: string,
+  date: string,            // "2026-03-25"
+  scheduledTime: string,   // "08:00"
+  actualTime: string,      // "08:15"
+  status: 'taken' | 'skipped' | 'missed',
+  dosage: string,
+  note: string
+}
+```
+
+### User（用户）
+
+```javascript
+{
+  id: string,
+  nickName: string,
+  avatarUrl: string,
+  streakDays: number,
+  maxStreak: number,
+  totalCheckIns: number,
+  healthScore: number,
+  joinDays: number,
+  settings: {
+    reminderEnabled: boolean,
+    reminderSound: string,
+    vibrationEnabled: boolean,
+    snoozeMinutes: number
+  },
+  emergencyContact: { name: string, phone: string }
+}
+```
+
+---
+
+## 5. 页面清单与开发状态
+
+| # | 页面路径 | 模块 | 状态 |
+|---|---------|------|------|
+| 1 | `pages/index/index` | M1 首页 | UI 完成，mock 数据 |
+| 2 | `pages/record/record` | M3 记录 | UI 完成，mock 数据 |
+| 3 | `pages/medication/list` | M2 药品列表 | UI 完成，mock 数据 |
+| 4 | `pages/medication/add` | M2 添加药品 | **空页面** |
+| 5 | `pages/medication/edit` | M2 编辑药品 | **未创建** |
+| 6 | `pages/medication/detail` | M2 药品详情 | **未创建** |
+| 7 | `pages/user/user` | M7 个人中心 | UI 完成，mock 数据 |
+| 8 | `pages/user/profile` | M7 资料编辑 | **未创建** |
+| 9 | `pages/schedule/add` | M4 添加计划 | **未创建** |
+| 10 | `pages/schedule/edit` | M4 编辑计划 | **未创建** |
+| 11 | `pages/checkin/calendar` | M3 打卡日历 | **未创建** |
+| 12 | `pages/checkin/history` | M3 打卡历史 | **未创建** |
+| 13 | `pages/stats/index` | M6 统计首页 | **未创建** |
+| 14 | `pages/stats/report` | M6 健康报告 | **未创建** |
+| 15 | `pages/settings/reminder` | M5 提醒设置 | **未创建** |
+| 16 | `pages/settings/family` | M7 家庭成员 | **未创建** |
+| 17 | `pages/settings/help` | M7 帮助反馈 | **未创建** |
+| 18 | `pages/settings/about` | M7 关于 | **未创建** |
+
+**已创建：5 页 / 总计：18 页（其中 1 页为空壳）**
+
+---
+
+## 6. 开发阶段规划
+
+### Phase 1: 核心 MVP — 已完成
+
+- [x] 项目初始化 + TDesign 集成
+- [x] 设计系统 (The Serene Healer) 令牌配置
+- [x] 首页 UI（进度环、今日用药列表、快速打卡）
+- [x] 药品列表页（卡片布局、库存展示、告急标记）
+- [x] 吃药记录页（日历视图、记录列表、依从率）
+- [x] 个人中心页（用户卡片、设置入口）
+- [x] 自定义 TabBar（TDesign t-tab-bar）
+- [x] 本地数据存储框架 (wx.getStorageSync)
+
+### Phase 2: 数据层 + 核心功能闭环 — 当前阶段
+
+- [ ] **数据服务层** — 封装 Storage CRUD，替换所有 mock 数据
+- [ ] **添加药品页** (M2-B) — 完整表单 + 存储
+- [ ] **药品详情页** (M2-C) — 查看/暂停/删除
+- [ ] **编辑药品页** (M2-D) — 预填 + 更新
+- [ ] **补打卡功能** (M3-08) — 历史漏服补录
+- [ ] 首页与记录页接入真实数据
+
+### Phase 3: 计划与提醒
+
+- [ ] 服药计划设置 (M4)
+- [ ] 时间选择器
+- [ ] 微信订阅消息 (M5)
+- [ ] 提醒推送逻辑
+- [ ] 提醒设置页
+
+### Phase 4: 统计与社交
+
+- [ ] 打卡日历/热力图 (M3-B)
+- [ ] 数据统计页 (M6-A)
+- [ ] 健康报告生成与分享 (M6-B)
+- [ ] 连续打卡 streak 计算
+
+### Phase 5: 用户系统与完善
+
+- [ ] 微信登录授权 (`wx.login`)
+- [ ] 资料编辑页
+- [ ] 家庭成员绑定
+- [ ] 后端 API 接入 (`wx.request`)
+- [ ] 数据云端同步
+- [ ] 帮助与反馈 / 关于页面
+
+### Phase 6: Polish
+
+- [ ] 过渡动画优化
+- [ ] 性能优化（setData 最小化、列表虚拟滚动）
+- [ ] 无障碍适配 (ARIA)
+- [ ] 多机型兼容测试
+
+---
+
+## 7. 技术约束
+
+| 约束 | 说明 |
+|------|------|
+| 平台 | 微信小程序，基础库 >= 3.0.0 |
+| UI 框架 | tdesign-miniprogram ^1.13.0 |
+| 数据存储 | Phase 2-4 使用 `wx.getStorageSync`；Phase 5 接入自建后端 |
+| 网络请求 | `wx.request`，需后台配置合法域名 |
+| 认证 | `wx.login` 获取 code，后端换取 openid |
+| 提醒推送 | `wx.requestSubscribeMessage` 订阅消息 |
+| 禁止 | 不使用微信云开发（云函数/云数据库/云托管） |
+
+---
+
+## 8. 设计规范要点
+
+详见 `DESIGN.md`，核心原则：
+
+- **不用 1px 边框分隔** — 仅用背景色调层级
+- **不用灰色/黑色阴影** — 用品牌色调 ambient shadow
+- **Surface 层级：** `#f9f9fe` (底) → `#ededf2` (次) → `#ffffff` (卡片)
+- **主色蓝渐变** `#0058bc → #0070eb` 用于 CTA
+- **绿渐变** `#006e28 → #6ffb85` 用于打卡按钮
+- **点击态** `scale(0.98)` 视觉反馈
+- **系统中文字体栈：** PingFang SC / Microsoft YaHei

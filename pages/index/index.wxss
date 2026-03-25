@@ -224,6 +224,28 @@
   height: 40rpx;
 }
 
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  gap: 16rpx;
+}
+
+.empty-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+  margin-top: 16rpx;
+}
+
+.empty-desc {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+  text-align: center;
+}
+
 /* Quick Actions */
 .quick-actions {
   position: fixed;

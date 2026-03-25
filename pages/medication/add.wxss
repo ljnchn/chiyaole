@@ -1,1 +1,256 @@
 /* pages/medication/add.wxss */
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+/* Preview Card */
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+  gap: 12rpx;
+}
+
+.preview-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8rpx;
+}
+
+.preview-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+}
+
+.preview-dosage {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+}
+
+/* Form Section */
+.form-section {
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+  margin-bottom: 24rpx;
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 12rpx;
+}
+
+.form-row {
+  display: flex;
+  gap: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.form-row-item {
+  flex: 1;
+}
+
+/* Picker value row */
+.picker-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.picker-value text {
+  font-size: 30rpx;
+  color: var(--on_surface);
+}
+
+/* Icon Selection */
+.option-grid {
+  display: flex;
+  gap: 24rpx;
+  flex-wrap: wrap;
+}
+
+.icon-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 16rpx;
+  background-color: var(--surface-container);
+  border: 4rpx solid transparent;
+  transition: all 0.2s ease;
+}
+
+.icon-option.active {
+  background-color: var(--surface-container-lowest);
+}
+
+.icon-option text {
+  font-size: 22rpx;
+  color: var(--on_surface_variant);
+}
+
+/* Color Selection */
+.color-grid {
+  display: flex;
+  gap: 24rpx;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  position: relative;
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-circle {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+}
+
+.color-option.active .color-circle {
+  width: 64rpx;
+  height: 64rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+}
+
+.color-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Time List */
+.time-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.time-tag {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background-color: var(--surface-container);
+  padding: 12rpx 20rpx;
+  border-radius: 9999rpx;
+}
+
+.time-tag text {
+  font-size: 28rpx;
+  color: var(--on_surface);
+}
+
+.time-remove {
+  margin-left: 4rpx;
+  display: flex;
+  align-items: center;
+}
+
+.time-add {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 9999rpx;
+  background-color: var(--surface-container);
+}
+
+.time-add text {
+  font-size: 28rpx;
+}
+
+/* Food Options */
+.food-options {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.food-option {
+  padding: 16rpx 32rpx;
+  border-radius: 9999rpx;
+  background-color: var(--surface-container);
+  border: 2rpx solid transparent;
+  transition: all 0.2s ease;
+}
+
+.food-option text {
+  font-size: 28rpx;
+  color: var(--on_surface_variant);
+}
+
+.food-option.active text {
+  font-weight: 500;
+}
+
+/* Textarea */
+.textarea-field {
+  background-color: var(--surface-container) !important;
+  border-radius: 12rpx !important;
+  padding: 20rpx !important;
+}
+
+/* Save Button */
+.save-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background-color: var(--surface);
+}
+
+.btn-save {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  border-radius: 9999rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 88, 188, 0.2);
+}
+
+.btn-save:active {
+  transform: scale(0.98);
+}

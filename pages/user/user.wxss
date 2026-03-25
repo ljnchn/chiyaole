@@ -16,7 +16,7 @@
   border-radius: 20rpx;
   padding: 32rpx;
   margin-bottom: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-primary);
 }
 
 .avatar {
@@ -99,9 +99,12 @@
 .settings-group {
   background-color: var(--surface-container-lowest);
   border-radius: 20rpx;
-  padding: 16rpx 0;
+  padding: 8rpx 0;
   margin-bottom: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
 .setting-item {
@@ -109,11 +112,6 @@
   align-items: center;
   gap: 24rpx;
   padding: 24rpx 32rpx;
-  border-bottom: 1rpx solid var(--surface-container);
-}
-
-.setting-item:last-child {
-  border-bottom: none;
 }
 
 .setting-item:active {
@@ -164,7 +162,7 @@
   background-color: var(--surface-container-lowest);
   border-radius: 20rpx;
   padding: 24rpx 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-logout {

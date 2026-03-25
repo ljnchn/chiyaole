@@ -17,7 +17,14 @@
     </view>
   </view>
 
-  <view class="medication-grid">
+  <!-- 空态 -->
+  <view wx:if="{{medications.length === 0}}" class="empty-state">
+    <t-icon name="shop" size="96rpx" color="#c4c4c9" />
+    <text class="empty-title">还没有添加药品</text>
+    <text class="empty-desc">点击右下角按钮添加您的药品</text>
+  </view>
+
+  <view wx:else class="medication-grid">
     <view
       wx:for="{{medications}}"
       wx:key="id"
