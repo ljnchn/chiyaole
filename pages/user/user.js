@@ -54,8 +54,6 @@ Page({
   },
 
   loadUserInfo() {
-    const user = userService.get()
-
     // 计算并更新健康分
     const activeMeds = medicationService.getActive()
     const compliance = checkinService.getComplianceRate(7, activeMeds)

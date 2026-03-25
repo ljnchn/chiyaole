@@ -37,16 +37,12 @@
 
 | 组件 | 路径 | 用途 |
 |------|------|------|
-| `t-button` | button/button | 按钮 |
-| `t-cell` | cell/cell | 列表项 |
-| `t-cell-group` | cell-group/cell-group | 列表分组 |
-| `t-input` | input/input | 输入框 |
-| `t-progress` | progress/progress | 进度条 |
-| `t-tag` | tag/tag | 标签 |
 | `t-icon` | icon/icon | 图标 |
-| `t-switch` | switch/switch | 开关 |
+| `t-input` | input/input | 输入框 |
+| `t-textarea` | textarea/textarea | 多行输入框 |
 | `t-stepper` | stepper/stepper | 步进器 |
-| `t-calendar` | calendar/calendar | 日历 |
+| `t-picker` | picker/picker | 选择器 |
+| `t-picker-item` | picker-item/picker-item | 选择器项 |
 
 ### 使用新组件的步骤
 

@@ -6,7 +6,6 @@ Page({
     medications: [],
     stats: {
       total: 0,
-      active: 0,
       lowStock: 0
     }
   },
@@ -39,8 +38,7 @@ Page({
     wx.navigateTo({ url: '/pages/medication/add' })
   },
 
-  onMedicationTap(e) {
-    const { id } = e.currentTarget.dataset
-    wx.navigateTo({ url: `/pages/medication/detail?id=${id}` })
+  onMedicationTap() {
+    wx.showToast({ title: '详情页开发中', icon: 'none' })
   }
 })

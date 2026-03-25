@@ -31,7 +31,6 @@ Page({
    */
   loadTodayData() {
     const medications = medicationService.getActive()
-    const todayCheckins = checkinService.getTodayCheckins()
     const todayStr = storage.today()
 
     // 将每个药品的每个时间点展开为独立的待办项

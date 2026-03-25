@@ -336,13 +336,6 @@
   border-radius: 6rpx;
 }
 
-.add-btn {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #ffffff;
-  white-space: nowrap;
-}
-
 .report-score {
   font-size: 28rpx;
   font-weight: 700;
