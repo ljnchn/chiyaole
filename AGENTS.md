@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**chiyaole** (吃药了) is a native WeChat Mini Program for medication management. It uses `tdesign-miniprogram` as its only npm dependency. There is no backend — all data is local storage (`wx.getStorageSync` / `wx.setStorageSync`). See `CLAUDE.md` for full architecture details.
+**chiyaole** (吃药了) is a native WeChat Mini Program for medication management. It uses `tdesign-miniprogram` as its only npm dependency. The service layer (`utils/*Service.js`) calls a REST API via `utils/request.js` (base URL configurable, default `https://api.chiyaole.com/v1`). Auth tokens are stored in `wx.setStorageSync('cym_auth')`. See `CLAUDE.md` for full architecture details.
 
 ### Runtime environment
 
@@ -33,4 +33,4 @@ WeChat Mini Programs can **only** be compiled and previewed in [WeChat DevTools]
 2. Verify all page file sets exist (4 files per page listed in `app.json`)
 3. `node --check` on every `.js` file — catches syntax errors
 4. Parse-validate every `.json` file with `JSON.parse()`
-5. (Optional) Create a temporary script that mocks `global.wx` storage and exercises the service layer (`utils/storage.js`, `utils/medicationService.js`, `utils/checkinService.js`, `utils/userService.js`)
+5. (Optional) Create a temporary script that mocks `global.wx` (including `wx.request`, `wx.getStorageSync`, `wx.setStorageSync`, etc.), then `require()` the service modules (`utils/request.js`, `utils/authService.js`, `utils/medicationService.js`, `utils/checkinService.js`, `utils/userService.js`, `utils/subscribeService.js`) and verify their exports
