@@ -1,6 +1,6 @@
-# chiyaome
+# chiyaole
 
-吃药么 - 微信小程序用药管理应用
+吃药了 - 微信小程序用药管理应用
 
 ## 项目介绍
 
@@ -19,7 +19,7 @@
 ## 项目结构
 
 ```
-chiyaome/
+chiyaole/
 ├── app.js                 # 应用入口
 ├── app.json               # 应用配置
 ├── app.wxss               # 全局样式 + 设计令牌

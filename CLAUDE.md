@@ -14,7 +14,7 @@ When tackling development tasks or bug fixes:
 
 ## Project Overview
 
-**chiyaome** (吃药么) - WeChat Mini Program for medication management/reminders.
+**chiyaole** (吃药了) - WeChat Mini Program for medication management/reminders.
 Editorial "Living Sanctuary" design philosophy - premium wellness magazine aesthetic, not clinical coldness.
 
 - **Platform:** Native WeChat Mini Program (WXML/WXSS/JS/JSON)

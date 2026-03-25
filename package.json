@@ -1,7 +1,7 @@
 {
-  "name": "chiyaome",
+  "name": "chiyaole",
   "version": "1.0.0",
-  "description": "吃药么 - WeChat Mini Program for medication management",
+  "description": "吃药了 - WeChat Mini Program for medication management",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**chiyaome** (吃药么) is a native WeChat Mini Program for medication management. It uses `tdesign-miniprogram` as its only npm dependency. There is no backend — all data is local storage (`wx.getStorageSync` / `wx.setStorageSync`). See `CLAUDE.md` for full architecture details.
+**chiyaole** (吃药了) is a native WeChat Mini Program for medication management. It uses `tdesign-miniprogram` as its only npm dependency. There is no backend — all data is local storage (`wx.getStorageSync` / `wx.setStorageSync`). See `CLAUDE.md` for full architecture details.
 
 ### Runtime environment
 

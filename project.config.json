@@ -1,5 +1,5 @@
 {
-  "description": "吃药么 - 用药管理小程序",
+  "description": "吃药了 - 用药管理小程序",
   "packOptions": {
     "ignore": [
       {
@@ -70,7 +70,7 @@
   "compileType": "miniprogram",
   "libVersion": "3.0.0",
   "appid": "wx84a0172595b38012",
-  "projectname": "chiyaome",
+  "projectname": "chiyaole",
   "condition": {},
   "simulatorPluginLibVersion": {},
   "editorSetting": {}
