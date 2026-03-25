@@ -12,15 +12,19 @@ Page({
     subscribeConfigured: false
   },
 
-  onLoad() {
-    const settings = userService.getSettings()
-    this.setData({
-      reminderEnabled: settings.reminderEnabled !== false,
-      vibrationEnabled: settings.vibrationEnabled !== false,
-      snoozeMinutes: settings.snoozeMinutes || 10,
-      subscribeAuthorized: subscribeService.hasAuthorized(),
-      subscribeConfigured: subscribeService.isConfigured()
-    })
+  async onLoad() {
+    try {
+      const settings = await userService.getSettings()
+      this.setData({
+        reminderEnabled: settings.reminderEnabled !== false,
+        vibrationEnabled: settings.vibrationEnabled !== false,
+        snoozeMinutes: settings.snoozeMinutes || 10,
+        subscribeAuthorized: subscribeService.hasAuthorized(),
+        subscribeConfigured: subscribeService.isConfigured()
+      })
+    } catch (err) {
+      console.error('[Reminder] 加载设置失败:', err)
+    }
   },
 
   onShow() {
@@ -29,28 +33,40 @@ Page({
     })
   },
 
-  onReminderChange(e) {
-    const enabled = e.detail.value
-    userService.updateSettings({ reminderEnabled: enabled })
-    this.setData({ reminderEnabled: enabled })
+  async onReminderChange(e) {
+    var enabled = e.detail.value
+    try {
+      await userService.updateSettings({ reminderEnabled: enabled })
+      this.setData({ reminderEnabled: enabled })
 
-    if (enabled && !this.data.subscribeAuthorized) {
-      this.onRequestSubscribe()
+      if (enabled && !this.data.subscribeAuthorized) {
+        this.onRequestSubscribe()
+      }
+    } catch (err) {
+      console.error('[Reminder] 更新提醒设置失败:', err)
     }
   },
 
-  onVibrationChange(e) {
-    const enabled = e.detail.value
-    userService.updateSettings({ vibrationEnabled: enabled })
-    this.setData({ vibrationEnabled: enabled })
+  async onVibrationChange(e) {
+    var enabled = e.detail.value
+    try {
+      await userService.updateSettings({ vibrationEnabled: enabled })
+      this.setData({ vibrationEnabled: enabled })
+    } catch (err) {
+      console.error('[Reminder] 更新振动设置失败:', err)
+    }
   },
 
-  onSnoozeChange(e) {
-    const index = e.detail.value
-    const minutes = this.data.snoozeOptions[index]
-    userService.updateSettings({ snoozeMinutes: minutes })
-    this.setData({ snoozeMinutes: minutes })
-    wx.showToast({ title: `贪睡 ${minutes} 分钟`, icon: 'none' })
+  async onSnoozeChange(e) {
+    var index = e.detail.value
+    var minutes = this.data.snoozeOptions[index]
+    try {
+      await userService.updateSettings({ snoozeMinutes: minutes })
+      this.setData({ snoozeMinutes: minutes })
+      wx.showToast({ title: '贪睡 ' + minutes + ' 分钟', icon: 'none' })
+    } catch (err) {
+      console.error('[Reminder] 更新贪睡设置失败:', err)
+    }
   },
 
   /**
@@ -62,19 +78,20 @@ Page({
       return
     }
 
-    subscribeService.requestSubscribe().then(res => {
-      const authorized = subscribeService.hasAuthorized()
-      this.setData({ subscribeAuthorized: authorized })
+    var self = this
+    subscribeService.requestSubscribe().then(function () {
+      var authorized = subscribeService.hasAuthorized()
+      self.setData({ subscribeAuthorized: authorized })
       if (authorized) {
         wx.showToast({ title: '授权成功', icon: 'success' })
       }
-    }).catch(err => {
+    }).catch(function (err) {
       if (err.errCode === 20004) {
         wx.showModal({
           title: '通知已关闭',
           content: '请在微信「设置 → 通知 → 小程序通知」中开启通知权限。',
           confirmText: '去设置',
-          success(res) {
+          success: function (res) {
             if (res.confirm) subscribeService.openSetting()
           }
         })

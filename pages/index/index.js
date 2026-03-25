@@ -98,108 +98,137 @@ Page({
   /**
    * 加载指定日期的用药数据，按时间段分组
    */
-  loadDayData(dateStr) {
-    const medications = medicationService.getActive()
+  async loadDayData(dateStr) {
+    try {
+      const todayStr = storage.today()
+      let items = []
 
-    const items = []
-    medications.forEach(med => {
-      const times = med.times || []
-      const usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
-      const foodLabel = FOOD_LABELS[med.withFood] || ''
-      const dosageDesc = `${med.dosage}${foodLabel ? ' · ' + foodLabel : ''}`
-
-      if (times.length === 0) {
-        const existing = checkinService.findCheckin(med.id, dateStr, '')
-        items.push({
-          id: med.id,
-          medicationId: med.id,
-          name: med.name,
-          dosage: med.dosage,
-          dosageDesc,
-          specification: med.specification,
-          time: '',
-          scheduledTime: '',
-          taken: existing ? existing.status === 'taken' : false,
-          icon: med.icon,
-          color: med.color,
-          remaining: med.remaining,
-          total: med.total,
-          unit: med.unit,
-          usagePercent,
-          urgent: false,
-          period: 'other'
-        })
-        return
-      }
-
-      times.forEach(time => {
-        const existing = checkinService.findCheckin(med.id, dateStr, time)
-        const taken = existing ? existing.status === 'taken' : false
-        let urgent = false
-        if (!taken && dateStr === storage.today()) {
-          urgent = storage.formatTime(new Date()) > time
+      if (dateStr === todayStr) {
+        // 今日用 /checkins/today 接口，返回 { date, items, progress }
+        const todayData = await checkinService.getToday()
+        if (todayData && todayData.items) {
+          items = todayData.items
         }
-        const tp = getTimePeriod(time)
+      } else {
+        // 非今日：获取活跃药品 + 当日打卡记录，手动组装
+        const medications = await medicationService.getActive()
+        const dayCheckins = await checkinService.getByDate(dateStr)
 
-        items.push({
-          id: `${med.id}_${time}`,
-          medicationId: med.id,
-          name: med.name,
-          dosage: med.dosage,
-          dosageDesc,
-          specification: med.specification,
-          time,
-          scheduledTime: time,
-          taken,
-          icon: med.icon,
-          color: med.color,
-          remaining: med.remaining,
-          total: med.total,
-          unit: med.unit,
-          usagePercent,
-          urgent,
-          period: tp.period
+        medications.forEach(function (med) {
+          const times = med.times || []
+          const usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
+          const foodLabel = FOOD_LABELS[med.withFood] || ''
+          const dosageDesc = med.dosage + (foodLabel ? ' · ' + foodLabel : '')
+
+          if (times.length === 0) {
+            const existing = dayCheckins.find(function (c) {
+              return c.medicationId === med.id && c.scheduledTime === ''
+            })
+            items.push({
+              id: med.id,
+              medicationId: med.id,
+              name: med.name,
+              dosage: med.dosage,
+              dosageDesc: dosageDesc,
+              specification: med.specification,
+              time: '',
+              scheduledTime: '',
+              taken: existing ? existing.status === 'taken' : false,
+              icon: med.icon,
+              color: med.color,
+              remaining: med.remaining,
+              total: med.total,
+              unit: med.unit,
+              usagePercent: usagePercent,
+              urgent: false,
+              period: 'other'
+            })
+            return
+          }
+
+          times.forEach(function (time) {
+            const existing = dayCheckins.find(function (c) {
+              return c.medicationId === med.id && c.scheduledTime === time
+            })
+            const taken = existing ? existing.status === 'taken' : false
+            let urgent = false
+            if (!taken && dateStr === todayStr) {
+              urgent = storage.formatTime(new Date()) > time
+            }
+            const tp = getTimePeriod(time)
+
+            items.push({
+              id: med.id + '_' + time,
+              medicationId: med.id,
+              name: med.name,
+              dosage: med.dosage,
+              dosageDesc: dosageDesc,
+              specification: med.specification,
+              time: time,
+              scheduledTime: time,
+              taken: taken,
+              icon: med.icon,
+              color: med.color,
+              remaining: med.remaining,
+              total: med.total,
+              unit: med.unit,
+              usagePercent: usagePercent,
+              urgent: urgent,
+              period: tp.period
+            })
+          })
         })
-      })
-    })
-
-    items.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
-
-    const groupMap = {}
-    const groupOrder = []
-    items.forEach(item => {
-      const tp = getTimePeriod(item.time)
-      const key = item.time || 'no-time'
-      if (!groupMap[key]) {
-        groupMap[key] = { time: item.time, label: tp.label, icon: tp.icon, period: tp.period, items: [] }
-        groupOrder.push(key)
       }
-      groupMap[key].items.push(item)
-    })
-    const timeGroups = groupOrder.map(k => groupMap[k])
 
-    const total = items.length
-    const completed = items.filter(m => m.taken).length
-    const progress = total > 0 ? Math.round((completed / total) * 100) : 0
-    const streak = checkinService.getStreak()
+      items.sort(function (a, b) {
+        return (a.time || '99:99').localeCompare(b.time || '99:99')
+      })
 
-    this.setData({
-      timeGroups,
-      totalCount: total,
-      completedCount: completed,
-      progress,
-      streakDays: streak
-    })
+      // 按时间段分组
+      const groupMap = {}
+      const groupOrder = []
+      items.forEach(function (item) {
+        const tp = getTimePeriod(item.time)
+        const key = item.time || 'no-time'
+        if (!groupMap[key]) {
+          groupMap[key] = { time: item.time, label: tp.label, icon: tp.icon, period: tp.period, items: [] }
+          groupOrder.push(key)
+        }
+        groupMap[key].items.push(item)
+      })
+      const timeGroups = groupOrder.map(function (k) { return groupMap[k] })
+
+      const total = items.length
+      const completed = items.filter(function (m) { return m.taken }).length
+      const progress = total > 0 ? Math.round((completed / total) * 100) : 0
+
+      // 获取连续打卡天数
+      let streakDays = 0
+      try {
+        const stats = await checkinService.getStats()
+        streakDays = (stats && stats.streakDays) ? stats.streakDays : 0
+      } catch (e) { /* 忽略 */ }
+
+      this.setData({
+        timeGroups: timeGroups,
+        totalCount: total,
+        completedCount: completed,
+        progress: progress,
+        streakDays: streakDays
+      })
+    } catch (err) {
+      console.error('[Index] loadDayData 失败:', err)
+    }
   },
 
   /**
    * 打卡
    */
-  onCheckIn(e) {
+  async onCheckIn(e) {
     const { id } = e.currentTarget.dataset
     let targetItem = null
-    this.data.timeGroups.forEach(g => {
-      const found = g.items.find(m => m.id === id)
+    this.data.timeGroups.forEach(function (g) {
+      const found = g.items.find(function (m) { return m.id === id })
       if (found) targetItem = found
     })
     if (!targetItem) return
@@ -214,21 +243,25 @@ Page({
       return
     }
 
-    checkinService.add({
-      medicationId: targetItem.medicationId,
-      date: storage.today(),
-      scheduledTime: targetItem.scheduledTime,
-      actualTime: storage.formatTime(new Date()),
-      status: 'taken',
-      dosage: targetItem.dosage
-    })
+    try {
+      await checkinService.add({
+        medicationId: targetItem.medicationId,
+        date: storage.today(),
+        scheduledTime: targetItem.scheduledTime,
+        actualTime: storage.formatTime(new Date()),
+        status: 'taken',
+        dosage: targetItem.dosage
+      })
 
-    medicationService.updateStock(targetItem.medicationId, -1)
-    wx.showToast({ title: '打卡成功', icon: 'success' })
-    this.loadDayData(this.data.selectedDate)
+      await medicationService.updateStock(targetItem.medicationId, -1)
+      wx.showToast({ title: '打卡成功', icon: 'success' })
+      this.loadDayData(this.data.selectedDate)
 
-    if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
-      setTimeout(() => { subscribeService.promptSubscribe() }, 1500)
+      if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
+        setTimeout(function () { subscribeService.promptSubscribe() }, 1500)
+      }
+    } catch (err) {
+      console.error('[Index] 打卡失败:', err)
     }
   },
 

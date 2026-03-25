@@ -1,73 +1,82 @@
 /**
  * 订阅消息服务
- * 管理微信订阅消息（wx.requestSubscribeMessage）授权流程
- * 
- * 使用说明：
- * 1. 在微信公众平台配置订阅消息模板，获取 tmplId
- * 2. 将 tmplId 填入下方 TMPL_IDS
- * 3. 后端接入后，在用户授权后调用后端 API 记录授权状态
+ * 混合模式：客户端 wx.requestSubscribeMessage + 服务端同步
  */
-const storage = require('./storage')
-
-const SUBSCRIBE_KEY = 'subscribe_status'
+const request = require('./request')
 
 /**
  * 订阅消息模板 ID
  * TODO: 替换为在微信公众平台申请的真实模板 ID
- * 服药提醒模板需包含：药品名称、服药时间、剂量
  */
 const TMPL_IDS = {
   medicationReminder: ''
 }
 
+// 本地缓存 key
+var _statusCache = null
+
 /**
  * 获取模板 ID 列表（过滤掉未配置的）
+ * @returns {string[]}
  */
 function getValidTmplIds() {
-  return Object.values(TMPL_IDS).filter(id => id.length > 0)
+  return Object.values(TMPL_IDS).filter(function (id) { return id.length > 0 })
 }
 
 /**
- * 获取本地订阅状态
- * @returns {{ [tmplId]: 'accept'|'reject'|'ban' }}
+ * 从服务端获取订阅状态
+ * @returns {Promise<Object>}
  */
 function getStatus() {
-  return storage.getItem(SUBSCRIBE_KEY) || {}
+  return request.get('/subscriptions').then(function (data) {
+    _statusCache = data
+    return data
+  })
 }
 
 /**
- * 是否已有有效授权
+ * 是否已有有效授权（优先用本地缓存，否则调用服务端）
+ * @returns {boolean}
  */
 function hasAuthorized() {
-  const status = getStatus()
-  return Object.values(status).some(v => v === 'accept')
+  if (_statusCache) {
+    if (Array.isArray(_statusCache)) {
+      return _statusCache.some(function (s) { return s.status === 'accept' })
+    }
+    return Object.values(_statusCache).some(function (v) { return v === 'accept' })
+  }
+  return false
 }
 
 /**
- * 请求订阅消息授权
- * @param {string[]} tmplIds - 要请求的模板 ID 数组（最多 3 个）
- * @returns {Promise<Object>} 各模板的授权结果
+ * 请求订阅消息授权，然后把结果同步到服务端
+ * @param {string[]} [tmplIds]
+ * @returns {Promise<Object>}
  */
 function requestSubscribe(tmplIds) {
-  const ids = tmplIds || getValidTmplIds()
+  var ids = tmplIds || getValidTmplIds()
   if (ids.length === 0) {
     return Promise.resolve({})
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(function (resolve, reject) {
     wx.requestSubscribeMessage({
       tmplIds: ids,
-      success(res) {
-        const status = getStatus()
-        ids.forEach(id => {
+      success: function (res) {
+        var promises = []
+        ids.forEach(function (id) {
           if (res[id]) {
-            status[id] = res[id]
+            promises.push(
+              request.post('/subscriptions', { tmplId: id, status: res[id] }).catch(function () { /* 静默 */ })
+            )
           }
         })
-        storage.setItem(SUBSCRIBE_KEY, status)
-        resolve(res)
+        Promise.all(promises).then(function () {
+          _statusCache = null
+          resolve(res)
+        })
       },
-      fail(err) {
+      fail: function (err) {
         if (err.errCode === 20004) {
           console.warn('[Subscribe] 用户关闭了订阅消息主开关')
         }
@@ -79,23 +88,23 @@ function requestSubscribe(tmplIds) {
 
 /**
  * 引导用户授权订阅消息（带友好提示）
- * 适合在打卡等操作后调用
+ * @returns {Promise<Object>}
  */
 function promptSubscribe() {
-  const ids = getValidTmplIds()
+  var ids = getValidTmplIds()
   if (ids.length === 0) return Promise.resolve({})
 
-  if (hasAuthorized()) return Promise.resolve(getStatus())
+  if (hasAuthorized()) return Promise.resolve({})
 
-  return new Promise((resolve) => {
+  return new Promise(function (resolve) {
     wx.showModal({
       title: '开启服药提醒',
       content: '允许「吃药了」向您发送服药提醒通知，帮助按时服药。',
       confirmText: '开启',
       cancelText: '暂不',
-      success(modalRes) {
+      success: function (modalRes) {
         if (modalRes.confirm) {
-          requestSubscribe(ids).then(resolve).catch(() => resolve({}))
+          requestSubscribe(ids).then(resolve).catch(function () { resolve({}) })
         } else {
           resolve({})
         }
@@ -105,21 +114,22 @@ function promptSubscribe() {
 }
 
 /**
- * 打开系统设置页（当用户拒绝后需要引导到设置页重新授权）
- */
-function openSetting() {
-  wx.openSetting({
-    success(res) {
-      console.log('[Subscribe] 设置页结果:', res)
-    }
-  })
-}
-
-/**
  * 检查模板是否已配置
+ * @returns {boolean}
  */
 function isConfigured() {
   return getValidTmplIds().length > 0
+}
+
+/**
+ * 打开系统设置页
+ */
+function openSetting() {
+  wx.openSetting({
+    success: function (res) {
+      console.log('[Subscribe] 设置页结果:', res)
+    }
+  })
 }
 
 module.exports = {
@@ -129,6 +139,6 @@ module.exports = {
   hasAuthorized,
   requestSubscribe,
   promptSubscribe,
-  openSetting,
-  isConfigured
+  isConfigured,
+  openSetting
 }

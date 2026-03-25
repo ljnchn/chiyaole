@@ -21,17 +21,22 @@ Page({
     }
   },
 
-  loadMedications() {
-    const medications = medicationService.getAll()
-    const stats = medicationService.getStats()
+  async loadMedications() {
+    try {
+      const medications = await medicationService.getAll()
+      const stats = await medicationService.getStats()
 
-    // 为列表计算 lowStock 标记
-    const list = medications.map(m => ({
-      ...m,
-      lowStock: m.total > 0 && m.remaining / m.total < 0.2
-    }))
+      const list = medications.map(function (m) {
+        return Object.assign({}, m, {
+          lowStock: m.total > 0 && m.remaining / m.total < 0.2
+        })
+      })
 
-    this.setData({ medications: list, stats })
+      this.setData({ medications: list, stats: stats })
+    } catch (err) {
+      console.error('[MedicationList] 加载失败:', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
   },
 
   onAddMedication() {
@@ -40,6 +45,6 @@ Page({
 
   onMedicationTap(e) {
     const { id } = e.currentTarget.dataset
-    wx.navigateTo({ url: `/pages/medication/detail?id=${id}` })
+    wx.navigateTo({ url: '/pages/medication/detail?id=' + id })
   }
 })
