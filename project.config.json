@@ -13,6 +13,10 @@
       {
         "value": ".git",
         "type": "folder"
+      },
+      {
+        "value": "AGENTS.md",
+        "type": "file"
       }
     ],
     "include": []
