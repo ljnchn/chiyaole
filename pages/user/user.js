@@ -1,7 +1,5 @@
 // pages/user/user.js
 const userService = require('../../utils/userService')
-const checkinService = require('../../utils/checkinService')
-const medicationService = require('../../utils/medicationService')
 const authService = require('../../utils/authService')
 
 Page({
@@ -55,38 +53,40 @@ Page({
     }
   },
 
-  loadUserInfo() {
-    const activeMeds = medicationService.getActive()
-    const compliance = checkinService.getComplianceRate(7, activeMeds)
-    userService.updateHealthScore(compliance)
-
-    const updatedUser = userService.get()
-    this.setData({
-      isLogged: authService.isLogged(),
-      userInfo: {
-        nickName: updatedUser.nickName,
-        avatarUrl: updatedUser.avatarUrl,
-        healthScore: updatedUser.healthScore,
-        joinDays: updatedUser.joinDays,
-        status: updatedUser.healthScore >= 80 ? '健康守护中' : '需要更加坚持'
-      }
-    })
+  async loadUserInfo() {
+    try {
+      const user = await userService.get()
+      this.setData({
+        isLogged: authService.isLogged(),
+        userInfo: {
+          nickName: user.nickName,
+          avatarUrl: user.avatarUrl,
+          healthScore: user.healthScore,
+          joinDays: user.joinDays,
+          status: user.healthScore >= 80 ? '健康守护中' : '需要更加坚持'
+        }
+      })
+    } catch (err) {
+      console.error('[User] loadUserInfo 失败:', err)
+      this.setData({ isLogged: authService.isLogged() })
+    }
   },
 
   /**
    * 获取微信头像和昵称（需用户主动触发）
    */
-  onSyncWxProfile() {
-    authService.getUserProfile().then(profile => {
-      userService.update({
+  async onSyncWxProfile() {
+    try {
+      const profile = await authService.getUserProfile()
+      await userService.update({
         nickName: profile.nickName,
         avatarUrl: profile.avatarUrl
       })
       wx.showToast({ title: '同步成功', icon: 'success' })
       this.loadUserInfo()
-    }).catch(() => {
+    } catch (err) {
       wx.showToast({ title: '授权已取消', icon: 'none' })
-    })
+    }
   },
 
   onSettingTap(e) {
@@ -107,16 +107,19 @@ Page({
     wx.navigateTo({ url: '/pages/user/profile' })
   },
 
-  onLogout() {
+  async onLogout() {
+    var self = this
     wx.showModal({
       title: '提示',
-      content: '确定要退出登录吗？将清除所有本地数据。',
-      success: (res) => {
+      content: '确定要退出登录吗？将清除所有数据。',
+      success: async function (res) {
         if (res.confirm) {
-          authService.logout()
-          userService.clear()
+          try {
+            authService.logout()
+            await userService.clear()
+          } catch (err) { /* 静默 */ }
           wx.showToast({ title: '已退出登录', icon: 'success' })
-          this.loadUserInfo()
+          self.loadUserInfo()
         }
       }
     })

@@ -35,89 +35,104 @@ Page({
   /**
    * 加载日历和记录数据
    */
-  loadData() {
-    const activeMeds = medicationService.getActive()
-    this.generateCalendar(activeMeds)
-    this.loadSelectedDateRecords(activeMeds)
+  async loadData() {
+    try {
+      const activeMeds = await medicationService.getActive()
+      await this.generateCalendar(activeMeds)
+      await this.loadSelectedDateRecords(activeMeds)
 
-    const streak = checkinService.getStreak()
-    const compliance = checkinService.getComplianceRate(30, activeMeds)
-
-    this.setData({ streakDays: streak, compliance })
+      const stats = await checkinService.getStats()
+      this.setData({
+        streakDays: (stats && stats.streakDays) ? stats.streakDays : 0,
+        compliance: (stats && stats.compliance30d) ? stats.compliance30d : 0
+      })
+    } catch (err) {
+      console.error('[Record] loadData 失败:', err)
+    }
   },
 
   /**
    * 生成日历数据
    */
-  generateCalendar(activeMeds) {
-    const { currentYear, currentMonth, selectedDate } = this.data
-    const daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
-    const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay()
+  async generateCalendar(activeMeds) {
+    try {
+      const { currentYear, currentMonth, selectedDate } = this.data
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
+      const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay()
 
-    // 获取本月打卡状态
-    const monthlyStatus = checkinService.getMonthlyStatus(currentYear, currentMonth, activeMeds || medicationService.getActive())
+      const calendarData = await checkinService.getCalendar(currentYear, currentMonth)
 
-    const calendarDays = []
-    const prevMonthDays = new Date(currentYear, currentMonth - 1, 0).getDate()
+      const calendarDays = []
+      const prevMonthDays = new Date(currentYear, currentMonth - 1, 0).getDate()
 
-    // 上月补位
-    for (let i = firstDay - 1; i >= 0; i--) {
-      calendarDays.push({
-        day: prevMonthDays - i,
-        currentMonth: false,
-        status: null
-      })
+      // 上月补位
+      for (let i = firstDay - 1; i >= 0; i--) {
+        calendarDays.push({
+          day: prevMonthDays - i,
+          currentMonth: false,
+          status: null
+        })
+      }
+
+      // 本月
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(i).padStart(2, '0')
+        calendarDays.push({
+          day: i,
+          currentMonth: true,
+          status: (calendarData && calendarData[dateStr]) ? calendarData[dateStr] : null,
+          selected: i === selectedDate
+        })
+      }
+
+      this.setData({ calendarDays: calendarDays })
+    } catch (err) {
+      console.error('[Record] generateCalendar 失败:', err)
     }
-
-    // 本月
-    for (let i = 1; i <= daysInMonth; i++) {
-      const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`
-      calendarDays.push({
-        day: i,
-        currentMonth: true,
-        status: monthlyStatus[dateStr] || null,
-        selected: i === selectedDate
-      })
-    }
-
-    this.setData({ calendarDays })
   },
 
   /**
    * 加载选中日期的打卡记录
    */
-  loadSelectedDateRecords(activeMeds) {
-    const { currentYear, currentMonth, selectedDate } = this.data
-    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+  async loadSelectedDateRecords(activeMeds) {
+    try {
+      const { currentYear, currentMonth, selectedDate } = this.data
+      const dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
 
-    const dayCheckins = checkinService.getByDate(dateStr)
-    const medications = activeMeds || medicationService.getActive()
+      const dayCheckins = await checkinService.getByDate(dateStr)
+      var medications = activeMeds
+      if (!medications) {
+        medications = await medicationService.getActive()
+      }
 
-    // 组合药品信息和打卡记录
-    const records = []
-    medications.forEach(med => {
-      const times = med.times || ['']
-      times.forEach(time => {
-        const checkin = dayCheckins.find(
-          c => c.medicationId === med.id && c.scheduledTime === time
-        )
-        records.push({
-          id: checkin ? checkin.id : `${med.id}_${time}_pending`,
-          name: med.name,
-          dosage: med.dosage,
-          time: time || '未设定',
-          status: checkin ? checkin.status : 'pending',
-          icon: med.icon,
-          color: med.color,
-          warning: checkin && checkin.status === 'missed' ? '漏服记录 - 建议咨询医生' : ''
+      const records = []
+      medications.forEach(function (med) {
+        const times = med.times || ['']
+        times.forEach(function (time) {
+          const checkin = dayCheckins.find(function (c) {
+            return c.medicationId === med.id && c.scheduledTime === time
+          })
+          records.push({
+            id: checkin ? checkin.id : med.id + '_' + time + '_pending',
+            name: med.name,
+            dosage: med.dosage,
+            time: time || '未设定',
+            status: checkin ? checkin.status : 'pending',
+            icon: med.icon,
+            color: med.color,
+            warning: checkin && checkin.status === 'missed' ? '漏服记录 - 建议咨询医生' : ''
+          })
         })
       })
-    })
 
-    // 按时间排序
-    records.sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+      records.sort(function (a, b) {
+        return (a.time || '').localeCompare(b.time || '')
+      })
 
-    this.setData({ records })
+      this.setData({ records: records })
+    } catch (err) {
+      console.error('[Record] loadSelectedDateRecords 失败:', err)
+    }
   },
 
   onSelectDate(e) {
@@ -154,56 +169,62 @@ Page({
     })
   },
 
-  onMakeup(e) {
+  async onMakeup(e) {
     const { id } = e.currentTarget.dataset
     if (!id) return
+    var self = this
 
     wx.showModal({
       title: '补录打卡',
       content: '确认将此条漏服记录标记为已服用？',
-      success: (res) => {
+      success: async function (res) {
         if (!res.confirm) return
 
-        const record = this.data.records.find(r => r.id === id)
+        var record = self.data.records.find(function (r) { return r.id === id })
         if (!record) return
 
-        const existing = checkinService.getById(id)
-        if (existing) {
-          checkinService.update(id, {
-            status: 'taken',
-            actualTime: existing.scheduledTime,
-            note: '补录'
-          })
-        } else {
-          const parts = id.split('_')
-          const medId = parts[0] + '_' + parts[1]
-          const time = parts[2] || ''
-          const { currentYear, currentMonth, selectedDate } = this.data
-          const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+        try {
+          // 如果 id 包含 _pending 后缀，说明是未打卡的记录，需要新增
+          if (id.indexOf('_pending') !== -1) {
+            var parts = id.replace('_pending', '').split('_')
+            var medId = parts.slice(0, parts.length - 1).join('_')
+            var time = parts[parts.length - 1] || ''
+            var currentYear = self.data.currentYear
+            var currentMonth = self.data.currentMonth
+            var selectedDate = self.data.selectedDate
+            var dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
 
-          checkinService.add({
-            medicationId: medId,
-            date: dateStr,
-            scheduledTime: time,
-            actualTime: time,
-            status: 'taken',
-            dosage: record.dosage || '',
-            note: '补录'
-          })
+            await checkinService.add({
+              medicationId: medId,
+              date: dateStr,
+              scheduledTime: time,
+              actualTime: time,
+              status: 'taken',
+              dosage: record.dosage || '',
+              note: '补录'
+            })
+          } else {
+            await checkinService.update(id, {
+              status: 'taken',
+              note: '补录'
+            })
+          }
+
+          wx.showToast({ title: '补录成功', icon: 'success' })
+          self.loadData()
+        } catch (err) {
+          console.error('[Record] 补录失败:', err)
         }
-
-        wx.showToast({ title: '补录成功', icon: 'success' })
-        this.loadData()
       }
     })
   },
 
   onViewMore() {
     const { currentYear, currentMonth, selectedDate } = this.data
-    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+    const dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
     wx.showModal({
-      title: `${dateStr} 用药详情`,
-      content: `当日共 ${this.data.records.length} 条记录`,
+      title: dateStr + ' 用药详情',
+      content: '当日共 ' + this.data.records.length + ' 条记录',
       showCancel: false
     })
   }

@@ -128,13 +128,13 @@ Page({
 
   onTimePickerChange(e) {
     const values = e.detail.value // ['08', '00']
-    const time = `${values[0]}:${values[1]}`
+    const time = values[0] + ':' + values[1]
     const { times } = this.data
     if (times.includes(time)) {
       wx.showToast({ title: '该时间已添加', icon: 'none' })
       return
     }
-    const newTimes = [...times, time].sort()
+    const newTimes = [].concat(times, [time]).sort()
     this.setData({ times: newTimes, showTimePicker: false })
   },
 
@@ -144,16 +144,15 @@ Page({
 
   onRemoveTime(e) {
     const { index } = e.currentTarget.dataset
-    const times = this.data.times.filter((_, i) => i !== index)
-    this.setData({ times })
+    const times = this.data.times.filter(function (_, i) { return i !== index })
+    this.setData({ times: times })
   },
 
   // --- 保存 ---
 
-  onSave() {
+  async onSave() {
     const { name, dosage, specification, icon, color, unit, total, remaining, times, withFood, remark } = this.data
 
-    // 校验
     if (!name.trim()) {
       wx.showToast({ title: '请输入药品名称', icon: 'none' })
       return
@@ -163,24 +162,28 @@ Page({
       return
     }
 
-    medicationService.add({
-      name: name.trim(),
-      dosage: dosage.trim(),
-      specification: specification.trim(),
-      icon,
-      color,
-      unit,
-      total,
-      remaining: remaining || total,
-      times,
-      withFood,
-      remark: remark.trim(),
-      status: 'active'
-    })
+    try {
+      await medicationService.add({
+        name: name.trim(),
+        dosage: dosage.trim(),
+        specification: specification.trim(),
+        icon: icon,
+        color: color,
+        unit: unit,
+        total: total,
+        remaining: remaining || total,
+        times: times,
+        withFood: withFood,
+        remark: remark.trim(),
+        status: 'active'
+      })
 
-    wx.showToast({ title: '添加成功', icon: 'success' })
-    setTimeout(() => {
-      wx.navigateBack()
-    }, 800)
+      wx.showToast({ title: '添加成功', icon: 'success' })
+      setTimeout(function () {
+        wx.navigateBack()
+      }, 800)
+    } catch (err) {
+      console.error('[MedicationAdd] 保存失败:', err)
+    }
   }
 })

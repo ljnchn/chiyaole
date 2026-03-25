@@ -8,13 +8,17 @@ Page({
     emergencyPhone: ''
   },
 
-  onLoad() {
-    const user = userService.get()
-    this.setData({
-      nickName: user.nickName || '',
-      emergencyName: user.emergencyContact ? user.emergencyContact.name : '',
-      emergencyPhone: user.emergencyContact ? user.emergencyContact.phone : ''
-    })
+  async onLoad() {
+    try {
+      const user = await userService.get()
+      this.setData({
+        nickName: user.nickName || '',
+        emergencyName: user.emergencyContact ? user.emergencyContact.name : '',
+        emergencyPhone: user.emergencyContact ? user.emergencyContact.phone : ''
+      })
+    } catch (err) {
+      console.error('[Profile] 加载用户信息失败:', err)
+    }
   },
 
   onNickNameInput(e) {
@@ -29,7 +33,7 @@ Page({
     this.setData({ emergencyPhone: e.detail.value })
   },
 
-  onSave() {
+  async onSave() {
     const { nickName, emergencyName, emergencyPhone } = this.data
 
     if (!nickName.trim()) {
@@ -37,13 +41,17 @@ Page({
       return
     }
 
-    userService.update({ nickName: nickName.trim() })
-    userService.updateEmergencyContact({
-      name: emergencyName.trim(),
-      phone: emergencyPhone.trim()
-    })
+    try {
+      await userService.update({ nickName: nickName.trim() })
+      await userService.updateEmergencyContact({
+        name: emergencyName.trim(),
+        phone: emergencyPhone.trim()
+      })
 
-    wx.showToast({ title: '保存成功', icon: 'success' })
-    setTimeout(() => wx.navigateBack(), 500)
+      wx.showToast({ title: '保存成功', icon: 'success' })
+      setTimeout(function () { wx.navigateBack() }, 500)
+    } catch (err) {
+      console.error('[Profile] 保存失败:', err)
+    }
   }
 })

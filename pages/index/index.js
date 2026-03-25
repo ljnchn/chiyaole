@@ -4,148 +4,264 @@ const checkinService = require('../../utils/checkinService')
 const storage = require('../../utils/storage')
 const subscribeService = require('../../utils/subscribeService')
 
+const WEEKDAY_NAMES = ['日', '一', '二', '三', '四', '五', '六']
+const WEEKDAY_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+const FOOD_LABELS = { before: '饭前服用', after: '饭后服用', empty: '空腹服用' }
+
+/**
+ * 获取时间段标签和图标
+ */
+function getTimePeriod(time) {
+  if (!time) return { label: '未设定时间', icon: 'time', period: 'other' }
+  const h = parseInt(time.split(':')[0], 10)
+  if (h < 12) return { label: `早晨 ${time}`, icon: 'sunny', period: 'morning' }
+  if (h < 18) return { label: `中午 ${time}`, icon: 'app', period: 'noon' }
+  return { label: `晚上 ${time}`, icon: 'moon', period: 'evening' }
+}
+
 Page({
   data: {
-    currentDate: '',
-    weekDay: '',
+    yearMonth: '',
+    weekNumber: 0,
+    weekDays: [],
+    selectedDate: '',
     streakDays: 0,
     progress: 0,
     completedCount: 0,
     totalCount: 0,
-    todayMedications: []
+    timeGroups: [],
+    notificationDot: false
   },
 
   onLoad() {
-    this.updateDate()
+    this.initWeekCalendar()
   },
 
   onShow() {
-    this.updateDate()
-    this.loadTodayData()
+    this.loadDayData(this.data.selectedDate || storage.today())
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ value: 'index' })
     }
   },
 
   /**
-   * 加载今日数据：活跃药品 + 时间点 → 今日待办列表 → 比对打卡记录
+   * 初始化周日历：生成当前周的 7 天数据
    */
-  loadTodayData() {
-    const medications = medicationService.getActive()
+  initWeekCalendar() {
+    const today = new Date()
     const todayStr = storage.today()
+    const dayOfWeek = today.getDay()
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
 
-    // 将每个药品的每个时间点展开为独立的待办项
-    const todayMedications = []
-    medications.forEach(med => {
-      const times = med.times || []
-      if (times.length === 0) {
-        // 没有设定时间的药品，显示一条不带时间的
-        const existing = checkinService.findCheckin(med.id, todayStr, '')
-        todayMedications.push({
-          id: med.id,
-          medicationId: med.id,
-          name: med.name,
-          dosage: med.dosage,
-          time: '',
-          scheduledTime: '',
-          taken: existing ? existing.status === 'taken' : false,
-          icon: med.icon,
-          color: med.color,
-          urgent: false
-        })
-        return
-      }
+    const monday = new Date(today)
+    monday.setDate(today.getDate() + mondayOffset)
 
-      times.forEach(time => {
-        const existing = checkinService.findCheckin(med.id, todayStr, time)
-        const taken = existing ? existing.status === 'taken' : false
-
-        // 判断是否紧急：未服用且当前时间已过计划时间
-        let urgent = false
-        if (!taken) {
-          const now = storage.formatTime(new Date())
-          urgent = now > time
-        }
-
-        todayMedications.push({
-          id: `${med.id}_${time}`,
-          medicationId: med.id,
-          name: med.name,
-          dosage: med.dosage,
-          time: time,
-          scheduledTime: time,
-          taken,
-          icon: med.icon,
-          color: med.color,
-          urgent
-        })
+    const weekDays = []
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + i)
+      const dateStr = formatDateStr(d)
+      weekDays.push({
+        shortName: WEEKDAY_SHORT[(d.getDay() + 7) % 7],
+        day: d.getDate(),
+        date: dateStr,
+        isToday: dateStr === todayStr,
+        selected: dateStr === todayStr
       })
-    })
+    }
 
-    // 按时间排序
-    todayMedications.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
-
-    // 计算进度
-    const total = todayMedications.length
-    const completed = todayMedications.filter(m => m.taken).length
-    const progress = total > 0 ? Math.round((completed / total) * 100) : 0
-    const streak = checkinService.getStreak()
+    const weekNum = getISOWeekNumber(today)
 
     this.setData({
-      todayMedications,
-      totalCount: total,
-      completedCount: completed,
-      progress,
-      streakDays: streak
+      yearMonth: `${today.getFullYear()}年${today.getMonth() + 1}月`,
+      weekNumber: weekNum,
+      weekDays,
+      selectedDate: todayStr
     })
-  },
 
-  updateDate() {
-    const now = new Date()
-    const month = now.getMonth() + 1
-    const date = now.getDate()
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六']
-    const weekDay = weekDays[now.getDay()]
-
-    this.setData({
-      currentDate: `${month}月${date}日`,
-      weekDay: `星期${weekDay}`
-    })
+    this.loadDayData(todayStr)
   },
 
   /**
-   * 打卡：点击药品项
+   * 点击周日历中的某一天
    */
-  onCheckIn(e) {
-    const { id } = e.currentTarget.dataset
-    const item = this.data.todayMedications.find(m => m.id === id)
-    if (!item) return
+  onSelectDay(e) {
+    const { date } = e.currentTarget.dataset
+    const weekDays = this.data.weekDays.map(d => ({
+      ...d,
+      selected: d.date === date
+    }))
+    this.setData({ weekDays, selectedDate: date })
+    this.loadDayData(date)
+  },
 
-    if (item.taken) {
+  /**
+   * 加载指定日期的用药数据，按时间段分组
+   */
+  async loadDayData(dateStr) {
+    try {
+      const todayStr = storage.today()
+      let items = []
+
+      if (dateStr === todayStr) {
+        // 今日用 /checkins/today 接口，返回 { date, items, progress }
+        const todayData = await checkinService.getToday()
+        if (todayData && todayData.items) {
+          items = todayData.items
+        }
+      } else {
+        // 非今日：获取活跃药品 + 当日打卡记录，手动组装
+        const medications = await medicationService.getActive()
+        const dayCheckins = await checkinService.getByDate(dateStr)
+
+        medications.forEach(function (med) {
+          const times = med.times || []
+          const usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
+          const foodLabel = FOOD_LABELS[med.withFood] || ''
+          const dosageDesc = med.dosage + (foodLabel ? ' · ' + foodLabel : '')
+
+          if (times.length === 0) {
+            const existing = dayCheckins.find(function (c) {
+              return c.medicationId === med.id && c.scheduledTime === ''
+            })
+            items.push({
+              id: med.id,
+              medicationId: med.id,
+              name: med.name,
+              dosage: med.dosage,
+              dosageDesc: dosageDesc,
+              specification: med.specification,
+              time: '',
+              scheduledTime: '',
+              taken: existing ? existing.status === 'taken' : false,
+              icon: med.icon,
+              color: med.color,
+              remaining: med.remaining,
+              total: med.total,
+              unit: med.unit,
+              usagePercent: usagePercent,
+              urgent: false,
+              period: 'other'
+            })
+            return
+          }
+
+          times.forEach(function (time) {
+            const existing = dayCheckins.find(function (c) {
+              return c.medicationId === med.id && c.scheduledTime === time
+            })
+            const taken = existing ? existing.status === 'taken' : false
+            let urgent = false
+            if (!taken && dateStr === todayStr) {
+              urgent = storage.formatTime(new Date()) > time
+            }
+            const tp = getTimePeriod(time)
+
+            items.push({
+              id: med.id + '_' + time,
+              medicationId: med.id,
+              name: med.name,
+              dosage: med.dosage,
+              dosageDesc: dosageDesc,
+              specification: med.specification,
+              time: time,
+              scheduledTime: time,
+              taken: taken,
+              icon: med.icon,
+              color: med.color,
+              remaining: med.remaining,
+              total: med.total,
+              unit: med.unit,
+              usagePercent: usagePercent,
+              urgent: urgent,
+              period: tp.period
+            })
+          })
+        })
+      }
+
+      items.sort(function (a, b) {
+        return (a.time || '99:99').localeCompare(b.time || '99:99')
+      })
+
+      // 按时间段分组
+      const groupMap = {}
+      const groupOrder = []
+      items.forEach(function (item) {
+        const tp = getTimePeriod(item.time)
+        const key = item.time || 'no-time'
+        if (!groupMap[key]) {
+          groupMap[key] = { time: item.time, label: tp.label, icon: tp.icon, period: tp.period, items: [] }
+          groupOrder.push(key)
+        }
+        groupMap[key].items.push(item)
+      })
+      const timeGroups = groupOrder.map(function (k) { return groupMap[k] })
+
+      const total = items.length
+      const completed = items.filter(function (m) { return m.taken }).length
+      const progress = total > 0 ? Math.round((completed / total) * 100) : 0
+
+      // 获取连续打卡天数
+      let streakDays = 0
+      try {
+        const stats = await checkinService.getStats()
+        streakDays = (stats && stats.streakDays) ? stats.streakDays : 0
+      } catch (e) { /* 忽略 */ }
+
+      this.setData({
+        timeGroups: timeGroups,
+        totalCount: total,
+        completedCount: completed,
+        progress: progress,
+        streakDays: streakDays
+      })
+    } catch (err) {
+      console.error('[Index] loadDayData 失败:', err)
+    }
+  },
+
+  /**
+   * 打卡
+   */
+  async onCheckIn(e) {
+    const { id } = e.currentTarget.dataset
+    let targetItem = null
+    this.data.timeGroups.forEach(function (g) {
+      const found = g.items.find(function (m) { return m.id === id })
+      if (found) targetItem = found
+    })
+    if (!targetItem) return
+
+    if (targetItem.taken) {
       wx.showToast({ title: '已经打卡过了', icon: 'none' })
       return
     }
 
-    // 写入打卡记录
-    checkinService.add({
-      medicationId: item.medicationId,
-      date: storage.today(),
-      scheduledTime: item.scheduledTime,
-      actualTime: storage.formatTime(new Date()),
-      status: 'taken',
-      dosage: item.dosage
-    })
+    if (this.data.selectedDate !== storage.today()) {
+      wx.showToast({ title: '只能对今天打卡', icon: 'none' })
+      return
+    }
 
-    // 扣减库存
-    medicationService.updateStock(item.medicationId, -1)
+    try {
+      await checkinService.add({
+        medicationId: targetItem.medicationId,
+        date: storage.today(),
+        scheduledTime: targetItem.scheduledTime,
+        actualTime: storage.formatTime(new Date()),
+        status: 'taken',
+        dosage: targetItem.dosage
+      })
 
-    wx.showToast({ title: '打卡成功', icon: 'success' })
+      await medicationService.updateStock(targetItem.medicationId, -1)
+      wx.showToast({ title: '打卡成功', icon: 'success' })
+      this.loadDayData(this.data.selectedDate)
 
-    this.loadTodayData()
-
-    // 首次打卡后引导订阅消息
-    if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
-      setTimeout(() => { subscribeService.promptSubscribe() }, 1500)
+      if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
+        setTimeout(function () { subscribeService.promptSubscribe() }, 1500)
+      }
+    } catch (err) {
+      console.error('[Index] 打卡失败:', err)
     }
   },
 
@@ -158,7 +274,22 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadTodayData()
+    this.loadDayData(this.data.selectedDate)
     wx.stopPullDownRefresh()
   }
 })
+
+function formatDateStr(d) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+function getISOWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const dayNum = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+}
