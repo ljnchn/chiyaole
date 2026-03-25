@@ -6,6 +6,61 @@
   min-height: 100vh;
 }
 
+/* Subscribe Card */
+.subscribe-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  padding: 28rpx 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-primary);
+}
+
+.subscribe-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.subscribe-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.subscribe-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: var(--on_surface);
+}
+
+.subscribe-status {
+  font-size: 24rpx;
+  color: #ff9800;
+}
+
+.subscribe-status.authorized {
+  color: #006e28;
+}
+
+.subscribe-btn {
+  background-color: #0058bc;
+  padding: 12rpx 28rpx;
+  border-radius: 9999rpx;
+}
+
+.subscribe-btn text {
+  font-size: 26rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.subscribe-btn:active {
+  opacity: 0.8;
+}
+
 .settings-card {
   background-color: var(--surface-container-lowest);
   border-radius: 20rpx;

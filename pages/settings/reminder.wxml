@@ -1,5 +1,28 @@
 <!--pages/settings/reminder.wxml-->
 <view class="container">
+  <!-- 订阅消息授权 -->
+  <view class="subscribe-card">
+    <view class="subscribe-header">
+      <t-icon name="notification-filled" size="40rpx" color="{{subscribeAuthorized ? '#006e28' : '#ff9800'}}" />
+      <view class="subscribe-info">
+        <text class="subscribe-title">消息通知</text>
+        <text class="subscribe-status {{subscribeAuthorized ? 'authorized' : ''}}">
+          {{subscribeAuthorized ? '已授权' : (subscribeConfigured ? '未授权' : '模板未配置')}}
+        </text>
+      </view>
+    </view>
+    <view wx:if="{{!subscribeAuthorized && subscribeConfigured}}" class="subscribe-btn" bindtap="onRequestSubscribe">
+      <text>立即授权</text>
+    </view>
+    <view wx:elif="{{subscribeAuthorized}}" class="subscribe-check">
+      <t-icon name="check-circle-filled" size="36rpx" color="#006e28" />
+    </view>
+    <view wx:else class="subscribe-pending">
+      <t-icon name="time-filled" size="36rpx" color="#ff9800" />
+    </view>
+  </view>
+
+  <!-- 提醒设置 -->
   <view class="settings-card">
     <view class="setting-row">
       <view class="setting-info">
@@ -33,6 +56,11 @@
 
   <view class="tips-card">
     <t-icon name="info-circle" size="32rpx" color="#0058bc" />
-    <text class="tips-text">服药提醒需要您授权小程序的订阅消息权限。请在微信设置中确认已开启通知。</text>
+    <text class="tips-text">服药提醒基于微信订阅消息。开启提醒后，需要授权订阅消息权限才能收到推送通知。后续需要后端服务配合定时发送。</text>
+  </view>
+
+  <view wx:if="{{subscribeAuthorized}}" class="tips-card" bindtap="onOpenSetting">
+    <t-icon name="setting" size="32rpx" color="#666" />
+    <text class="tips-text" style="color: var(--on_surface_variant);">如需修改通知权限，请点击此处前往系统设置。</text>
   </view>
 </view>

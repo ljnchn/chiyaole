@@ -2,6 +2,7 @@
 const medicationService = require('../../utils/medicationService')
 const checkinService = require('../../utils/checkinService')
 const storage = require('../../utils/storage')
+const subscribeService = require('../../utils/subscribeService')
 
 Page({
   data: {
@@ -140,8 +141,12 @@ Page({
 
     wx.showToast({ title: '打卡成功', icon: 'success' })
 
-    // 刷新数据
     this.loadTodayData()
+
+    // 首次打卡后引导订阅消息
+    if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
+      setTimeout(() => { subscribeService.promptSubscribe() }, 1500)
+    }
   },
 
   onAddMedication() {
