@@ -22,7 +22,5 @@ App({
     checkinService.initSeedData(medications)
   },
 
-  globalData: {
-    userInfo: null
-  }
+  globalData: {}
 })

@@ -38,7 +38,8 @@ Page({
     wx.navigateTo({ url: '/pages/medication/add' })
   },
 
-  onMedicationTap() {
-    wx.showToast({ title: '详情页开发中', icon: 'none' })
+  onMedicationTap(e) {
+    const { id } = e.currentTarget.dataset
+    wx.navigateTo({ url: `/pages/medication/detail?id=${id}` })
   }
 })

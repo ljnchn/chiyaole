@@ -1,0 +1,32 @@
+<!--pages/settings/help.wxml-->
+<view class="container">
+  <view class="section-label">常见问题</view>
+  <view class="faq-card">
+    <view wx:for="{{faqList}}" wx:key="id" class="faq-item">
+      <view class="faq-question" bindtap="onToggleFaq" data-id="{{item.id}}">
+        <text>{{item.question}}</text>
+        <t-icon name="{{item.expanded ? 'chevron-up' : 'chevron-down'}}" size="32rpx" color="#c4c4c9" />
+      </view>
+      <view class="faq-answer {{item.expanded ? 'expanded' : ''}}">
+        <text>{{item.answer}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-label">联系我们</view>
+  <view class="contact-card" bindtap="onContactUs">
+    <view class="contact-icon">
+      <t-icon name="service" size="40rpx" color="#0058bc" />
+    </view>
+    <view class="contact-info">
+      <text class="contact-title">在线客服</text>
+      <text class="contact-desc">工作日 9:00-18:00</text>
+    </view>
+    <t-icon name="chevron-right" size="32rpx" color="#c4c4c9" />
+  </view>
+
+  <button class="feedback-btn" open-type="feedback">
+    <t-icon name="edit" size="32rpx" color="#ffffff" />
+    <text>意见反馈</text>
+  </button>
+</view>

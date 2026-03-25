@@ -1,0 +1,87 @@
+<!--pages/medication/detail.wxml-->
+<view class="container" wx:if="{{medication}}">
+  <!-- 药品头部 -->
+  <view class="detail-header" style="background-color: {{medication.color}}10;">
+    <view class="header-icon" style="background-color: {{medication.color}}20;">
+      <t-icon name="{{medication.icon}}" size="80rpx" color="{{medication.color}}" />
+    </view>
+    <text class="header-name">{{medication.name}}</text>
+    <text class="header-dosage">每次 {{medication.dosage}}</text>
+    <view class="header-tags">
+      <view class="tag" style="background-color: {{medication.color}}15; color: {{medication.color}};">
+        {{medication.specification || '未设规格'}}
+      </view>
+      <view class="tag" style="background-color: {{medication.color}}15; color: {{medication.color}};">
+        {{foodLabel}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 库存卡片 -->
+  <view class="section-card">
+    <view class="section-header">
+      <text class="section-title">库存信息</text>
+      <view class="replenish-btn" bindtap="onReplenish">
+        <t-icon name="add" size="28rpx" color="#006e28" />
+        <text>补货</text>
+      </view>
+    </view>
+    <view class="stock-visual">
+      <view class="stock-numbers">
+        <text class="stock-remaining {{stockPercent < 20 ? 'warning' : ''}}">{{medication.remaining}}</text>
+        <text class="stock-total">/ {{medication.total}} {{medication.unit}}</text>
+      </view>
+      <view class="stock-bar">
+        <view
+          class="stock-bar-fill"
+          style="width: {{stockPercent}}%; background-color: {{stockPercent < 20 ? '#e53935' : medication.color}};"
+        />
+      </view>
+      <text class="stock-hint" wx:if="{{stockPercent < 20}}">库存告急，请及时补充</text>
+    </view>
+  </view>
+
+  <!-- 服药时间 -->
+  <view class="section-card">
+    <text class="section-title">服药时间</text>
+    <view class="time-chips" wx:if="{{medication.times.length > 0}}">
+      <view wx:for="{{medication.times}}" wx:key="index" class="time-chip" style="border-color: {{medication.color}};">
+        <t-icon name="time" size="28rpx" color="{{medication.color}}" />
+        <text>{{item}}</text>
+      </view>
+    </view>
+    <text class="empty-hint" wx:else>未设定服药时间</text>
+  </view>
+
+  <!-- 备注 -->
+  <view class="section-card" wx:if="{{medication.remark}}">
+    <text class="section-title">备注</text>
+    <text class="remark-text">{{medication.remark}}</text>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="section-card">
+    <text class="section-title">最近服药记录</text>
+    <view class="record-list" wx:if="{{recentRecords.length > 0}}">
+      <view wx:for="{{recentRecords}}" wx:key="id" class="record-row {{item.status}}">
+        <view class="record-left">
+          <text class="record-date">{{item.date}}</text>
+          <text class="record-time">{{item.timeText}}</text>
+        </view>
+        <view class="record-status {{item.status}}">
+          <t-icon name="{{item.status === 'taken' ? 'check-circle' : 'close-circle'}}" size="32rpx" color="{{item.status === 'taken' ? '#006e28' : '#e53935'}}" />
+          <text>{{item.statusText}}</text>
+        </view>
+      </view>
+    </view>
+    <text class="empty-hint" wx:else>暂无服药记录</text>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="action-section">
+    <button class="btn-toggle" bindtap="onToggleStatus">
+      {{medication.status === 'active' ? '暂停服用' : '恢复服用'}}
+    </button>
+    <button class="btn-delete" bindtap="onDelete">删除药品</button>
+  </view>
+</view>

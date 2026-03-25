@@ -89,7 +89,7 @@
         </view>
         <view class="record-meta">
           <text class="record-time {{item.status}}">{{item.time}}</text>
-          <view wx:if="{{item.status === 'missed'}}" class="makeup-btn" bindtap="onMakeup">
+          <view wx:if="{{item.status === 'missed'}}" class="makeup-btn" bindtap="onMakeup" data-id="{{item.id}}">
             <text>补录</text>
           </view>
         </view>

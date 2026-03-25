@@ -1,0 +1,38 @@
+<!--pages/settings/reminder.wxml-->
+<view class="container">
+  <view class="settings-card">
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-title">服药提醒</text>
+        <text class="setting-desc">开启后将在服药时间推送提醒</text>
+      </view>
+      <t-switch value="{{reminderEnabled}}" bindchange="onReminderChange" />
+    </view>
+
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-title">震动提醒</text>
+        <text class="setting-desc">提醒时附带震动反馈</text>
+      </view>
+      <t-switch value="{{vibrationEnabled}}" bindchange="onVibrationChange" />
+    </view>
+
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-title">贪睡时长</text>
+        <text class="setting-desc">点击稍后提醒的间隔时间</text>
+      </view>
+      <picker mode="selector" range="{{snoozeOptions}}" bindchange="onSnoozeChange">
+        <view class="picker-display">
+          <text>{{snoozeMinutes}} 分钟</text>
+          <t-icon name="chevron-right" size="32rpx" color="#c4c4c9" />
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="tips-card">
+    <t-icon name="info-circle" size="32rpx" color="#0058bc" />
+    <text class="tips-text">服药提醒需要您授权小程序的订阅消息权限。请在微信设置中确认已开启通知。</text>
+  </view>
+</view>

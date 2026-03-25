@@ -1,0 +1,261 @@
+/* pages/medication/detail.wxss */
+
+.container {
+  padding: 32rpx;
+  padding-bottom: 200rpx;
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+  gap: 12rpx;
+}
+
+.header-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8rpx;
+}
+
+.header-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+}
+
+.header-dosage {
+  font-size: 28rpx;
+  color: var(--on_surface_variant);
+}
+
+.header-tags {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+
+.tag {
+  font-size: 22rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 9999rpx;
+}
+
+.section-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-primary);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+  margin-bottom: 24rpx;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.replenish-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background-color: #e8f5e9;
+  padding: 12rpx 24rpx;
+  border-radius: 9999rpx;
+}
+
+.replenish-btn text {
+  font-size: 24rpx;
+  color: #006e28;
+  font-weight: 500;
+}
+
+.stock-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.stock-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.stock-remaining {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stock-remaining.warning {
+  color: #e53935;
+}
+
+.stock-total {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+}
+
+.stock-bar {
+  height: 12rpx;
+  background-color: var(--surface-container);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+.stock-hint {
+  font-size: 22rpx;
+  color: #e53935;
+}
+
+.time-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.time-chip {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 9999rpx;
+  background-color: var(--surface-container);
+  border: 2rpx solid;
+}
+
+.time-chip text {
+  font-size: 28rpx;
+  color: var(--on_surface);
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+}
+
+.remark-text {
+  font-size: 28rpx;
+  color: var(--on_surface);
+  line-height: 1.6;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--surface-container);
+}
+
+.record-row:last-child {
+  border-bottom: none;
+}
+
+.record-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.record-date {
+  font-size: 26rpx;
+  color: var(--on_surface);
+}
+
+.record-time {
+  font-size: 22rpx;
+  color: var(--on_surface_variant);
+}
+
+.record-status {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.record-status text {
+  font-size: 24rpx;
+}
+
+.record-status.taken text {
+  color: #006e28;
+}
+
+.record-status.missed text {
+  color: #e53935;
+}
+
+.action-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background-color: var(--surface);
+  display: flex;
+  gap: 24rpx;
+}
+
+.btn-toggle {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: var(--surface-container);
+  color: var(--on_surface);
+  font-size: 30rpx;
+  border: none;
+  border-radius: 9999rpx;
+}
+
+.btn-delete {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #fff5f5;
+  color: #e53935;
+  font-size: 30rpx;
+  border: none;
+  border-radius: 9999rpx;
+}
+
+.btn-toggle:active,
+.btn-delete:active {
+  opacity: 0.7;
+}

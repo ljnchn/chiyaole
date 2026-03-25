@@ -3,8 +3,14 @@
     "pages/index/index",
     "pages/medication/list",
     "pages/medication/add",
+    "pages/medication/detail",
     "pages/record/record",
-    "pages/user/user"
+    "pages/user/user",
+    "pages/user/profile",
+    "pages/settings/reminder",
+    "pages/settings/family",
+    "pages/settings/help",
+    "pages/settings/about"
   ],
   "lazyCodeLoading": "requiredComponents",
   "window": {
