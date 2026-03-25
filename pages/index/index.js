@@ -8,6 +8,11 @@ const WEEKDAY_NAMES = ['日', '一', '二', '三', '四', '五', '六']
 const WEEKDAY_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const FOOD_LABELS = { before: '饭前服用', after: '饭后服用', empty: '空腹服用' }
 
+function getAvatarText(name) {
+  const t = (name || '').toString().trim()
+  return t ? t.charAt(0) : '药'
+}
+
 /**
  * 获取时间段标签和图标
  */
@@ -103,82 +108,78 @@ Page({
       const todayStr = storage.today()
       let items = []
 
-      if (dateStr === todayStr) {
-        // 今日用 /checkins/today 接口，返回 { date, items, progress }
-        const todayData = await checkinService.getToday()
-        if (todayData && todayData.items) {
-          items = todayData.items
+      // 为了保证结构一致（time/taken/usagePercent 等字段齐全），这里不直接用 /checkins/today，
+      // 而是始终以 “活跃药品 + 当日打卡记录” 组装数据。
+      const medications = await medicationService.getActive()
+      const dayCheckins = await checkinService.getByDate(dateStr)
+
+      medications.forEach(function (med) {
+        const times = med.times || []
+        const usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
+        const foodLabel = FOOD_LABELS[med.withFood] || ''
+        const dosageDesc = med.dosage + (foodLabel ? ' · ' + foodLabel : '')
+      const avatarText = getAvatarText(med.name)
+
+        if (times.length === 0) {
+          const existing = dayCheckins.find(function (c) {
+            return c.medicationId === med.id && c.scheduledTime === ''
+          })
+          items.push({
+            id: med.id,
+            medicationId: med.id,
+            name: med.name,
+            dosage: med.dosage,
+            dosageDesc: dosageDesc,
+            specification: med.specification,
+            time: '',
+            scheduledTime: '',
+            taken: existing ? existing.status === 'taken' : false,
+              avatarText: avatarText,
+            icon: med.icon,
+            color: med.color,
+            remaining: med.remaining,
+            total: med.total,
+            unit: med.unit,
+            usagePercent: usagePercent,
+            urgent: false,
+            period: 'other'
+          })
+          return
         }
-      } else {
-        // 非今日：获取活跃药品 + 当日打卡记录，手动组装
-        const medications = await medicationService.getActive()
-        const dayCheckins = await checkinService.getByDate(dateStr)
 
-        medications.forEach(function (med) {
-          const times = med.times || []
-          const usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
-          const foodLabel = FOOD_LABELS[med.withFood] || ''
-          const dosageDesc = med.dosage + (foodLabel ? ' · ' + foodLabel : '')
-
-          if (times.length === 0) {
-            const existing = dayCheckins.find(function (c) {
-              return c.medicationId === med.id && c.scheduledTime === ''
-            })
-            items.push({
-              id: med.id,
-              medicationId: med.id,
-              name: med.name,
-              dosage: med.dosage,
-              dosageDesc: dosageDesc,
-              specification: med.specification,
-              time: '',
-              scheduledTime: '',
-              taken: existing ? existing.status === 'taken' : false,
-              icon: med.icon,
-              color: med.color,
-              remaining: med.remaining,
-              total: med.total,
-              unit: med.unit,
-              usagePercent: usagePercent,
-              urgent: false,
-              period: 'other'
-            })
-            return
+        times.forEach(function (time) {
+          const existing = dayCheckins.find(function (c) {
+            return c.medicationId === med.id && c.scheduledTime === time
+          })
+          const taken = existing ? existing.status === 'taken' : false
+          let urgent = false
+          if (!taken && dateStr === todayStr) {
+            urgent = storage.formatTime(new Date()) > time
           }
+          const tp = getTimePeriod(time)
 
-          times.forEach(function (time) {
-            const existing = dayCheckins.find(function (c) {
-              return c.medicationId === med.id && c.scheduledTime === time
-            })
-            const taken = existing ? existing.status === 'taken' : false
-            let urgent = false
-            if (!taken && dateStr === todayStr) {
-              urgent = storage.formatTime(new Date()) > time
-            }
-            const tp = getTimePeriod(time)
-
-            items.push({
-              id: med.id + '_' + time,
-              medicationId: med.id,
-              name: med.name,
-              dosage: med.dosage,
-              dosageDesc: dosageDesc,
-              specification: med.specification,
-              time: time,
-              scheduledTime: time,
-              taken: taken,
-              icon: med.icon,
-              color: med.color,
-              remaining: med.remaining,
-              total: med.total,
-              unit: med.unit,
-              usagePercent: usagePercent,
-              urgent: urgent,
-              period: tp.period
-            })
+          items.push({
+            id: med.id + '_' + time,
+            medicationId: med.id,
+            name: med.name,
+            dosage: med.dosage,
+            dosageDesc: dosageDesc,
+            specification: med.specification,
+            time: time,
+            scheduledTime: time,
+            taken: taken,
+              avatarText: avatarText,
+            icon: med.icon,
+            color: med.color,
+            remaining: med.remaining,
+            total: med.total,
+            unit: med.unit,
+            usagePercent: usagePercent,
+            urgent: urgent,
+            period: tp.period
           })
         })
-      }
+      })
 
       items.sort(function (a, b) {
         return (a.time || '99:99').localeCompare(b.time || '99:99')
@@ -243,26 +244,41 @@ Page({
       return
     }
 
-    try {
-      await checkinService.add({
-        medicationId: targetItem.medicationId,
-        date: storage.today(),
-        scheduledTime: targetItem.scheduledTime,
-        actualTime: storage.formatTime(new Date()),
-        status: 'taken',
-        dosage: targetItem.dosage
-      })
+    const timeText = targetItem.scheduledTime ? targetItem.scheduledTime : '未设定时间'
+    const selectedDate = this.data.selectedDate
 
-      await medicationService.updateStock(targetItem.medicationId, -1)
-      wx.showToast({ title: '打卡成功', icon: 'success' })
-      this.loadDayData(this.data.selectedDate)
+    wx.showModal({
+      title: '确认打卡',
+      content: '确认在「' + timeText + '」打卡该药品？',
+      confirmText: '确认',
+      cancelText: '取消',
+      success: async (res) => {
+        if (!res.confirm) return
 
-      if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
-        setTimeout(function () { subscribeService.promptSubscribe() }, 1500)
+        try {
+          await checkinService.add({
+            medicationId: targetItem.medicationId,
+            date: storage.today(),
+            scheduledTime: targetItem.scheduledTime,
+            actualTime: storage.formatTime(new Date()),
+            status: 'taken',
+            dosage: targetItem.dosage
+          })
+
+          await medicationService.updateStock(targetItem.medicationId, -1)
+          wx.showToast({ title: '打卡成功', icon: 'success' })
+          this.loadDayData(selectedDate)
+
+          if (subscribeService.isConfigured() && !subscribeService.hasAuthorized()) {
+            setTimeout(function () { subscribeService.promptSubscribe() }, 1500)
+          }
+        } catch (err) {
+          // request.js 已经在失败时弹出 toast；这里仅兜底刷新，避免列表状态错乱
+          console.error('[Index] 打卡失败:', err)
+          this.loadDayData(selectedDate)
+        }
       }
-    } catch (err) {
-      console.error('[Index] 打卡失败:', err)
-    }
+    })
   },
 
   onAddMedication() {

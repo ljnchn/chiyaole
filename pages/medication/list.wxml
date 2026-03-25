@@ -33,8 +33,8 @@
       data-id="{{item.id}}"
     >
       <view class="card-image">
-        <view class="placeholder-image" style="background-color: {{item.color}}20;">
-          <t-icon name="{{item.icon}}" size="64rpx" color="{{item.color}}" />
+        <view class="placeholder-image" style="background-color: {{item.color}}40;">
+          <text class="avatar-text">{{item.avatarText}}</text>
         </view>
         <view wx:if="{{item.lowStock}}" class="low-stock-badge">
           <text>库存告急</text>
@@ -50,7 +50,7 @@
           <view class="stock-progress">
             <view
               class="progress-bar"
-              style="width: {{(item.remaining / item.total) * 100}}%; background-color: {{item.lowStock ? '#e53935' : item.color}};"
+              style="width: {{item.stockPercent}}%; background-color: {{item.lowStock ? '#e53935' : item.color}};"
             />
           </view>
         </view>

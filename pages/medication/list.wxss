@@ -85,6 +85,13 @@
   justify-content: center;
 }
 
+.avatar-text {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
 .low-stock-badge {
   position: absolute;
   top: 16rpx;

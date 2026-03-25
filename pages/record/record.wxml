@@ -79,8 +79,8 @@
         wx:key="id"
         class="record-item {{item.status}}"
       >
-        <view class="record-icon" style="background-color: {{item.color}}20;">
-          <t-icon name="{{item.icon}}" size="40rpx" color="{{item.color}}" />
+        <view class="record-icon" style="background-color: {{item.color}}40;">
+          <text class="record-avatar-text">{{item.avatarText}}</text>
         </view>
         <view class="record-info">
           <text class="record-name">{{item.name}}</text>
@@ -94,18 +94,6 @@
           </view>
         </view>
       </view>
-    </view>
-  </view>
-
-  <!-- Health Report Card -->
-  <view class="report-card">
-    <text class="report-title">健康分析报告</text>
-    <text class="report-desc">{{compliance >= 80 ? '您的服药规律性极佳，请继续保持良好的生活习惯。' : compliance >= 50 ? '您的服药规律性一般，建议设置提醒帮助坚持。' : '您的服药规律性较低，请注意按时服药。'}}</text>
-    <view class="report-progress">
-      <view class="progress-track">
-        <view class="progress-fill" style="width: {{compliance}}%;"></view>
-      </view>
-      <text class="report-score">{{compliance}}%</text>
     </view>
   </view>
 </view>

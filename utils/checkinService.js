@@ -5,6 +5,18 @@
 const request = require('./request')
 
 /**
+ * 兼容后端返回结构差异：可能返回数组，也可能返回 { list: [] } / { items: [] }。
+ * @param {any} res
+ * @returns {Array}
+ */
+function normalizeCheckinList(res) {
+  if (Array.isArray(res)) return res
+  if (res && Array.isArray(res.list)) return res.list
+  if (res && Array.isArray(res.items)) return res.items
+  return []
+}
+
+/**
  * 获取今日打卡数据（返回 { date, items, progress }）
  * @returns {Promise<Object>}
  */
@@ -18,7 +30,7 @@ function getToday() {
  * @returns {Promise<Array>}
  */
 function getByDate(date) {
-  return request.get('/checkins', { date: date })
+  return request.get('/checkins', { date: date }).then(normalizeCheckinList)
 }
 
 /**
@@ -28,7 +40,7 @@ function getByDate(date) {
  * @returns {Promise<Array>}
  */
 function getByDateRange(start, end) {
-  return request.get('/checkins', { startDate: start, endDate: end })
+  return request.get('/checkins', { startDate: start, endDate: end }).then(normalizeCheckinList)
 }
 
 /**
@@ -37,7 +49,7 @@ function getByDateRange(start, end) {
  * @returns {Promise<Array>}
  */
 function getByMedication(medId) {
-  return request.get('/checkins', { medicationId: medId })
+  return request.get('/checkins', { medicationId: medId }).then(normalizeCheckinList)
 }
 
 /**

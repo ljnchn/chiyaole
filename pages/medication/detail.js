@@ -1,14 +1,21 @@
 // pages/medication/detail.js
 const medicationService = require('../../utils/medicationService')
+const lowStock = require('../../utils/lowStock')
 
 const FOOD_LABELS = { 'before': '饭前', 'after': '饭后', 'empty': '空腹', '': '不限' }
+
+function getAvatarText(name) {
+  const t = (name || '').toString().trim()
+  return t ? t.charAt(0) : '药'
+}
 
 Page({
   data: {
     medication: null,
     recentRecords: [],
     foodLabel: '',
-    stockPercent: 0
+    stockPercent: 0,
+    lowStock: false
   },
 
   onLoad(options) {
@@ -33,7 +40,13 @@ Page({
         return
       }
 
+      // 防御性兜底：后端返回可能缺少 times 字段（例如删除/更新时的数据差异）
+      if (!Array.isArray(med.times)) med.times = []
+      if (med.remark === undefined || med.remark === null) med.remark = ''
+      med.avatarText = getAvatarText(med.name)
+
       var stockPercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
+      var lowStockFlag = lowStock.calcLowStock(med)
       var foodLabel = FOOD_LABELS[med.withFood] || '不限'
 
       var records = (result.recentCheckins || []).map(function (r) {
@@ -47,7 +60,8 @@ Page({
         medication: med,
         recentRecords: records,
         foodLabel: foodLabel,
-        stockPercent: stockPercent
+        stockPercent: stockPercent,
+        lowStock: lowStockFlag
       })
     } catch (err) {
       console.error('[MedicationDetail] 加载失败:', err)
@@ -101,6 +115,11 @@ Page({
         }
       }
     })
+  },
+
+  onEdit() {
+    if (!this.medId) return
+    wx.navigateTo({ url: '/pages/medication/edit?id=' + this.medId })
   },
 
   onDelete() {

@@ -1,17 +1,5 @@
 <!--index.wxml-->
 <view class="container">
-  <!-- 顶部标题栏 -->
-  <view class="top-bar">
-    <view class="top-left">
-      <t-icon name="heart-filled" size="36rpx" color="#0058bc" />
-      <text class="top-title">今日提醒</text>
-    </view>
-    <view class="top-right" bindtap="onViewAll">
-      <t-icon name="notification" size="40rpx" color="{{notificationDot ? '#e53935' : '#414755'}}" />
-      <view wx:if="{{notificationDot}}" class="dot"></view>
-    </view>
-  </view>
-
   <!-- 年月 + 周数 -->
   <view class="calendar-header">
     <text class="year-month">{{yearMonth}}</text>
@@ -65,8 +53,8 @@
     >
       <view class="med-card-body">
         <!-- 药品图标 -->
-        <view class="med-icon" style="background-color: {{med.color}}15;">
-          <t-icon name="{{med.icon}}" size="48rpx" color="{{med.color}}" />
+        <view class="med-icon" style="background-color: {{med.color}}40;">
+          <text class="med-avatar-text">{{med.avatarText}}</text>
         </view>
 
         <!-- 药品信息 -->

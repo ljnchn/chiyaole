@@ -1,4 +1,4 @@
-// pages/medication/add.js
+// pages/medication/edit.js
 const medicationService = require('../../utils/medicationService')
 const lowStock = require('../../utils/lowStock')
 
@@ -22,8 +22,6 @@ const COLOR_OPTIONS = [
 
 // 单位选项
 const UNIT_OPTIONS = ['片', '粒', 'ml', '喷', '袋', '支']
-
-// t-picker-item 的 options 需要 { label, value } 格式（否则部分版本会不渲染）
 const UNIT_PICKER_OPTIONS = UNIT_OPTIONS.map(function (u) { return { label: u, value: u } })
 
 const TIME_HOUR_VALUES = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
@@ -41,6 +39,11 @@ const FOOD_OPTIONS = [
   { value: 'after', label: '饭后' },
   { value: 'empty', label: '空腹' }
 ]
+
+function getAvatarText(name) {
+  const t = (name || '').toString().trim()
+  return t ? t.charAt(0) : '药'
+}
 
 Page({
   data: {
@@ -76,8 +79,71 @@ Page({
     unitPickerValue: ['片']
   },
 
-  // --- 基本信息 ---
+  onLoad(options) {
+    if (options && options.id) {
+      this.medId = options.id
+      this.loadDetail()
+    }
+  },
 
+  onShow() {
+    if (this.medId) this.loadDetail()
+  },
+
+  async loadDetail() {
+    try {
+      const result = await medicationService.getById(this.medId)
+
+      const med = result.medication
+      if (!med) {
+        wx.showToast({ title: '药品不存在', icon: 'none' })
+        setTimeout(function () { wx.navigateBack() }, 500)
+        return
+      }
+
+      if (!Array.isArray(med.times)) med.times = []
+      if (med.remark === undefined || med.remark === null) med.remark = ''
+      if (med.specification === undefined || med.specification === null) med.specification = ''
+      if (med.withFood === undefined || med.withFood === null) med.withFood = ''
+
+      const totalNum = Number(med.total)
+      const safeTotal = Number.isFinite(totalNum) ? totalNum : 0
+      const remainingNum = Number(med.remaining)
+      const safeRemaining = Number.isFinite(remainingNum) ? remainingNum : safeTotal
+
+      const enabledRaw = med.lowStockEnabled
+      const enabled = enabledRaw === false || enabledRaw === 0 ? false : true
+
+      const thresholdNum = Number(med.lowStockThreshold)
+      const threshold = Number.isFinite(thresholdNum)
+        ? Math.max(0, Math.min(thresholdNum, safeTotal))
+        : lowStock.calcDefaultLowStockThreshold(safeTotal)
+
+      this.setData({
+        name: med.name || '',
+        avatarText: getAvatarText(med.name),
+        dosage: med.dosage || '',
+        specification: med.specification || '',
+        remark: med.remark || '',
+        icon: med.icon || 'pill',
+        color: med.color || '#0058bc',
+        unit: med.unit || '片',
+        total: safeTotal,
+        remaining: Math.min(safeRemaining, safeTotal),
+        lowStockEnabled: enabled,
+        lowStockThreshold: threshold,
+        lowStockThresholdTouched: false,
+        withFood: med.withFood,
+        times: med.times,
+        unitPickerValue: [med.unit || '片']
+      })
+    } catch (err) {
+      console.error('[MedicationEdit] 加载失败:', err)
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
+  },
+
+  // --- 基本信息 ---
   onNameInput(e) {
     const name = e.detail.value
     const t = (name || '').toString().trim()
@@ -100,7 +166,6 @@ Page({
   },
 
   // --- 图标 & 颜色 ---
-
   onSelectIcon(e) {
     this.setData({ icon: e.currentTarget.dataset.value })
   },
@@ -110,9 +175,7 @@ Page({
   },
 
   // --- 单位选择 ---
-
   onShowUnitPicker() {
-    // t-picker 的 value 需要传实际 option.value（这里就是单位字符串）
     this.setData({ showUnitPicker: true, unitPickerValue: [this.data.unit] })
   },
 
@@ -125,15 +188,11 @@ Page({
   },
 
   // --- 库存 ---
-
   onTotalChange(e) {
     const totalNum = Number(e.detail.value)
     const remainingNum = Number(this.data.remaining)
-
-    // 注意：这里不能用 `||`，否则 remaining=0 会被当成“未填”
     const safeRemaining = Number.isFinite(remainingNum) ? Math.min(remainingNum, totalNum) : totalNum
 
-    // 如果用户没手动改过阈值，则随总量变化给一个默认“预警数量”
     const safeThreshold = this.data.lowStockThresholdTouched
       ? Number(this.data.lowStockThreshold)
       : lowStock.calcDefaultLowStockThreshold(totalNum)
@@ -151,7 +210,6 @@ Page({
 
   onLowStockEnabledChange(e) {
     const enabled = !!e.detail.value
-    // 关闭告警时仍保留阈值；打开时如果阈值未被手动修改过，则补一个默认值
     const nextThreshold = (!this.data.lowStockThresholdTouched && enabled)
       ? lowStock.calcDefaultLowStockThreshold(this.data.total)
       : this.data.lowStockThreshold
@@ -171,13 +229,11 @@ Page({
   },
 
   // --- 餐食关系 ---
-
   onSelectFood(e) {
     this.setData({ withFood: e.currentTarget.dataset.value })
   },
 
   // --- 服药时间 ---
-
   onAddTime() {
     this.setData({ showTimePicker: true })
   },
@@ -188,7 +244,6 @@ Page({
     const hour = values && values[0]
     const minute = values && values[1]
 
-    // 允许用户“时间留空/不设定”：选择空直接清空 times，并关闭弹窗
     if (!hour) {
       this.setData({ times: [], showTimePicker: false })
       return
@@ -204,6 +259,7 @@ Page({
       wx.showToast({ title: '该时间已添加', icon: 'none' })
       return
     }
+
     const newTimes = [].concat(times, [time]).sort()
     this.setData({ times: newTimes, showTimePicker: false })
   },
@@ -219,7 +275,6 @@ Page({
   },
 
   // --- 保存 ---
-
   async onSave() {
     const { name, dosage, specification, icon, color, unit, total, remaining, times, withFood, remark, lowStockEnabled, lowStockThreshold } = this.data
 
@@ -238,13 +293,14 @@ Page({
       const remainingNum = remainingProvided ? Number(remaining) : totalNum
 
       const safeTotal = Number.isFinite(totalNum) ? totalNum : 0
-      const safeRemaining = Number.isFinite(remainingNum) ? remainingNum : safeTotal
+      const safeRemaining = Number.isFinite(remainingNum) ? Math.min(remainingNum, safeTotal) : safeTotal
+
       const thresholdNum = Number(lowStockThreshold)
       const safeThreshold = Number.isFinite(thresholdNum)
         ? Math.max(0, Math.min(thresholdNum, safeTotal))
         : 0
 
-      await medicationService.add({
+      await medicationService.update(this.medId, {
         name: name.trim(),
         dosage: dosage.trim(),
         specification: specification.trim(),
@@ -257,16 +313,17 @@ Page({
         lowStockThreshold: safeThreshold,
         times: times,
         withFood: withFood,
-        remark: remark.trim(),
-        status: 'active'
+        remark: remark.trim()
       })
 
-      wx.showToast({ title: '添加成功', icon: 'success' })
+      wx.showToast({ title: '保存成功', icon: 'success' })
       setTimeout(function () {
         wx.navigateBack()
       }, 800)
     } catch (err) {
-      console.error('[MedicationAdd] 保存失败:', err)
+      console.error('[MedicationEdit] 保存失败:', err)
+      wx.showToast({ title: '保存失败', icon: 'none' })
     }
   }
 })
+

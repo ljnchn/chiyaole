@@ -2,6 +2,11 @@
 const medicationService = require('../../utils/medicationService')
 const checkinService = require('../../utils/checkinService')
 
+function getAvatarText(name) {
+  const t = (name || '').toString().trim()
+  return t ? t.charAt(0) : '药'
+}
+
 Page({
   data: {
     currentYear: 0,
@@ -107,7 +112,10 @@ Page({
 
       const records = []
       medications.forEach(function (med) {
-        const times = med.times || ['']
+        // 允许药品“时间为空”（times: []）：
+        // 这里统一当作未设定时间（scheduledTime: ''）来生成记录项
+        const times = Array.isArray(med.times) && med.times.length > 0 ? med.times : ['']
+        const avatarText = getAvatarText(med.name)
         times.forEach(function (time) {
           const checkin = dayCheckins.find(function (c) {
             return c.medicationId === med.id && c.scheduledTime === time
@@ -120,6 +128,7 @@ Page({
             status: checkin ? checkin.status : 'pending',
             icon: med.icon,
             color: med.color,
+            avatarText: avatarText,
             warning: checkin && checkin.status === 'missed' ? '漏服记录 - 建议咨询医生' : ''
           })
         })

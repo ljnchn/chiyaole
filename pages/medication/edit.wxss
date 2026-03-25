@@ -1,4 +1,4 @@
-/* pages/medication/add.wxss */
+/* pages/medication/edit.wxss */
 
 .container {
   padding: 32rpx;
@@ -293,3 +293,4 @@
 .low-stock-hint.warning {
   color: #e53935;
 }
+

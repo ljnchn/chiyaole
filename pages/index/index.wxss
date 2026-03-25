@@ -228,6 +228,13 @@
   flex-shrink: 0;
 }
 
+.med-avatar-text {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
 /* 药品信息 */
 .med-info {
   flex: 1;

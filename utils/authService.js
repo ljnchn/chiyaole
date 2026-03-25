@@ -2,9 +2,9 @@
  * 登录授权服务
  * 使用 request.js 与后端交互，管理微信登录流程和认证状态
  */
-const request = require('./request')
+const request = require("./request.js");
 
-const AUTH_KEY = 'cym_auth'
+const AUTH_KEY = "cym_auth";
 
 /**
  * 获取本地认证信息
@@ -12,9 +12,9 @@ const AUTH_KEY = 'cym_auth'
  */
 function getAuth() {
   try {
-    return wx.getStorageSync(AUTH_KEY) || null
+    return wx.getStorageSync(AUTH_KEY) || null;
   } catch (e) {
-    return null
+    return null;
   }
 }
 
@@ -23,8 +23,8 @@ function getAuth() {
  * @returns {string}
  */
 function getToken() {
-  const auth = getAuth()
-  return (auth && auth.token) ? auth.token : ''
+  const auth = getAuth();
+  return auth && auth.token ? auth.token : "";
 }
 
 /**
@@ -32,10 +32,10 @@ function getToken() {
  * @returns {boolean}
  */
 function isLogged() {
-  const auth = getAuth()
-  if (!auth || !auth.token) return false
-  if (auth.expireAt && auth.expireAt < Date.now()) return false
-  return true
+  const auth = getAuth();
+  if (!auth || !auth.token) return false;
+  if (auth.expireAt && auth.expireAt < Date.now()) return false;
+  return true;
 }
 
 /**
@@ -47,29 +47,34 @@ function login() {
     wx.login({
       success: function (res) {
         if (!res.code) {
-          reject(new Error('wx.login 获取 code 失败'))
-          return
+          reject(new Error("wx.login 获取 code 失败"));
+          return;
         }
-        request.post('/auth/login', { code: res.code }).then(function (data) {
-          var auth = {
-            token: data.token,
-            refreshToken: data.refreshToken,
-            expireAt: data.expireAt
-          }
-          try {
-            wx.setStorageSync(AUTH_KEY, auth)
-          } catch (e) { /* ignore */ }
-          resolve(auth)
-        }).catch(function (err) {
-          reject(err)
-        })
+        request
+          .post("/auth/login", { code: res.code })
+          .then(function (data) {
+            var auth = {
+              token: data.token,
+              refreshToken: data.refreshToken,
+              expireAt: data.expireAt,
+            };
+            try {
+              wx.setStorageSync(AUTH_KEY, auth);
+            } catch (e) {
+              /* ignore */
+            }
+            resolve(auth);
+          })
+          .catch(function (err) {
+            reject(err);
+          });
       },
       fail: function (err) {
-        console.error('[Auth] wx.login 失败:', err)
-        reject(err)
-      }
-    })
-  })
+        console.error("[Auth] wx.login 失败:", err);
+        reject(err);
+      },
+    });
+  });
 }
 
 /**
@@ -77,21 +82,25 @@ function login() {
  * @returns {Promise<Object>} 更新后的认证数据
  */
 function refresh() {
-  var auth = getAuth()
+  var auth = getAuth();
   if (!auth || !auth.refreshToken) {
-    return Promise.reject(new Error('无 refreshToken'))
+    return Promise.reject(new Error("无 refreshToken"));
   }
-  return request.post('/auth/refresh', { refreshToken: auth.refreshToken }).then(function (data) {
-    var newAuth = {
-      token: data.token,
-      refreshToken: data.refreshToken,
-      expireAt: data.expireAt
-    }
-    try {
-      wx.setStorageSync(AUTH_KEY, newAuth)
-    } catch (e) { /* ignore */ }
-    return newAuth
-  })
+  return request
+    .post("/auth/refresh", { refreshToken: auth.refreshToken })
+    .then(function (data) {
+      var newAuth = {
+        token: data.token,
+        refreshToken: data.refreshToken,
+        expireAt: data.expireAt,
+      };
+      try {
+        wx.setStorageSync(AUTH_KEY, newAuth);
+      } catch (e) {
+        /* ignore */
+      }
+      return newAuth;
+    });
 }
 
 /**
@@ -101,10 +110,14 @@ function refresh() {
 function checkSession() {
   return new Promise(function (resolve) {
     wx.checkSession({
-      success: function () { resolve(true) },
-      fail: function () { resolve(false) }
-    })
-  })
+      success: function () {
+        resolve(true);
+      },
+      fail: function () {
+        resolve(false);
+      },
+    });
+  });
 }
 
 /**
@@ -113,10 +126,10 @@ function checkSession() {
  */
 async function autoLogin() {
   if (isLogged()) {
-    var valid = await checkSession()
-    if (valid) return getAuth()
+    var valid = await checkSession();
+    if (valid) return getAuth();
   }
-  return login()
+  return login();
 }
 
 /**
@@ -126,18 +139,18 @@ async function autoLogin() {
 function getUserProfile() {
   return new Promise(function (resolve, reject) {
     wx.getUserProfile({
-      desc: '用于展示个人信息',
+      desc: "用于展示个人信息",
       success: function (res) {
         resolve({
           nickName: res.userInfo.nickName,
-          avatarUrl: res.userInfo.avatarUrl
-        })
+          avatarUrl: res.userInfo.avatarUrl,
+        });
       },
       fail: function (err) {
-        reject(err)
-      }
-    })
-  })
+        reject(err);
+      },
+    });
+  });
 }
 
 /**
@@ -145,9 +158,13 @@ function getUserProfile() {
  */
 function logout() {
   try {
-    wx.removeStorageSync(AUTH_KEY)
-  } catch (e) { /* ignore */ }
-  request.del('/users/me/data').catch(function () { /* 静默忽略 */ })
+    wx.removeStorageSync(AUTH_KEY);
+  } catch (e) {
+    /* ignore */
+  }
+  request.del("/users/me/data").catch(function () {
+    /* 静默忽略 */
+  });
 }
 
 module.exports = {
@@ -159,5 +176,5 @@ module.exports = {
   checkSession,
   autoLogin,
   getUserProfile,
-  logout
-}
+  logout,
+};

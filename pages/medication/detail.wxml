@@ -2,8 +2,8 @@
 <view class="container" wx:if="{{medication}}">
   <!-- 药品头部 -->
   <view class="detail-header" style="background-color: {{medication.color}}10;">
-    <view class="header-icon" style="background-color: {{medication.color}}20;">
-      <t-icon name="{{medication.icon}}" size="80rpx" color="{{medication.color}}" />
+    <view class="header-icon" style="background-color: {{medication.color}}40;">
+      <text class="header-avatar-text">{{medication.avatarText}}</text>
     </view>
     <text class="header-name">{{medication.name}}</text>
     <text class="header-dosage">每次 {{medication.dosage}}</text>
@@ -28,16 +28,16 @@
     </view>
     <view class="stock-visual">
       <view class="stock-numbers">
-        <text class="stock-remaining {{stockPercent < 20 ? 'warning' : ''}}">{{medication.remaining}}</text>
+        <text class="stock-remaining {{lowStock ? 'warning' : ''}}">{{medication.remaining}}</text>
         <text class="stock-total">/ {{medication.total}} {{medication.unit}}</text>
       </view>
       <view class="stock-bar">
         <view
           class="stock-bar-fill"
-          style="width: {{stockPercent}}%; background-color: {{stockPercent < 20 ? '#e53935' : medication.color}};"
+          style="width: {{stockPercent}}%; background-color: {{lowStock ? '#e53935' : medication.color}};"
         />
       </view>
-      <text class="stock-hint" wx:if="{{stockPercent < 20}}">库存告急，请及时补充</text>
+      <text class="stock-hint" wx:if="{{lowStock}}">库存告急，请及时补充</text>
     </view>
   </view>
 
@@ -82,6 +82,7 @@
     <button class="btn-toggle" bindtap="onToggleStatus">
       {{medication.status === 'active' ? '暂停服用' : '恢复服用'}}
     </button>
+    <button class="btn-edit" bindtap="onEdit">编辑药品</button>
     <button class="btn-delete" bindtap="onDelete">删除药品</button>
   </view>
 </view>

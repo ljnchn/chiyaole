@@ -4,6 +4,7 @@
     "pages/medication/list",
     "pages/medication/add",
     "pages/medication/detail",
+    "pages/medication/edit",
     "pages/record/record",
     "pages/user/user",
     "pages/user/profile",

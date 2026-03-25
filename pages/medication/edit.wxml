@@ -1,4 +1,4 @@
-<!--pages/medication/add.wxml-->
+<!--pages/medication/edit.wxml-->
 <view class="container">
   <!-- 预览卡片 -->
   <view class="preview-card" style="background-color: {{color}}10;">
@@ -185,7 +185,7 @@
 
   <!-- 保存按钮 -->
   <view class="save-section">
-    <button class="btn-save" bindtap="onSave">保存药品</button>
+    <button class="btn-save" bindtap="onSave">保存修改</button>
   </view>
 </view>
 
@@ -215,3 +215,4 @@
 >
   <t-picker-item options="{{unitOptions}}" />
 </t-picker>
+

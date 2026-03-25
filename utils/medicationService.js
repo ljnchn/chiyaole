@@ -5,6 +5,17 @@
 const request = require('./request')
 
 /**
+ * 兼容后端返回结构差异：可能返回数组，也可能返回 { list: [] }。
+ * @param {any} res
+ * @returns {Array}
+ */
+function normalizeMedicationList(res) {
+  if (Array.isArray(res)) return res
+  if (res && Array.isArray(res.list)) return res.list
+  return []
+}
+
+/**
  * 获取所有药品（可按状态筛选）
  * @param {string} [status] - 'active' | 'paused' | 'completed'
  * @returns {Promise<Array>}
@@ -12,7 +23,7 @@ const request = require('./request')
 function getAll(status) {
   var params = {}
   if (status) params.status = status
-  return request.get('/medications', params)
+  return request.get('/medications', params).then(normalizeMedicationList)
 }
 
 /**
@@ -20,7 +31,7 @@ function getAll(status) {
  * @returns {Promise<Array>}
  */
 function getActive() {
-  return request.get('/medications', { status: 'active' })
+  return getAll('active')
 }
 
 /**
