@@ -1,235 +1,140 @@
 /* pages/index/index.wxss */
 
 .container {
-  padding: 32rpx;
-  padding-bottom: 120rpx;
+  padding: 24rpx 32rpx;
+  padding-bottom: 200rpx;
   background-color: var(--surface);
   min-height: 100vh;
 }
 
-/* Header */
-.header {
+/* ========== 顶部栏 ========== */
+.top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 40rpx;
+  align-items: center;
+  margin-bottom: 32rpx;
 }
 
-.date-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.date {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: var(--on_surface);
-  line-height: 1.2;
-}
-
-.weekday {
-  font-size: 28rpx;
-  color: var(--on_surface_variant);
-  margin-top: 8rpx;
-}
-
-.streak-badge {
+.top-left {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
-  padding: 12rpx 24rpx;
-  border-radius: 9999rpx;
-  font-size: 24rpx;
+  gap: 12rpx;
+}
+
+.top-title {
+  font-size: 36rpx;
+  font-weight: 700;
   color: #e53935;
-  font-weight: 500;
 }
 
-/* Progress Card */
-.progress-card {
-  background: linear-gradient(135deg, #0058bc 0%, #0070eb 100%);
-  border-radius: 24rpx;
-  padding: 40rpx;
-  margin-bottom: 40rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 16rpx 48rpx rgba(0, 88, 188, 0.2);
-}
-
-.progress-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.progress-label {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 16rpx;
-}
-
-.progress-value {
-  font-size: 64rpx;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-/* Progress Ring */
-.progress-ring {
+.top-right {
   position: relative;
-  width: 160rpx;
-  height: 160rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 8rpx;
 }
 
-.ring-bg,
-.ring-fill {
+.dot {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  top: 6rpx;
+  right: 6rpx;
+  width: 14rpx;
+  height: 14rpx;
+  background-color: #e53935;
   border-radius: 50%;
 }
 
-.ring-bg {
-  background: conic-gradient(
-    rgba(255, 255, 255, 0.2) 0deg,
-    rgba(255, 255, 255, 0.2) 360deg
-  );
-}
-
-.ring-fill {
-  background: conic-gradient(
-    #ffffff 0deg,
-    #ffffff calc(var(--progress) * 3.6deg),
-    transparent calc(var(--progress) * 3.6deg)
-  );
-  mask: radial-gradient(transparent 55%, black 56%);
-  -webkit-mask: radial-gradient(transparent 55%, black 56%);
-}
-
-.ring-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-}
-
-.percentage {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.label {
-  font-size: 20rpx;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Medication Section */
-.medication-section {
-  margin-bottom: 40rpx;
-}
-
-.section-header {
+/* ========== 年月 + 周数 ========== */
+.calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24rpx;
 }
 
-.section-title {
+.year-month {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+}
+
+.week-badge {
+  background-color: var(--primary);
+  padding: 8rpx 24rpx;
+  border-radius: 9999rpx;
+}
+
+.week-badge text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ========== 周日历 ========== */
+.week-calendar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  flex: 1;
+}
+
+.week-day-name {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: var(--on_surface_variant);
+}
+
+.week-day-num-wrap {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.week-day-num {
   font-size: 32rpx;
   font-weight: 600;
   color: var(--on_surface);
 }
 
-.view-all {
-  font-size: 26rpx;
-  color: var(--primary);
+.week-day.selected .week-day-num-wrap {
+  background-color: var(--primary);
 }
 
-/* Medication List */
-.medication-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+.week-day.selected .week-day-num {
+  color: #ffffff;
 }
 
-.medication-item {
-  display: flex;
-  align-items: center;
-  padding: 24rpx;
-  background-color: var(--surface-container-lowest);
-  border-radius: 16rpx;
-  transition: transform 0.2s ease;
+.week-day.today:not(.selected) .week-day-num-wrap {
+  border: 3rpx solid var(--primary);
 }
 
-.medication-item:active {
-  transform: scale(0.98);
-}
-
-.medication-item.taken {
+.week-day:active {
   opacity: 0.7;
 }
 
-.medication-item.urgent {
-  border-left: 6rpx solid #e53935;
+/* ========== 分割线 ========== */
+.divider {
+  height: 2rpx;
+  background-color: var(--surface-container);
+  margin-bottom: 32rpx;
 }
 
-.medication-icon {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 24rpx;
-  flex-shrink: 0;
-}
-
-.medication-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.medication-name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--on_surface);
-  margin-bottom: 8rpx;
-}
-
-.medication-dosage {
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-}
-
-.medication-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8rpx;
-}
-
-.medication-time {
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-}
-
-.check-status {
-  width: 40rpx;
-  height: 40rpx;
-}
-
-/* Empty State */
+/* ========== 空态 ========== */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80rpx 40rpx;
+  padding: 100rpx 40rpx;
   gap: 16rpx;
 }
 
@@ -246,28 +151,187 @@
   text-align: center;
 }
 
-/* Quick Actions */
-.quick-actions {
-  position: fixed;
-  bottom: 160rpx;
-  left: 50%;
-  transform: translateX(-50%);
+/* ========== 时间段分组 ========== */
+.time-group {
+  margin-bottom: 40rpx;
 }
 
-.btn-add {
+.time-group-header {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 9999rpx;
-  padding: 24rpx 48rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  box-shadow: 0 8rpx 32rpx rgba(0, 110, 40, 0.3);
+  gap: 16rpx;
+  margin-bottom: 20rpx;
 }
 
-.btn-add:active {
+.time-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: var(--on_surface_variant);
+}
+
+.time-dot.morning {
+  background-color: #ff9800;
+}
+
+.time-dot.noon {
+  background-color: #0058bc;
+}
+
+.time-dot.evening {
+  background-color: #4c4aca;
+}
+
+.time-group-label {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+/* ========== 药品卡片 ========== */
+.med-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-primary);
+}
+
+.med-card:active {
   transform: scale(0.98);
+  transition: transform 0.15s ease;
+}
+
+.med-card.taken {
+  opacity: 0.65;
+}
+
+.med-card.urgent {
+  border-left: 8rpx solid #e53935;
+}
+
+.med-card-body {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  gap: 20rpx;
+}
+
+/* 药品图标 */
+.med-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 药品信息 */
+.med-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.med-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+  margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.med-desc {
+  font-size: 24rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 16rpx;
+}
+
+/* 用量进度 */
+.med-usage {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.med-usage-label {
+  font-size: 22rpx;
+  color: var(--on_surface_variant);
+}
+
+.med-usage-pct {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.med-progress-track {
+  height: 10rpx;
+  background-color: var(--surface-container);
+  border-radius: 5rpx;
+  overflow: hidden;
+}
+
+.med-progress-fill {
+  height: 100%;
+  border-radius: 5rpx;
+  transition: width 0.3s ease;
+}
+
+/* 打卡按钮 */
+.med-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  flex-shrink: 0;
+  margin-left: 8rpx;
+}
+
+.check-btn {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e3f2fd;
+  border-radius: 20rpx;
+}
+
+.check-btn.checked {
+  background-color: #e8f5e9;
+}
+
+.check-label {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: var(--on_surface_variant);
+}
+
+/* ========== 悬浮添加按钮 ========== */
+.fab-area {
+  position: fixed;
+  bottom: 180rpx;
+  right: 40rpx;
+}
+
+.fab-btn {
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 40rpx rgba(0, 110, 40, 0.3);
+}
+
+.fab-btn:active {
+  transform: scale(0.9);
 }
