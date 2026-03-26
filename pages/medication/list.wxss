@@ -1,35 +1,75 @@
 /* pages/medication/list.wxss */
 
 .container {
-  padding: 32rpx;
-  padding-bottom: 120rpx;
+  padding: 24rpx 32rpx;
+  padding-bottom: 200rpx;
   background-color: var(--surface);
   min-height: 100vh;
 }
 
+/* ========== 顶部栏 ========== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.top-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.icon-btn {
+  padding: 8rpx;
+}
+
+.icon-btn:active {
+  opacity: 0.6;
+}
+
+/* ========== 统计卡片 ========== */
 .stats-section {
   display: flex;
   gap: 24rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 36rpx;
 }
 
 .stat-card {
   flex: 1;
   background-color: var(--surface-container-lowest);
-  border-radius: 20rpx;
-  padding: 32rpx;
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
   box-shadow: var(--shadow-primary);
 }
 
 .stat-card.warning {
-  background-color: #fff5f5;
+  background-color: #fef2f2;
 }
 
 .stat-label {
   display: block;
   font-size: 26rpx;
   color: var(--on_surface_variant);
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.warning-label {
+  color: #e53935;
+  font-weight: 500;
 }
 
 .stat-value {
@@ -44,135 +84,93 @@
   color: var(--primary);
 }
 
-.stat-card.warning .stat-number {
+.warning-number {
   color: #e53935;
 }
 
 .stat-unit {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--on_surface_variant);
 }
 
-.medication-grid {
+/* ========== 搜索栏 ========== */
+.search-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 24rpx;
-}
-
-.medication-card {
-  width: calc(50% - 12rpx);
+  align-items: center;
   background-color: var(--surface-container-lowest);
-  border-radius: 20rpx;
-  overflow: hidden;
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
   box-shadow: var(--shadow-primary);
 }
 
-.medication-card:active {
-  opacity: 0.8;
-}
-
-.card-image {
-  position: relative;
-  height: 240rpx;
-  overflow: hidden;
-}
-
-.placeholder-image {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-text {
-  font-size: 56rpx;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.low-stock-badge {
-  position: absolute;
-  top: 16rpx;
-  right: 16rpx;
-  background-color: #e53935;
-  color: #ffffff;
-  font-size: 20rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-}
-
-.card-content {
-  padding: 24rpx;
-}
-
-.medication-name {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 600;
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
   color: var(--on_surface);
-  margin-bottom: 8rpx;
+  height: 48rpx;
 }
 
-.medication-spec {
-  display: block;
-  font-size: 22rpx;
-  color: var(--on_surface_variant);
-  margin-bottom: 16rpx;
+.search-clear {
+  padding: 4rpx;
 }
 
-.stock-info {
+.search-clear:active {
+  opacity: 0.6;
+}
+
+/* ========== 筛选标签 ========== */
+.filter-bar {
   display: flex;
-  flex-direction: column;
-  gap: 12rpx;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  flex-wrap: wrap;
 }
 
-.stock-text {
+.filter-tag {
+  padding: 12rpx 28rpx;
+  border-radius: 9999rpx;
+  background-color: var(--surface-container-lowest);
+  border: 2rpx solid var(--surface-container);
+}
+
+.filter-tag text {
   font-size: 24rpx;
+  color: var(--on_surface_variant);
+}
+
+.filter-tag.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.filter-tag.active text {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.filter-tag:active {
+  opacity: 0.7;
+}
+
+/* ========== 板块标题 ========== */
+.section-header {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
   color: var(--on_surface);
 }
 
-.stock-text.warning {
-  color: #e53935;
-}
-
-.stock-progress {
-  height: 8rpx;
-  background-color: var(--surface-container);
-  border-radius: 4rpx;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  border-radius: 4rpx;
-}
-
-.fab {
-  position: fixed;
-  bottom: 160rpx;
-  right: 32rpx;
-  width: 96rpx;
-  height: 96rpx;
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8rpx 32rpx rgba(0, 110, 40, 0.3);
-}
-
-.fab:active {
-  transform: scale(0.9);
-}
-
-/* Empty State */
+/* ========== 空态 ========== */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 120rpx 40rpx;
+  padding: 100rpx 40rpx;
   gap: 16rpx;
 }
 
@@ -187,4 +185,142 @@
   font-size: 24rpx;
   color: var(--on_surface_variant);
   text-align: center;
+}
+
+/* ========== 药品卡片 ========== */
+.list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+}
+
+.medication-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.med-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: var(--shadow-primary);
+}
+
+.med-card:active {
+  transform: scale(0.98);
+  transition: transform 0.15s ease;
+}
+
+.med-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8rpx;
+}
+
+.med-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.low-stock-badge {
+  background-color: #e53935;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+}
+
+.low-stock-badge text {
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.med-spec {
+  display: block;
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  margin-bottom: 24rpx;
+}
+
+/* 库存信息行 */
+.stock-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.stock-text-wrap {
+  display: flex;
+  align-items: baseline;
+}
+
+.stock-label {
+  font-size: 26rpx;
+  color: var(--on_surface);
+}
+
+.stock-value {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+}
+
+.stock-warn {
+  color: #e53935;
+}
+
+.stock-pct {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--on_surface_variant);
+}
+
+/* 进度条 */
+.stock-progress {
+  height: 12rpx;
+  background-color: var(--surface-container);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+/* ========== 底部添加按钮 ========== */
+.bottom-add-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8rpx 0 24rpx;
+}
+
+.bottom-add-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 9999rpx;
+  background: linear-gradient(90deg, #0058bc, #0070eb);
+  box-shadow: var(--shadow-primary);
+}
+
+.bottom-add-btn text {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bottom-add-btn:active {
+  transform: scale(0.98);
+  transition: transform 0.15s ease;
 }

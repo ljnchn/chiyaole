@@ -1,5 +1,5 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "添加药品",
+  "navigationStyle": "custom",
   "navigationBarBackgroundColor": "#f9f9fe"
 }

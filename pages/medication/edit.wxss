@@ -1,296 +1,380 @@
 /* pages/medication/edit.wxss */
 
-.container {
-  padding: 32rpx;
-  padding-bottom: 200rpx;
+.page {
   background-color: var(--surface);
   min-height: 100vh;
 }
 
-/* Preview Card */
-.preview-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 48rpx 32rpx;
-  border-radius: 24rpx;
-  margin-bottom: 32rpx;
-  gap: 12rpx;
+/* ========== 自定义导航栏 ========== */
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--surface);
 }
 
-.preview-icon {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 24rpx;
+.nav-content {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 8rpx;
-}
-
-.preview-avatar-text {
-  font-size: 56rpx;
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.preview-name {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: var(--on_surface);
-}
-
-.preview-dosage {
-  font-size: 26rpx;
-  color: var(--on_surface_variant);
-}
-
-/* Form Section */
-.form-section {
-  background-color: var(--surface-container-lowest);
-  border-radius: 20rpx;
-  padding: 32rpx;
-  margin-bottom: 24rpx;
-}
-
-.section-title {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--on_surface);
-  margin-bottom: 24rpx;
-}
-
-.form-item {
-  margin-bottom: 24rpx;
-}
-
-.form-item:last-child {
-  margin-bottom: 0;
-}
-
-.form-label {
-  display: block;
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-  margin-bottom: 12rpx;
-}
-
-.form-row {
-  display: flex;
-  gap: 32rpx;
-  margin-bottom: 24rpx;
-}
-
-.form-row-item {
-  flex: 1;
-}
-
-/* Picker value row */
-.picker-value {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16rpx 0;
+  height: 88rpx;
+  padding: 0 24rpx;
 }
 
-.picker-value text {
+.nav-cancel {
+  font-size: 30rpx;
+  color: var(--on_surface);
+  padding: 8rpx 16rpx;
+}
+
+.nav-cancel:active {
+  opacity: 0.6;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.nav-right-space {
+  width: 120rpx;
+}
+
+/* ========== 滚动区域 ========== */
+.form-scroll {
+  width: 100%;
+}
+
+.container {
+  padding: 24rpx 32rpx;
+  padding-bottom: 40rpx;
+}
+
+/* ========== 表单卡片 ========== */
+.form-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-primary);
+}
+
+.card-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--on_surface_variant);
+  margin-bottom: 16rpx;
+}
+
+/* ========== 输入框 ========== */
+.input-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface);
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  gap: 16rpx;
+}
+
+.input-box.small {
+  padding: 16rpx 20rpx;
+}
+
+.input-box.picker {
+  justify-content: space-between;
+}
+
+.input-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.input-field {
+  flex: 1;
+  font-size: 30rpx;
+  color: var(--on_surface);
+  height: 44rpx;
+}
+
+.input-value {
   font-size: 30rpx;
   color: var(--on_surface);
 }
 
-/* Icon Selection */
-.option-grid {
+.input-placeholder {
+  font-size: 30rpx;
+  color: #c4c4c9;
+}
+
+/* ========== 表单行 ========== */
+.form-row {
   display: flex;
   gap: 24rpx;
+}
+
+.form-col {
+  flex: 1;
+}
+
+/* ========== 标签选择 (服用方式) ========== */
+.chip-row {
+  display: flex;
+  gap: 16rpx;
   flex-wrap: wrap;
 }
 
-.icon-option {
+.chip {
+  padding: 14rpx 32rpx;
+  border-radius: 9999rpx;
+  background-color: var(--surface);
+}
+
+.chip text {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+}
+
+.chip.active {
+  background-color: var(--primary);
+}
+
+.chip.active text {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.chip:active {
+  opacity: 0.7;
+}
+
+/* ========== 卡片标题行 ========== */
+.card-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.card-header-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+}
+
+.card-header-action {
+  display: flex;
   align-items: center;
   gap: 8rpx;
-  padding: 20rpx 24rpx;
+  padding: 8rpx;
+}
+
+.card-header-action:active {
+  opacity: 0.6;
+}
+
+.action-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ========== 时间标签 ========== */
+.time-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.time-chip {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background-color: var(--surface);
+  padding: 14rpx 24rpx;
+  border-radius: 12rpx;
+}
+
+.time-chip text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+.chip-remove {
+  display: flex;
+  align-items: center;
+  padding: 4rpx;
+}
+
+.chip-remove:active {
+  opacity: 0.5;
+}
+
+.time-empty {
+  margin-top: 20rpx;
+  padding: 20rpx 0;
+}
+
+.time-empty-text {
+  font-size: 26rpx;
+  color: #c4c4c9;
+}
+
+/* ========== 库存输入 ========== */
+.stock-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface);
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  gap: 8rpx;
+}
+
+.stock-input {
+  flex: 1;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--on_surface);
+  height: 48rpx;
+}
+
+.stock-unit {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  flex-shrink: 0;
+}
+
+/* ========== 库存预警 ========== */
+.alert-section {
+  margin-top: 28rpx;
+  background-color: var(--surface);
   border-radius: 16rpx;
-  background-color: var(--surface-container);
-  border: 4rpx solid transparent;
-  transition: all 0.2s ease;
+  padding: 24rpx;
 }
 
-.icon-option.active {
-  background-color: var(--surface-container-lowest);
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.icon-option text {
+.alert-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.alert-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--on_surface);
+}
+
+.alert-desc {
   font-size: 22rpx;
   color: var(--on_surface_variant);
 }
 
-/* Color Selection */
-.color-grid {
-  display: flex;
-  gap: 24rpx;
-  flex-wrap: wrap;
+.slider-section {
+  margin-top: 24rpx;
 }
 
-.color-option {
-  position: relative;
-  width: 72rpx;
-  height: 72rpx;
+.slider-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12rpx;
 }
 
-.color-circle {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
+.slider-label {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  flex-shrink: 0;
 }
 
-.color-option.active .color-circle {
-  width: 64rpx;
-  height: 64rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+.threshold-slider {
+  flex: 1;
+  margin: 0 !important;
 }
 
-.color-check {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.slider-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 40rpx;
+  text-align: center;
 }
 
-/* Time List */
-.time-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
+.slider-suffix {
+  font-size: 26rpx;
+  color: var(--on_surface_variant);
+  flex-shrink: 0;
 }
 
-.time-tag {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  background-color: var(--surface-container);
-  padding: 12rpx 20rpx;
-  border-radius: 9999rpx;
+/* ========== 备注 ========== */
+.textarea-wrap {
+  background-color: var(--surface);
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
 }
 
-.time-tag text {
+.remark-textarea {
+  width: 100%;
   font-size: 28rpx;
   color: var(--on_surface);
+  min-height: 120rpx;
+  line-height: 1.6;
 }
 
-.time-remove {
-  margin-left: 4rpx;
-  display: flex;
-  align-items: center;
+/* ========== 底部提示 ========== */
+.footer-hint {
+  padding: 24rpx 16rpx;
+  text-align: center;
 }
 
-.time-add {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 12rpx 20rpx;
-  border-radius: 9999rpx;
-  background-color: var(--surface-container);
+.footer-hint text {
+  font-size: 22rpx;
+  color: #c4c4c9;
+  line-height: 1.6;
 }
 
-.time-add text {
-  font-size: 28rpx;
-}
-
-/* Food Options */
-.food-options {
-  display: flex;
-  gap: 16rpx;
-  flex-wrap: wrap;
-}
-
-.food-option {
-  padding: 16rpx 32rpx;
-  border-radius: 9999rpx;
-  background-color: var(--surface-container);
-  border: 2rpx solid transparent;
-  transition: all 0.2s ease;
-}
-
-.food-option text {
-  font-size: 28rpx;
-  color: var(--on_surface_variant);
-}
-
-.food-option.active text {
-  font-weight: 500;
-}
-
-/* Textarea */
-.textarea-field {
-  background-color: var(--surface-container) !important;
-  border-radius: 12rpx !important;
-  padding: 20rpx !important;
-}
-
-/* Save Button */
-.save-section {
+/* ========== 底部保存按钮 ========== */
+.bottom-action {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   padding: 24rpx 32rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   background-color: var(--surface);
 }
 
-.btn-save {
+.bottom-save-btn {
   width: 100%;
   height: 96rpx;
   line-height: 96rpx;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  background: linear-gradient(90deg, #0058bc, #0070eb);
   color: #ffffff;
   font-size: 32rpx;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 9999rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 88, 188, 0.2);
 }
 
-.btn-save:active {
+.bottom-save-btn:active {
   transform: scale(0.98);
-}
-
-/* Low stock config */
-.low-stock-config {
-  background-color: var(--surface-container);
-  border-radius: 16rpx;
-  padding: 20rpx 24rpx;
-  margin-bottom: 24rpx;
-}
-
-.low-stock-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16rpx;
-  margin-bottom: 16rpx;
-}
-
-.low-stock-threshold .form-label {
-  margin-bottom: 12rpx;
-}
-
-.low-stock-hint {
-  display: block;
-  margin-top: 16rpx;
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-  line-height: 1.5;
-}
-
-.low-stock-hint.warning {
-  color: #e53935;
+  transition: transform 0.15s ease;
 }
 

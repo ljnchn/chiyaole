@@ -1,6 +1,6 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "编辑药品",
+  "navigationStyle": "custom",
   "navigationBarBackgroundColor": "#f9f9fe"
 }
 

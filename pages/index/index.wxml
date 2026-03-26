@@ -24,75 +24,60 @@
     </view>
   </view>
 
-  <!-- 分割线 -->
-  <view class="divider"></view>
-
   <!-- 空态 -->
-  <view wx:if="{{timeGroups.length === 0}}" class="empty-state">
+  <view wx:if="{{dayItems.length === 0}}" class="empty-state">
     <t-icon name="calendar" size="96rpx" color="#c4c4c9" />
     <text class="empty-title">今日暂无用药计划</text>
-    <text class="empty-desc">点击下方按钮添加药品，开始健康管理</text>
+    <text class="empty-desc">在「药品管理」中添加药品，开始健康管理</text>
   </view>
 
-  <!-- 时间段分组列表 -->
-  <view wx:for="{{timeGroups}}" wx:key="label" class="time-group">
-    <!-- 时间段标题 -->
-    <view class="time-group-header">
-      <view class="time-dot {{item.period}}"></view>
-      <text class="time-group-label">{{item.label}}</text>
-    </view>
-
-    <!-- 药品卡片 -->
+  <!-- 药品列表（按时间顺序平铺） -->
+  <view class="med-list" wx:if="{{dayItems.length > 0}}">
     <view
-      wx:for="{{item.items}}"
-      wx:for-item="med"
+      wx:for="{{dayItems}}"
       wx:key="id"
-      class="med-card {{med.taken ? 'taken' : ''}} {{med.urgent ? 'urgent' : ''}}"
-      bindtap="onCheckIn"
-      data-id="{{med.id}}"
+      class="med-card {{item.taken ? 'taken' : ''}} {{item.urgent ? 'urgent' : ''}}"
     >
       <view class="med-card-body">
-        <!-- 药品图标 -->
-        <view class="med-icon" style="background-color: {{med.color}}40;">
-          <text class="med-avatar-text">{{med.avatarText}}</text>
-        </view>
-
-        <!-- 药品信息 -->
         <view class="med-info">
-          <text class="med-name">{{med.name}}</text>
-          <text class="med-desc">{{med.dosageDesc}}</text>
-          <!-- 用量进度 -->
+          <text class="med-time">{{item.timeLabel}}</text>
+          <text class="med-name {{item.taken ? 'name-taken' : ''}}">{{item.name}}</text>
+          <text class="med-desc">{{item.dosageDesc}}</text>
           <view class="med-usage">
             <text class="med-usage-label">服用进度</text>
-            <text class="med-usage-pct">{{med.usagePercent}}%</text>
-          </view>
-          <view class="med-progress-track">
-            <view
-              class="med-progress-fill"
-              style="width: {{med.usagePercent}}%; background-color: {{med.usagePercent < 20 ? '#e53935' : med.color}};"
-            />
+            <view class="med-progress-track">
+              <view
+                class="med-progress-fill"
+                style="width: {{item.usagePercent}}%; background-color: {{item.taken ? '#006e28' : item.usagePercent < 20 ? '#e53935' : item.color || '#0058bc'}};"
+              />
+            </view>
+            <text class="med-usage-pct">{{item.usagePercent}}%</text>
           </view>
         </view>
 
-        <!-- 打卡按钮区 -->
-        <view class="med-action">
-          <view class="check-btn {{med.taken ? 'checked' : ''}}">
-            <t-icon
-              name="{{med.taken ? 'check-circle-filled' : 'check-circle'}}"
-              size="56rpx"
-              color="{{med.taken ? '#006e28' : '#0058bc'}}"
-            />
-          </view>
-          <text class="check-label">{{med.taken ? '已服' : '打卡'}}</text>
+        <!-- 打卡操作 -->
+        <view
+          class="med-action"
+          catchtap="onCheckIn"
+          data-id="{{item.id}}"
+        >
+          <block wx:if="{{item.taken}}">
+            <view class="action-btn action-done">
+              <text class="action-btn-text">已服</text>
+            </view>
+          </block>
+          <block wx:elif="{{item.future}}">
+            <view class="action-btn action-pending">
+              <text class="action-btn-text">待办</text>
+            </view>
+          </block>
+          <block wx:else>
+            <view class="action-btn action-checkin">
+              <text class="action-btn-text">{{isPastSelectedDay ? '补录' : '打卡'}}</text>
+            </view>
+          </block>
         </view>
       </view>
-    </view>
-  </view>
-
-  <!-- 底部添加按钮 -->
-  <view class="fab-area">
-    <view class="fab-btn" bindtap="onAddMedication">
-      <t-icon name="add" size="40rpx" color="#ffffff" />
     </view>
   </view>
 </view>

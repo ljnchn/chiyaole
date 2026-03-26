@@ -1,12 +1,32 @@
 <!--pages/record/record.wxml-->
 <view class="container">
-  <!-- Calendar Card -->
-  <view class="calendar-card">
+  <!-- 顶部栏 -->
+  <view class="top-bar">
+    <view class="top-left">
+      <t-icon name="logo-github--pure" size="44rpx" color="#0058bc" />
+      <text class="top-title">吃药记录</text>
+    </view>
+    <view class="top-right">
+      <view class="icon-btn" bindtap="onToggleCalendar">
+        <t-icon name="calendar" size="40rpx" color="#1b1b1f" />
+      </view>
+      <view class="icon-btn" bindtap="onMore">
+        <t-icon name="ellipsis" size="40rpx" color="#1b1b1f" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 日历卡片 -->
+  <view class="calendar-card" wx:if="{{showCalendar}}">
     <view class="calendar-header">
       <text class="month-year">{{currentYear}}年{{currentMonth}}月</text>
-      <view class="nav-buttons">
-        <t-icon name="chevron-left" size="40rpx" bindtap="onPrevMonth" />
-        <t-icon name="chevron-right" size="40rpx" bindtap="onNextMonth" />
+      <view class="nav-arrows">
+        <view class="arrow-btn" bindtap="onPrevMonth">
+          <t-icon name="chevron-left" size="36rpx" color="#1b1b1f" />
+        </view>
+        <view class="arrow-btn" bindtap="onNextMonth">
+          <t-icon name="chevron-right" size="36rpx" color="#1b1b1f" />
+        </view>
       </view>
     </view>
 
@@ -18,79 +38,82 @@
       <view
         wx:for="{{calendarDays}}"
         wx:key="index"
-        class="calendar-day {{item.currentMonth ? '' : 'other-month'}} {{item.selected ? 'selected' : ''}}"
+        class="cal-day {{item.currentMonth ? '' : 'other-month'}} {{item.selected ? 'selected' : ''}}"
         bindtap="onSelectDate"
         data-day="{{item}}"
       >
-        <text>{{item.day}}</text>
-        <view wx:if="{{item.status}}" class="status-dot {{item.status}}"></view>
+        <text class="cal-day-num">{{item.day}}</text>
+        <view wx:if="{{item.status === 'taken'}}" class="cal-dot taken"></view>
+        <view wx:elif="{{item.status === 'missed' || item.status === 'partial'}}" class="cal-dot missed"></view>
       </view>
     </view>
 
+    <!-- 图例 -->
     <view class="legend">
       <view class="legend-item">
-        <view class="dot taken"></view>
-        <text>已完成</text>
+        <view class="legend-dot taken"></view>
+        <text>已服药</text>
       </view>
       <view class="legend-item">
-        <view class="dot partial"></view>
-        <text>部分完成</text>
-      </view>
-      <view class="legend-item">
-        <view class="dot missed"></view>
+        <view class="legend-dot missed"></view>
         <text>漏服</text>
       </view>
     </view>
   </view>
 
-  <!-- Stats Row -->
-  <view class="stats-row">
-    <view class="stat-box">
-      <text class="stat-label">连续打卡</text>
-      <view class="stat-value-row">
-        <text class="stat-num">{{streakDays}}</text>
-        <text class="stat-unit">天</text>
-      </view>
-    </view>
-    <view class="stat-box">
-      <text class="stat-label">本月依从性</text>
-      <view class="stat-value-row">
-        <text class="stat-num" style="color: #006e28;">{{compliance}}</text>
-        <text class="stat-unit" style="color: #006e28;">%</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- Recent Records -->
+  <!-- 最近记录 -->
   <view class="records-section">
     <view class="section-header">
       <text class="section-title">最近记录</text>
       <text class="view-more" bindtap="onViewMore">查看更多</text>
     </view>
 
-    <view class="record-list">
-      <!-- 空态 -->
-      <view wx:if="{{records.length === 0}}" class="empty-records">
-        <text>该日暂无用药记录</text>
-      </view>
+    <!-- 空态 -->
+    <view wx:if="{{records.length === 0}}" class="empty-records">
+      <t-icon name="calendar" size="80rpx" color="#c4c4c9" />
+      <text>该日暂无用药记录</text>
+    </view>
 
+    <!-- 记录列表 -->
+    <view wx:else class="record-list">
       <view
         wx:for="{{records}}"
         wx:key="id"
-        class="record-item {{item.status}}"
+        class="record-card"
       >
-        <view class="record-icon" style="background-color: {{item.color}}40;">
-          <text class="record-avatar-text">{{item.avatarText}}</text>
-        </view>
-        <view class="record-info">
-          <text class="record-name">{{item.name}}</text>
-          <text class="record-dosage">{{item.dosage}}</text>
-          <text wx:if="{{item.warning}}" class="record-warning">{{item.warning}}</text>
-        </view>
-        <view class="record-meta">
-          <text class="record-time {{item.status}}">{{item.time}}</text>
-          <view wx:if="{{item.status === 'missed'}}" class="makeup-btn" bindtap="onMakeup" data-id="{{item.id}}">
-            <text>补录</text>
+        <!-- 左侧色条 -->
+        <view class="record-border {{item.borderClass}}"></view>
+
+        <view class="record-body">
+          <view class="record-info">
+            <text class="record-name">{{item.name}}</text>
+            <view class="record-sub">
+              <t-icon
+                wx:if="{{item.subIcon}}"
+                name="{{item.subIcon}}"
+                size="24rpx"
+                color="{{item.subColor}}"
+              />
+              <text class="record-sub-text" style="color: {{item.subColor}};">{{item.subText}}</text>
+            </view>
+            <text wx:if="{{item.timeDetail}}" class="record-time-detail">{{item.timeDetail}}</text>
+          </view>
+
+          <!-- 右侧时间/操作 -->
+          <view class="record-meta">
+            <view wx:if="{{item.status === 'taken' && item.isToday}}" class="status-badge taken-badge">
+              <text>{{item.badgeText}}</text>
+            </view>
+            <text wx:elif="{{item.timeLabel}}" class="record-time">{{item.timeLabel}}</text>
+
+            <view
+              wx:if="{{item.status === 'missed'}}"
+              class="makeup-btn"
+              catchtap="onMakeup"
+              data-id="{{item.id}}"
+            >
+              <text>补录</text>
+            </view>
           </view>
         </view>
       </view>

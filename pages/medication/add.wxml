@@ -1,191 +1,203 @@
 <!--pages/medication/add.wxml-->
-<view class="container">
-  <!-- 预览卡片 -->
-  <view class="preview-card" style="background-color: {{color}}10;">
-    <view class="preview-icon" style="background-color: {{color}}40;">
-      <text class="preview-avatar-text">{{avatarText}}</text>
-    </view>
-    <text class="preview-name">{{name || '药品名称'}}</text>
-    <text class="preview-dosage">{{dosage || '剂量'}}</text>
-  </view>
-
-  <!-- 基本信息 -->
-  <view class="form-section">
-    <text class="section-title">基本信息</text>
-
-    <view class="form-item">
-      <text class="form-label">药品名称 *</text>
-      <t-input
-        placeholder="如：阿莫西林胶囊"
-        value="{{name}}"
-        bindchange="onNameInput"
-        borderless
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">每次剂量 *</text>
-      <t-input
-        placeholder="如：1粒、2片、5ml"
-        value="{{dosage}}"
-        bindchange="onDosageInput"
-        borderless
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">规格</text>
-      <t-input
-        placeholder="如：0.25g x 24粒"
-        value="{{specification}}"
-        bindchange="onSpecInput"
-        borderless
-      />
+<view class="page">
+  <!-- 自定义导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-content">
+      <text class="nav-cancel" bindtap="onCancel">取消</text>
+      <text class="nav-title">添加药品</text>
+      <view class="nav-right-space"></view>
     </view>
   </view>
+  <view style="height: {{navBarHeight}}px;"></view>
 
-  <!-- 图标选择 -->
-  <view class="form-section">
-    <text class="section-title">图标</text>
-    <view class="option-grid">
-      <view
-        wx:for="{{iconOptions}}"
-        wx:key="value"
-        class="icon-option {{icon === item.value ? 'active' : ''}}"
-        bindtap="onSelectIcon"
-        data-value="{{item.value}}"
-        style="border-color: {{icon === item.value ? color : 'transparent'}};"
-      >
-        <t-icon name="{{item.value}}" size="48rpx" color="{{icon === item.value ? color : '#999'}}" />
-        <text>{{item.label}}</text>
-      </view>
-    </view>
-  </view>
+  <scroll-view scroll-y class="form-scroll" style="height: calc(100vh - {{navBarHeight}}px - 140rpx);">
+    <view class="container">
 
-  <!-- 颜色选择 -->
-  <view class="form-section">
-    <text class="section-title">主题色</text>
-    <view class="color-grid">
-      <view
-        wx:for="{{colorOptions}}"
-        wx:key="value"
-        class="color-option {{color === item.value ? 'active' : ''}}"
-        bindtap="onSelectColor"
-        data-value="{{item.value}}"
-      >
-        <view class="color-circle" style="background-color: {{item.value}};"></view>
-        <view wx:if="{{color === item.value}}" class="color-check">
-          <t-icon name="check" size="24rpx" color="#ffffff" />
+      <!-- 药品名称 -->
+      <view class="form-card">
+        <text class="card-label">药品名称</text>
+        <view class="input-box">
+          <view class="input-icon">
+            <t-icon name="flag" size="36rpx" color="#8e8e93" />
+          </view>
+          <input
+            class="input-field"
+            placeholder="例如：阿莫西林"
+            placeholder-class="input-placeholder"
+            value="{{name}}"
+            bindinput="onNameInput"
+          />
         </view>
       </view>
-    </view>
-  </view>
 
-  <!-- 库存管理 -->
-  <view class="form-section">
-    <text class="section-title">库存管理</text>
+      <!-- 服用剂量 + 服用频率 -->
+      <view class="form-card">
+        <view class="form-row">
+          <view class="form-col">
+            <text class="card-label">服用剂量</text>
+            <view class="input-box small">
+              <input
+                class="input-field"
+                placeholder="1 片 / 10ml"
+                placeholder-class="input-placeholder"
+                value="{{dosage}}"
+                bindinput="onDosageInput"
+              />
+            </view>
+          </view>
+          <view class="form-col">
+            <text class="card-label">服用频率</text>
+            <view class="input-box small picker" bindtap="onShowFreqPicker">
+              <text class="{{frequency ? 'input-value' : 'input-placeholder'}}">{{frequency || '1日3次'}}</text>
+              <t-icon name="chevron-down" size="32rpx" color="#8e8e93" />
+            </view>
+          </view>
+        </view>
 
-    <view class="form-row">
-      <view class="form-row-item">
-        <text class="form-label">总量</text>
-        <t-stepper value="{{total}}" min="{{0}}" max="{{9999}}" theme="filled" bindchange="onTotalChange" />
-      </view>
-      <view class="form-row-item">
-        <text class="form-label">剩余</text>
-        <t-stepper value="{{remaining}}" min="{{0}}" max="{{total || 9999}}" theme="filled" bindchange="onRemainingChange" />
-      </view>
-    </view>
+        <!-- 开始时间 -->
+        <text class="card-label" style="margin-top: 28rpx;">开始时间</text>
+        <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+          <view class="input-box small picker">
+            <text class="{{startDate ? 'input-value' : 'input-placeholder'}}">{{startDate || '请选择开始日期'}}</text>
+            <t-icon name="chevron-right" size="32rpx" color="#8e8e93" />
+          </view>
+        </picker>
 
-    <view class="low-stock-config">
-      <view class="low-stock-row">
-        <text class="form-label">库存预警</text>
-        <switch checked="{{lowStockEnabled}}" bindchange="onLowStockEnabledChange" />
-      </view>
-
-      <view wx:if="{{lowStockEnabled}}" class="low-stock-threshold">
-        <text class="form-label">预警数量</text>
-        <t-stepper
-          value="{{lowStockThreshold}}"
-          min="{{0}}"
-          max="{{total || 9999}}"
-          theme="filled"
-          bindchange="onLowStockThresholdChange"
-        />
-      </view>
-
-      <text wx:if="{{lowStockEnabled && total > 0 && remaining <= lowStockThreshold}}" class="low-stock-hint warning">
-        当前剩余 {{remaining}} 不大于 预警数量 {{lowStockThreshold}}，可能库存告急
-      </text>
-      <text wx:elif="{{lowStockEnabled && total <= 0}}" class="low-stock-hint">
-        请先设置总量
-      </text>
-      <text wx:else class="low-stock-hint">
-        当前剩余 {{remaining}} 高于预警数量 {{lowStockThreshold}}
-      </text>
-    </view>
-
-    <view class="form-item" bindtap="onShowUnitPicker">
-      <text class="form-label">单位</text>
-      <view class="picker-value">
-        <text>{{unit}}</text>
-        <t-icon name="chevron-right" size="32rpx" color="#c4c4c9" />
-      </view>
-    </view>
-  </view>
-
-  <!-- 服药时间 -->
-  <view class="form-section">
-    <text class="section-title">每日服药时间</text>
-
-    <view class="time-list">
-      <view wx:for="{{times}}" wx:key="index" class="time-tag">
-        <t-icon name="time" size="28rpx" color="{{color}}" />
-        <text>{{item}}</text>
-        <view class="time-remove" bindtap="onRemoveTime" data-index="{{index}}">
-          <t-icon name="close" size="24rpx" color="#999" />
+        <!-- 服用方式 -->
+        <text class="card-label" style="margin-top: 28rpx;">服用方式</text>
+        <view class="chip-row">
+          <view
+            wx:for="{{foodOptions}}"
+            wx:key="value"
+            class="chip {{withFood === item.value ? 'active' : ''}}"
+            bindtap="onSelectFood"
+            data-value="{{item.value}}"
+          >
+            <text>{{item.label}}</text>
+          </view>
         </view>
       </view>
-      <view class="time-add" bindtap="onAddTime">
-        <t-icon name="add" size="32rpx" color="{{color}}" />
-        <text style="color: {{color}};">添加时间</text>
+
+      <!-- 提醒时间设置 -->
+      <view class="form-card">
+        <view class="card-header">
+          <view class="card-header-left">
+            <t-icon name="time-filled" size="36rpx" color="#0058bc" />
+            <text class="card-header-title">提醒时间设置</text>
+          </view>
+          <view class="card-header-action" bindtap="onAddTime">
+            <t-icon name="add-circle" size="32rpx" color="#0058bc" />
+            <text class="action-text">添加时间点</text>
+          </view>
+        </view>
+
+        <view class="time-chips" wx:if="{{times.length > 0}}">
+          <view wx:for="{{times}}" wx:key="index" class="time-chip">
+            <text>{{item}}</text>
+            <view class="chip-remove" catchtap="onRemoveTime" data-index="{{index}}">
+              <t-icon name="close" size="24rpx" color="#8e8e93" />
+            </view>
+          </view>
+        </view>
+        <view wx:else class="time-empty">
+          <text class="time-empty-text">点击右上角添加服药时间</text>
+        </view>
       </view>
-    </view>
-  </view>
 
-  <!-- 餐食关系 -->
-  <view class="form-section">
-    <text class="section-title">餐食关系</text>
-    <view class="food-options">
-      <view
-        wx:for="{{foodOptions}}"
-        wx:key="value"
-        class="food-option {{withFood === item.value ? 'active' : ''}}"
-        bindtap="onSelectFood"
-        data-value="{{item.value}}"
-        style="{{withFood === item.value ? 'background-color:' + color + '10; color:' + color + '; border-color:' + color : ''}}"
-      >
-        <text>{{item.label}}</text>
+      <!-- 库存管理 -->
+      <view class="form-card">
+        <view class="card-header">
+          <view class="card-header-left">
+            <t-icon name="shop" size="36rpx" color="#006e28" />
+            <text class="card-header-title">库存管理</text>
+          </view>
+        </view>
+
+        <!-- 总量 + 剩余 -->
+        <view class="form-row" style="margin-top: 24rpx;">
+          <view class="form-col">
+            <text class="card-label">药物总量</text>
+            <view class="stock-input-wrap">
+              <input
+                class="stock-input"
+                type="number"
+                value="{{total}}"
+                bindinput="onTotalInput"
+              />
+              <text class="stock-unit">{{unit}}</text>
+            </view>
+          </view>
+          <view class="form-col">
+            <text class="card-label">当前剩余</text>
+            <view class="stock-input-wrap">
+              <input
+                class="stock-input"
+                type="number"
+                value="{{remaining}}"
+                bindinput="onRemainingInput"
+              />
+              <text class="stock-unit">{{unit}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 库存预警 -->
+        <view class="alert-section">
+          <view class="alert-header">
+            <view class="alert-left">
+              <text class="alert-title">库存预警</text>
+              <text class="alert-desc">库存低于阈值时发送通知</text>
+            </view>
+            <switch checked="{{lowStockEnabled}}" bindchange="onLowStockEnabledChange" color="#006e28" />
+          </view>
+
+          <view wx:if="{{lowStockEnabled}}" class="slider-section">
+            <view class="slider-row">
+              <text class="slider-label">当少于</text>
+              <slider
+                class="threshold-slider"
+                min="{{1}}"
+                max="{{total || 100}}"
+                value="{{lowStockThreshold}}"
+                activeColor="#006e28"
+                backgroundColor="#ededf2"
+                block-size="{{20}}"
+                bindchange="onThresholdSliderChange"
+              />
+              <text class="slider-value">{{lowStockThreshold}}</text>
+              <text class="slider-suffix">时提醒</text>
+            </view>
+          </view>
+        </view>
       </view>
+
+      <!-- 备注事项 -->
+      <view class="form-card">
+        <text class="card-label">备注事项</text>
+        <view class="textarea-wrap">
+          <textarea
+            class="remark-textarea"
+            placeholder="例如：饭后服用，避免饮酒..."
+            placeholder-class="input-placeholder"
+            value="{{remark}}"
+            bindinput="onRemarkInput"
+            maxlength="200"
+            auto-height
+          />
+        </view>
+      </view>
+
+      <!-- 底部提示 -->
+      <view class="footer-hint">
+        <text>设置完成后，我们将按照设定的频率与时间为您准时提醒，请确保系统通知已开启。</text>
+      </view>
+
     </view>
-  </view>
+  </scroll-view>
 
-  <!-- 备注 -->
-  <view class="form-section">
-    <text class="section-title">备注</text>
-    <t-textarea
-      placeholder="可选填写备注信息"
-      value="{{remark}}"
-      bindchange="onRemarkInput"
-      maxlength="{{200}}"
-      autosize
-      bordered="{{false}}"
-      t-class="textarea-field"
-    />
-  </view>
-
-  <!-- 保存按钮 -->
-  <view class="save-section">
-    <button class="btn-save" bindtap="onSave">保存药品</button>
+  <!-- 底部保存按钮 -->
+  <view class="bottom-action">
+    <button class="bottom-save-btn" bindtap="onSave">保存</button>
   </view>
 </view>
 
@@ -195,23 +207,23 @@
   title="选择时间"
   cancelBtn="取消"
   confirmBtn="确认"
-  value="{{['12', '00']}}"
-  bindconfirm="onTimePickerChange"
+  value="{{['08', '00']}}"
+  bindconfirm="onTimePickerConfirm"
   bindcancel="onTimePickerCancel"
 >
   <t-picker-item options="{{timeHourOptions}}" />
   <t-picker-item options="{{timeMinuteOptions}}" />
 </t-picker>
 
-<!-- 单位选择器 -->
+<!-- 频率选择器 -->
 <t-picker
-  visible="{{showUnitPicker}}"
-  title="选择单位"
+  visible="{{showFreqPicker}}"
+  title="选择服用频率"
   cancelBtn="取消"
   confirmBtn="确认"
-  value="{{unitPickerValue}}"
-  bindconfirm="onUnitPickerConfirm"
-  bindcancel="onUnitPickerCancel"
+  value="{{freqPickerValue}}"
+  bindconfirm="onFreqPickerConfirm"
+  bindcancel="onFreqPickerCancel"
 >
-  <t-picker-item options="{{unitOptions}}" />
+  <t-picker-item options="{{freqOptions}}" />
 </t-picker>

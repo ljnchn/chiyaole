@@ -12,7 +12,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32rpx;
+  margin-bottom: 36rpx;
 }
 
 .top-left {
@@ -24,7 +24,7 @@
 .top-title {
   font-size: 36rpx;
   font-weight: 700;
-  color: #e53935;
+  color: var(--primary);
 }
 
 .top-right {
@@ -57,22 +57,23 @@
 }
 
 .week-badge {
-  background-color: var(--primary);
+  background-color: var(--surface-container-lowest);
   padding: 8rpx 24rpx;
   border-radius: 9999rpx;
+  border: 2rpx solid var(--primary);
 }
 
 .week-badge text {
   font-size: 24rpx;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--primary);
 }
 
 /* ========== 周日历 ========== */
 .week-calendar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 32rpx;
+  margin-bottom: 40rpx;
 }
 
 .week-day {
@@ -88,6 +89,7 @@
   font-size: 22rpx;
   font-weight: 500;
   color: var(--on_surface_variant);
+  text-transform: uppercase;
 }
 
 .week-day-num-wrap {
@@ -122,13 +124,6 @@
   opacity: 0.7;
 }
 
-/* ========== 分割线 ========== */
-.divider {
-  height: 2rpx;
-  background-color: var(--surface-container);
-  margin-bottom: 32rpx;
-}
-
 /* ========== 空态 ========== */
 .empty-state {
   display: flex;
@@ -151,47 +146,17 @@
   text-align: center;
 }
 
-/* ========== 时间段分组 ========== */
-.time-group {
-  margin-bottom: 40rpx;
-}
-
-.time-group-header {
+/* ========== 药品列表 ========== */
+.med-list {
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  margin-bottom: 20rpx;
-}
-
-.time-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  background-color: var(--on_surface_variant);
-}
-
-.time-dot.morning {
-  background-color: #ff9800;
-}
-
-.time-dot.noon {
-  background-color: #0058bc;
-}
-
-.time-dot.evening {
-  background-color: #4c4aca;
-}
-
-.time-group-label {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--on_surface);
+  flex-direction: column;
+  gap: 0;
 }
 
 /* ========== 药品卡片 ========== */
 .med-card {
   background-color: var(--surface-container-lowest);
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   margin-bottom: 20rpx;
   overflow: hidden;
   box-shadow: var(--shadow-primary);
@@ -203,11 +168,11 @@
 }
 
 .med-card.taken {
-  opacity: 0.65;
+  opacity: 0.75;
 }
 
 .med-card.urgent {
-  border-left: 8rpx solid #e53935;
+  border-left: 6rpx solid #e53935;
 }
 
 .med-card-body {
@@ -215,24 +180,6 @@
   align-items: center;
   padding: 28rpx 24rpx;
   gap: 20rpx;
-}
-
-/* 药品图标 */
-.med-icon {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.med-avatar-text {
-  font-size: 44rpx;
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
 }
 
 /* 药品信息 */
@@ -243,14 +190,25 @@
   min-width: 0;
 }
 
+.med-time {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 8rpx;
+}
+
 .med-name {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 700;
   color: var(--on_surface);
-  margin-bottom: 6rpx;
+  margin-bottom: 4rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.med-name.name-taken {
+  color: #006e28;
 }
 
 .med-desc {
@@ -259,26 +217,21 @@
   margin-bottom: 16rpx;
 }
 
-/* 用量进度 */
+/* 进度条行 */
 .med-usage {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8rpx;
+  gap: 12rpx;
 }
 
 .med-usage-label {
   font-size: 22rpx;
   color: var(--on_surface_variant);
-}
-
-.med-usage-pct {
-  font-size: 22rpx;
-  font-weight: 600;
-  color: var(--primary);
+  flex-shrink: 0;
 }
 
 .med-progress-track {
+  flex: 1;
   height: 10rpx;
   background-color: var(--surface-container);
   border-radius: 5rpx;
@@ -291,54 +244,64 @@
   transition: width 0.3s ease;
 }
 
-/* 打卡按钮 */
+.med-usage-pct {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--primary);
+  flex-shrink: 0;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+/* ========== 打卡操作按钮 ========== */
 .med-action {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6rpx;
   flex-shrink: 0;
-  margin-left: 8rpx;
+  margin-left: 4rpx;
 }
 
-.check-btn {
-  width: 80rpx;
-  height: 80rpx;
+.action-btn {
+  min-width: 108rpx;
+  height: 64rpx;
+  padding: 0 22rpx;
+  border-radius: 9999rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #e3f2fd;
-  border-radius: 20rpx;
 }
 
-.check-btn.checked {
-  background-color: #e8f5e9;
+.action-checkin {
+  background-color: var(--primary);
+  box-shadow: 0 4rpx 16rpx rgba(0, 88, 188, 0.3);
 }
 
-.check-label {
-  font-size: 22rpx;
-  font-weight: 500;
-  color: var(--on_surface_variant);
+.action-checkin:active {
+  transform: scale(0.92);
 }
 
-/* ========== 悬浮添加按钮 ========== */
-.fab-area {
-  position: fixed;
-  bottom: 180rpx;
-  right: 40rpx;
+.action-done {
+  background-color: #006e28;
+  box-shadow: 0 4rpx 16rpx rgba(0, 110, 40, 0.25);
 }
 
-.fab-btn {
-  width: 96rpx;
-  height: 96rpx;
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 12rpx 40rpx rgba(0, 110, 40, 0.3);
+.action-pending {
+  background-color: var(--surface-container);
 }
 
-.fab-btn:active {
-  transform: scale(0.9);
+.action-btn-text {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.action-checkin .action-btn-text {
+  color: #ffffff;
+}
+
+.action-done .action-btn-text {
+  color: #ffffff;
+}
+
+.action-pending .action-btn-text {
+  color: #8e8e93;
 }

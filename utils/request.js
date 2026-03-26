@@ -4,6 +4,8 @@
  */
 
 const BASE_URL = "http://localhost:3000/v1";
+const AUTH_KEY = "cym_auth";
+let _loginPromise = null;
 
 /**
  * 将对象转为查询字符串
@@ -24,10 +26,71 @@ function toQuery(params) {
  */
 function _getAuth() {
   try {
-    return wx.getStorageSync("cym_auth") || null;
+    return wx.getStorageSync(AUTH_KEY) || null;
   } catch (e) {
     return null;
   }
+}
+
+/**
+ * 无 token 时执行静默登录（单飞）
+ * - 避免首次进入页面时业务接口抢跑
+ * - 避免并发请求触发多次 wx.login
+ * @returns {Promise<string>} token
+ */
+function _ensureToken() {
+  const auth = _getAuth();
+  if (auth && auth.token) return Promise.resolve(auth.token);
+  if (_loginPromise) return _loginPromise;
+
+  _loginPromise = new Promise((resolve, reject) => {
+    wx.login({
+      success(res) {
+        if (!res.code) {
+          _loginPromise = null;
+          reject(new Error("wx.login 获取 code 失败"));
+          return;
+        }
+
+        wx.request({
+          url: `${BASE_URL}/auth/login`,
+          method: "POST",
+          data: { code: res.code },
+          header: { "content-type": "application/json" },
+          success(r) {
+            const body = r.data;
+            if (body && body.code === 0 && body.data) {
+              const newAuth = {
+                token: body.data.token,
+                refreshToken: body.data.refreshToken,
+                expireAt: body.data.expireAt,
+              };
+              try {
+                wx.setStorageSync(AUTH_KEY, newAuth);
+              } catch (e) {
+                /* ignore */
+              }
+              _loginPromise = null;
+              resolve(newAuth.token);
+            } else {
+              _loginPromise = null;
+              reject(new Error("登录失败"));
+            }
+          },
+          fail(err) {
+            _loginPromise = null;
+            reject(err);
+          },
+        });
+      },
+      fail(err) {
+        _loginPromise = null;
+        reject(err);
+      },
+    });
+  });
+
+  return _loginPromise;
 }
 
 /**
@@ -81,63 +144,83 @@ function _refreshToken() {
  */
 function request(method, path, data, extraHeaders, isRetry) {
   return new Promise((resolve, reject) => {
+    const isAuthPath = path === "/auth/login" || path === "/auth/refresh";
     const auth = _getAuth();
-    const header = {
-      "content-type": "application/json",
+
+    const doRequest = () => {
+      const auth2 = _getAuth();
+      const header = {
+        "content-type": "application/json",
+      };
+      if (auth2 && auth2.token) {
+        header["Authorization"] = "Bearer " + auth2.token;
+      }
+      if (extraHeaders) {
+        Object.assign(header, extraHeaders);
+      }
+
+      let url = BASE_URL + path;
+      let reqData = undefined;
+
+      if (method === "GET" && data) {
+        const qs = toQuery(data);
+        if (qs) url += "?" + qs;
+      } else if (data) {
+        reqData = data;
+      }
+
+      wx.request({
+        url: url,
+        method: method,
+        data: reqData,
+        header: header,
+        success(res) {
+          const body = res.data;
+
+          // 40100 表示 token 过期，尝试刷新后重试一次
+          if (body && body.code === 40100 && !isRetry) {
+            _refreshToken()
+              .then(function () {
+                request(method, path, data, extraHeaders, true)
+                  .then(resolve)
+                  .catch(reject);
+              })
+              .catch(function () {
+                wx.showToast({ title: "登录已过期，请重新登录", icon: "none" });
+                reject(new Error("登录已过期"));
+              });
+            return;
+          }
+
+          if (body && body.code === 0) {
+            resolve(body.data);
+          } else {
+            var msg = body && body.message ? body.message : "请求失败";
+            wx.showToast({ title: msg, icon: "none" });
+            reject(new Error(msg));
+          }
+        },
+        fail(err) {
+          wx.showToast({ title: "网络异常，请稍后重试", icon: "none" });
+          reject(err);
+        },
+      });
     };
-    if (auth && auth.token) {
-      header["Authorization"] = "Bearer " + auth.token;
-    }
-    if (extraHeaders) {
-      Object.assign(header, extraHeaders);
-    }
 
-    let url = BASE_URL + path;
-    let reqData = undefined;
-
-    if (method === "GET" && data) {
-      const qs = toQuery(data);
-      if (qs) url += "?" + qs;
-    } else if (data) {
-      reqData = data;
+    // 首次登录：业务接口在无 token 时先执行静默登录再发起请求
+    if (!isAuthPath && (!auth || !auth.token) && !isRetry) {
+      _ensureToken()
+        .then(function () {
+          doRequest();
+        })
+        .catch(function (err) {
+          wx.showToast({ title: "登录中，请稍后再试", icon: "none" });
+          reject(err);
+        });
+      return;
     }
 
-    wx.request({
-      url: url,
-      method: method,
-      data: reqData,
-      header: header,
-      success(res) {
-        const body = res.data;
-
-        // 40100 表示 token 过期，尝试刷新后重试一次
-        if (body && body.code === 40100 && !isRetry) {
-          _refreshToken()
-            .then(function () {
-              request(method, path, data, extraHeaders, true)
-                .then(resolve)
-                .catch(reject);
-            })
-            .catch(function () {
-              wx.showToast({ title: "登录已过期，请重新登录", icon: "none" });
-              reject(new Error("登录已过期"));
-            });
-          return;
-        }
-
-        if (body && body.code === 0) {
-          resolve(body.data);
-        } else {
-          var msg = body && body.message ? body.message : "请求失败";
-          wx.showToast({ title: msg, icon: "none" });
-          reject(new Error(msg));
-        }
-      },
-      fail(err) {
-        wx.showToast({ title: "网络异常，请稍后重试", icon: "none" });
-        reject(err);
-      },
-    });
+    doRequest();
   });
 }
 

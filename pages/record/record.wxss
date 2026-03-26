@@ -1,18 +1,52 @@
 /* pages/record/record.wxss */
 
 .container {
-  padding: 32rpx;
-  padding-bottom: 120rpx;
+  padding: 24rpx 32rpx;
+  padding-bottom: 200rpx;
   background-color: var(--surface);
   min-height: 100vh;
 }
 
-/* Calendar Card */
+/* ========== 顶部栏 ========== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.top-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.icon-btn {
+  padding: 8rpx;
+}
+
+.icon-btn:active {
+  opacity: 0.6;
+}
+
+/* ========== 日历卡片 ========== */
 .calendar-card {
   background-color: var(--surface-container-lowest);
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   padding: 32rpx;
-  margin-bottom: 32rpx;
+  margin-bottom: 36rpx;
   box-shadow: var(--shadow-primary);
 }
 
@@ -20,20 +54,34 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32rpx;
+  margin-bottom: 28rpx;
 }
 
 .month-year {
   font-size: 36rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--on_surface);
 }
 
-.nav-buttons {
+.nav-arrows {
   display: flex;
-  gap: 32rpx;
+  gap: 24rpx;
 }
 
+.arrow-btn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+}
+
+.arrow-btn:active {
+  background-color: var(--surface-container);
+}
+
+/* 星期头 */
 .week-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -41,71 +89,76 @@
 }
 
 .week-header text {
-  font-size: 26rpx;
+  font-size: 24rpx;
+  font-weight: 500;
   color: var(--on_surface_variant);
   text-align: center;
 }
 
+/* 日历格子 */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8rpx;
+  row-gap: 8rpx;
 }
 
-.calendar-day {
-  aspect-ratio: 1;
+.cal-day {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 16rpx;
+  padding: 12rpx 0;
   position: relative;
+  min-height: 80rpx;
 }
 
-.calendar-day text {
+.cal-day-num {
   font-size: 28rpx;
+  font-weight: 500;
   color: var(--on_surface);
 }
 
-.calendar-day.other-month text {
+.cal-day.other-month .cal-day-num {
   color: var(--surface-variant);
 }
 
-.calendar-day.selected {
-  background-color: var(--primary);
+.cal-day.selected {
+  position: relative;
 }
 
-.calendar-day.selected text {
+.cal-day.selected .cal-day-num {
   color: #ffffff;
-}
-
-.status-dot {
-  width: 8rpx;
-  height: 8rpx;
+  width: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  background-color: var(--primary);
   border-radius: 50%;
-  position: absolute;
-  bottom: 12rpx;
 }
 
-.status-dot.taken {
+/* 日历状态圆点 */
+.cal-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  margin-top: 4rpx;
+}
+
+.cal-dot.taken {
   background-color: #006e28;
 }
 
-.status-dot.partial {
-  background-color: #ff9800;
+.cal-dot.missed {
+  background-color: #e88b8b;
 }
 
-.status-dot.missed {
-  background-color: #e53935;
-}
-
+/* 图例 */
 .legend {
   display: flex;
   justify-content: center;
   gap: 48rpx;
   margin-top: 24rpx;
-  padding-top: 24rpx;
-  border-top: 1rpx solid var(--surface-container);
+  padding-top: 20rpx;
 }
 
 .legend-item {
@@ -114,22 +167,18 @@
   gap: 12rpx;
 }
 
-.legend-item .dot {
+.legend-dot {
   width: 16rpx;
   height: 16rpx;
   border-radius: 50%;
 }
 
-.legend-item .dot.taken {
+.legend-dot.taken {
   background-color: #006e28;
 }
 
-.legend-item .dot.partial {
-  background-color: #ff9800;
-}
-
-.legend-item .dot.missed {
-  background-color: #e53935;
+.legend-dot.missed {
+  background-color: #e88b8b;
 }
 
 .legend-item text {
@@ -137,49 +186,8 @@
   color: var(--on_surface_variant);
 }
 
-/* Stats Row */
-.stats-row {
-  display: flex;
-  gap: 24rpx;
-  margin-bottom: 32rpx;
-}
-
-.stat-box {
-  flex: 1;
-  background-color: var(--surface-container);
-  border-radius: 16rpx;
-  padding: 24rpx;
-}
-
-.stat-label {
-  display: block;
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-  margin-bottom: 12rpx;
-}
-
-.stat-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8rpx;
-}
-
-.stat-num {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.stat-unit {
-  font-size: 24rpx;
-  color: var(--on_surface_variant);
-}
-
-/* Records Section */
+/* ========== 最近记录 ========== */
 .records-section {
-  background-color: var(--surface-container);
-  border-radius: 20rpx;
-  padding: 32rpx;
   margin-bottom: 32rpx;
 }
 
@@ -191,93 +199,143 @@
 }
 
 .section-title {
-  font-size: 32rpx;
-  font-weight: 600;
+  font-size: 34rpx;
+  font-weight: 700;
   color: var(--on_surface);
 }
 
 .view-more {
   font-size: 26rpx;
+  font-weight: 500;
   color: var(--primary);
 }
 
-.record-list {
+.view-more:active {
+  opacity: 0.6;
+}
+
+/* 空态 */
+.empty-records {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
   gap: 16rpx;
 }
 
-.empty-records {
-  text-align: center;
-  padding: 40rpx;
-  color: var(--on_surface_variant);
+.empty-records text {
   font-size: 26rpx;
+  color: var(--on_surface_variant);
 }
 
-.record-item {
+/* 记录列表 */
+.record-list {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 记录卡片 */
+.record-card {
+  display: flex;
   background-color: var(--surface-container-lowest);
-  border-radius: 16rpx;
-  padding: 24rpx;
-  border-left: 6rpx solid transparent;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow-primary);
 }
 
-.record-item.taken {
-  border-left-color: #006e28;
+.record-card:active {
+  transform: scale(0.98);
+  transition: transform 0.15s ease;
 }
 
-.record-item.missed {
-  border-left-color: #e53935;
-}
-
-.record-icon {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 24rpx;
+/* 左侧色条 */
+.record-border {
+  width: 8rpx;
   flex-shrink: 0;
 }
 
-.record-avatar-text {
-  font-size: 36rpx;
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
+.record-border.border-green {
+  background-color: #006e28;
 }
 
+.record-border.border-blue {
+  background-color: #0058bc;
+}
+
+.record-border.border-red {
+  background-color: #e53935;
+}
+
+.record-border.border-grey {
+  background-color: var(--surface-container);
+}
+
+/* 记录主体 */
+.record-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  gap: 20rpx;
+}
+
+/* 信息区 */
 .record-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .record-name {
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--on_surface);
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
 }
 
-.record-dosage {
+.record-sub {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.record-sub-text {
   font-size: 24rpx;
-  color: var(--on_surface_variant);
-  margin-bottom: 8rpx;
+  line-height: 1.4;
 }
 
-.record-warning {
+.record-time-detail {
+  display: block;
+  margin-top: 8rpx;
   font-size: 22rpx;
-  color: #e53935;
+  color: var(--on_surface_variant);
+  line-height: 1.4;
 }
 
+/* 右侧时间/操作 */
 .record-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 8rpx 20rpx;
+  border-radius: 9999rpx;
+}
+
+.taken-badge {
+  background-color: #e3f2fd;
+}
+
+.taken-badge text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--primary);
 }
 
 .record-time {
@@ -285,17 +343,19 @@
   color: var(--on_surface_variant);
 }
 
-.record-time.missed {
-  color: #e53935;
-}
-
 .makeup-btn {
-  background-color: var(--surface-container);
-  padding: 8rpx 20rpx;
-  border-radius: 8rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 9999rpx;
+  border: 2rpx solid var(--surface-container);
+  background-color: var(--surface-container-lowest);
 }
 
 .makeup-btn text {
-  font-size: 22rpx;
+  font-size: 24rpx;
+  font-weight: 500;
   color: var(--on_surface);
+}
+
+.makeup-btn:active {
+  background-color: var(--surface-container);
 }
