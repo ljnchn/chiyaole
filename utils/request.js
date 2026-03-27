@@ -3,7 +3,7 @@
  * 基于 wx.request，自动注入 Authorization 头，支持 token 刷新重试
  */
 
-const BASE_URL = "http://localhost:3000/v1";
+const BASE_URL = "https://webman.xfxzl.com/v1";
 const AUTH_KEY = "cym_auth";
 let _loginPromise = null;
 

@@ -48,12 +48,26 @@ auth.post("/login", async (c) => {
   let isNewUser = false;
   if (!user) {
     const id = generateId("u");
-    db.run(
-      `INSERT INTO users (id, openid, session_key) VALUES (?, ?, ?)`,
-      [id, openid, session_key]
-    );
-    user = db.query("SELECT * FROM users WHERE id = ?").get(id) as Record<string, string | number>;
-    isNewUser = true;
+    try {
+      db.run(
+        `INSERT INTO users (id, openid, session_key) VALUES (?, ?, ?)`,
+        [id, openid, session_key]
+      );
+      user = db
+        .query("SELECT * FROM users WHERE id = ?")
+        .get(id) as Record<string, string | number>;
+      isNewUser = true;
+    } catch (e) {
+      // 并发首次登录时，可能出现同一 openid 重复插入，回查已存在用户即可
+      user = db
+        .query("SELECT * FROM users WHERE openid = ?")
+        .get(openid) as Record<string, string | number> | null;
+      if (!user) throw e;
+      db.run("UPDATE users SET session_key = ?, updated_at = datetime('now') WHERE id = ?", [
+        session_key,
+        user.id as string,
+      ]);
+    }
   } else {
     db.run("UPDATE users SET session_key = ?, updated_at = datetime('now') WHERE id = ?", [
       session_key,

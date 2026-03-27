@@ -4,8 +4,16 @@ const authService = require('../../utils/authService')
 
 Page({
   data: {
-    userInfo: {},
+    userInfo: {
+      nickName: '未登录',
+      avatarUrl: '',
+      healthScore: 0,
+      joinDays: 0,
+      status: ''
+    },
     isLogged: false,
+    isRetryingLogin: false,
+    loginError: '',
     settings: [
       // {
       //   id: 'reminder',
@@ -42,6 +50,13 @@ Page({
     ]
   },
 
+  onAvatarError() {
+    // 头像 URL 存在但加载失败时，回退到占位头像，避免“白头像”
+    this.setData({
+      userInfo: Object.assign({}, this.data.userInfo, { avatarUrl: '' })
+    })
+  },
+
   onLoad() {
     this.loadUserInfo()
   },
@@ -55,20 +70,47 @@ Page({
 
   async loadUserInfo() {
     try {
+      this.setData({ loginError: '' })
       const user = await userService.get()
       this.setData({
         isLogged: authService.isLogged(),
         userInfo: {
-          nickName: user.nickName,
-          avatarUrl: user.avatarUrl,
-          healthScore: user.healthScore,
-          joinDays: user.joinDays,
-          status: user.healthScore >= 80 ? '健康守护中' : '需要更加坚持'
-        }
+          nickName: user.nickName || '未设置昵称',
+          avatarUrl: user.avatarUrl || '',
+          healthScore: user.healthScore || 0,
+          joinDays: user.joinDays || 0,
+          status: (user.healthScore || 0) >= 80 ? '健康守护中' : '需要更加坚持'
+        },
+        isLogged: true
       })
     } catch (err) {
       console.error('[User] loadUserInfo 失败:', err)
-      this.setData({ isLogged: authService.isLogged() })
+      this.setData({
+        isLogged: false,
+        loginError: '登录失败，请重新登录',
+        userInfo: Object.assign({}, this.data.userInfo, {
+          nickName: '未登录',
+          avatarUrl: ''
+        })
+      })
+    }
+  },
+
+  async onRetryLogin() {
+    if (this.data.isRetryingLogin) return
+    this.setData({ isRetryingLogin: true })
+    try {
+      // 重新登录前清理认证缓存，避免旧 token 干扰
+      wx.removeStorageSync('cym_auth')
+      await authService.autoLogin()
+      await this.loadUserInfo()
+      wx.showToast({ title: '重新登录成功', icon: 'success' })
+    } catch (err) {
+      console.error('[User] 重新登录失败:', err)
+      this.setData({ loginError: '登录失败，请检查网络后重试' })
+      wx.showToast({ title: '重新登录失败', icon: 'none' })
+    } finally {
+      this.setData({ isRetryingLogin: false })
     }
   },
 
@@ -78,6 +120,10 @@ Page({
   async onSyncWxProfile() {
     try {
       const profile = await authService.getUserProfile()
+      if (!profile || !profile.nickName || !profile.avatarUrl) {
+        wx.showToast({ title: '未获取到微信头像/昵称', icon: 'none' })
+        return
+      }
       await userService.update({
         nickName: profile.nickName,
         avatarUrl: profile.avatarUrl
@@ -85,7 +131,13 @@ Page({
       wx.showToast({ title: '同步成功', icon: 'success' })
       this.loadUserInfo()
     } catch (err) {
-      wx.showToast({ title: '授权已取消', icon: 'none' })
+      // 仅用户拒绝授权时提示“已取消”，其他情况提示同步失败
+      const msg = err && err.errMsg ? String(err.errMsg) : ''
+      if (msg.includes('getUserProfile:fail') || msg.includes('auth deny') || msg.includes('cancel')) {
+        wx.showToast({ title: '授权已取消', icon: 'none' })
+      } else {
+        wx.showToast({ title: '同步失败，请稍后重试', icon: 'none' })
+      }
     }
   },
 

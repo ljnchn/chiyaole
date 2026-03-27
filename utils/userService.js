@@ -22,6 +22,21 @@ function update(data) {
 }
 
 /**
+ * 从用户 settings 中读取紧急联系人
+ * @param {Object} user
+ * @returns {{ name: string, phone: string }|null}
+ */
+function getEmergencyContactFromUser(user) {
+  if (!user || !user.settings) return null
+  const ec = user.settings.emergencyContact
+  if (!ec || typeof ec !== 'object') return null
+  return {
+    name: ec.name || '',
+    phone: ec.phone || ''
+  }
+}
+
+/**
  * 获取用户设置
  * @returns {Promise<Object>}
  */
@@ -46,7 +61,14 @@ function updateSettings(settings) {
  * @returns {Promise<Object>}
  */
 function updateEmergencyContact(contact) {
-  return request.patch('/users/me/emergency-contact', contact)
+  // 后端没有单独的 emergency-contact endpoint，
+  // 统一存放在 users.settings.emergencyContact 中
+  return updateSettings({
+    emergencyContact: {
+      name: contact && contact.name ? contact.name : '',
+      phone: contact && contact.phone ? contact.phone : ''
+    }
+  })
 }
 
 /**
@@ -69,6 +91,7 @@ function clear() {
 module.exports = {
   get,
   update,
+  getEmergencyContactFromUser,
   getSettings,
   updateSettings,
   updateEmergencyContact,

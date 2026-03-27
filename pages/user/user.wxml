@@ -3,7 +3,13 @@
   <!-- User Card -->
   <view class="user-card" bindtap="onEditProfile">
     <view class="avatar">
-      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" />
+      <image
+        wx:if="{{userInfo.avatarUrl}}"
+        src="{{userInfo.avatarUrl}}"
+        mode="aspectFill"
+        lazy-load
+        binderror="onAvatarError"
+      />
       <view wx:else class="avatar-placeholder">
         <text>{{userInfo.nickName[0]}}</text>
       </view>
@@ -12,6 +18,15 @@
       <text class="user-name">{{userInfo.nickName}}</text>
     </view>
     <t-icon name="chevron-right" size="40rpx" color="#c4c4c9" />
+  </view>
+
+  <!-- 登录失败时提供手动重试入口 -->
+  <view wx:if="{{loginError}}" class="sync-card">
+    <t-icon name="error-circle" size="36rpx" color="#e53935" />
+    <text class="sync-text">{{loginError}}</text>
+    <button size="mini" class="btn-retry-login" bindtap="onRetryLogin" loading="{{isRetryingLogin}}">
+      重新登录
+    </button>
   </view>
 
   <!-- 同步微信信息 -->
@@ -45,7 +60,8 @@
   </view>
 
   <!-- Logout Button -->
-  <view class="logout-section" wx:if="{{isLogged}}">
+  <!-- 先隐藏退出登录入口：避免误操作；后续需要再恢复 wx:if -->
+  <view class="logout-section" wx:if="{{false}}">
     <button class="btn-logout" bindtap="onLogout">
       <t-icon name="logout" size="34rpx" color="#e53935" />
       <text class="btn-logout-text">退出登录</text>

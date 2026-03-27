@@ -1,42 +1,78 @@
-<!--pages/user/profile.wxml-->
+<!-- pages/user/profile.wxml -->
 <view class="container">
-  <view class="form-section">
-    <text class="section-title">基本信息</text>
-    <view class="form-item">
-      <text class="form-label">昵称</text>
-      <t-input
-        placeholder="请输入昵称"
-        value="{{nickName}}"
-        bindchange="onNickNameInput"
-        borderless
-      />
-    </view>
-  </view>
+  <form class="profile-form" bindsubmit="onSubmitSave">
+    <view class="form-section">
+      <text class="section-title">基本信息</text>
 
-  <view class="form-section">
-    <text class="section-title">紧急联系人</text>
-    <view class="form-item">
-      <text class="form-label">姓名</text>
-      <t-input
-        placeholder="联系人姓名"
-        value="{{emergencyName}}"
-        bindchange="onEmergencyNameInput"
-        borderless
-      />
-    </view>
-    <view class="form-item">
-      <text class="form-label">电话</text>
-      <t-input
-        placeholder="联系人电话"
-        value="{{emergencyPhone}}"
-        bindchange="onEmergencyPhoneInput"
-        type="number"
-        borderless
-      />
-    </view>
-  </view>
+      <view class="form-item">
+        <text class="form-label">头像</text>
+        <view class="avatar-row">
+          <image
+            wx:if="{{avatarUrl}}"
+            class="avatar-preview"
+            src="{{avatarUrl}}"
+            mode="aspectFill"
+            lazy-load
+          />
+          <view wx:else class="avatar-placeholder">
+            <text class="avatar-placeholder-text">
+              {{nickName ? nickName[0] : ''}}
+            </text>
+          </view>
+          <button
+            class="btn-choose-avatar"
+            open-type="chooseAvatar"
+            bindchooseavatar="onChooseAvatar"
+          >
+            选择头像
+          </button>
+        </view>
+      </view>
 
-  <view class="save-section">
-    <button class="btn-save" bindtap="onSave">保存</button>
-  </view>
+      <view class="form-item">
+        <text class="form-label">昵称</text>
+        <!--
+          使用微信原生输入能力：
+          - type="nickname" 会在键盘顶部展示微信昵称
+          - onBlur 触发微信安全检测；不通过会清空输入
+        -->
+        <input
+          class="nickname-input"
+          type="nickname"
+          name="nickName"
+          placeholder="请输入昵称"
+          value="{{nickName}}"
+          bindinput="onNickNameInput"
+          bindblur="onNickNameBlur"
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <text class="section-title">紧急联系人</text>
+      <view class="form-item">
+        <text class="form-label">姓名</text>
+        <t-input
+          placeholder="联系人姓名"
+          value="{{emergencyName}}"
+          bindchange="onEmergencyNameInput"
+          borderless
+        />
+      </view>
+      <view class="form-item">
+        <text class="form-label">电话</text>
+        <t-input
+          placeholder="联系人电话"
+          value="{{emergencyPhone}}"
+          bindchange="onEmergencyPhoneInput"
+          type="number"
+          borderless
+        />
+      </view>
+    </view>
+
+    <view class="save-section">
+      <button class="btn-save" formType="submit">保存</button>
+    </view>
+  </form>
 </view>
