@@ -73,6 +73,8 @@ describe("Users", () => {
     expect(data.code).toBe(0);
     expect(data.data.nickName).toBe("用药小助手");
     expect(data.data.joinDays).toBeGreaterThanOrEqual(1);
+    expect(data.data.healthScore).toBeUndefined();
+    expect(data.data.emergencyContact).toBeUndefined();
   });
 
   it("PATCH /users/me - should update user info", async () => {
@@ -87,15 +89,6 @@ describe("Users", () => {
     });
     expect(data.code).toBe(0);
     expect(data.data.reminderEnabled).toBe(false);
-  });
-
-  it("PATCH /users/me/emergency-contact - should update contact", async () => {
-    const data = await req("PATCH", "/users/me/emergency-contact", {
-      name: "李四",
-      phone: "13900139000",
-    });
-    expect(data.code).toBe(0);
-    expect(data.data.name).toBe("李四");
   });
 });
 

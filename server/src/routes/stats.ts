@@ -57,10 +57,6 @@ stats.get("/overview", async (c) => {
   const compliance7d = getComplianceRate(userId, 7);
   const compliance30d = getComplianceRate(userId, 30);
 
-  const userRow = db
-    .query("SELECT health_score FROM users WHERE id = ?")
-    .get(userId) as { health_score: number } | null;
-
   const totalRow = db
     .query(
       "SELECT COUNT(*) as cnt FROM checkins WHERE user_id = ? AND status = 'taken'"
@@ -69,7 +65,6 @@ stats.get("/overview", async (c) => {
 
   return success(c, {
     streakDays,
-    healthScore: userRow?.health_score ?? 0,
     compliance7d,
     compliance30d,
     totalCheckins: totalRow.cnt,

@@ -908,8 +908,7 @@ server/
 │   ├── index.ts              # 入口，Hono app + Bun.serve
 │   ├── db/
 │   │   ├── schema.sql        # 建表语句
-│   │   ├── index.ts          # Database.open + migrate
-│   │   └── seed.ts           # 开发环境种子数据
+│   │   └── index.ts          # Database.open + migrate
 │   ├── middleware/
 │   │   ├── auth.ts           # JWT 验证中间件
 │   │   └── error.ts          # 统一错误处理

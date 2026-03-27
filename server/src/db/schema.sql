@@ -9,10 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   session_key   TEXT DEFAULT '',
   nick_name     TEXT DEFAULT '用药小助手',
   avatar_url    TEXT DEFAULT '',
-  health_score  INTEGER DEFAULT 0,
-  join_date     TEXT NOT NULL,
   settings      TEXT DEFAULT '{}',
-  emergency_contact TEXT DEFAULT '{}',
   created_at    TEXT DEFAULT (datetime('now')),
   updated_at    TEXT DEFAULT (datetime('now'))
 );
@@ -50,7 +47,7 @@ CREATE TABLE IF NOT EXISTS checkins (
   date            TEXT NOT NULL,
   scheduled_time  TEXT DEFAULT '',
   actual_time     TEXT DEFAULT '',
-  status          TEXT DEFAULT 'taken',
+  status          TEXT DEFAULT 'taken' CHECK (status IN ('taken', 'missed')),
   dosage          TEXT DEFAULT '',
   note            TEXT DEFAULT '',
   created_at      TEXT DEFAULT (datetime('now'))

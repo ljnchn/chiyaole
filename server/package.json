@@ -8,8 +8,7 @@
     "start": "bun run src/index.ts",
     "build": "bun build --compile src/index.ts --outfile chiyaole-server",
     "test": "bun test",
-    "lint": "bunx --bun tsc --noEmit",
-    "seed": "bun run src/db/seed.ts"
+    "lint": "bunx --bun tsc --noEmit"
   },
   "dependencies": {
     "hono": "^4.7.0",

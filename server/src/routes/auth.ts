@@ -48,10 +48,9 @@ auth.post("/login", async (c) => {
   let isNewUser = false;
   if (!user) {
     const id = generateId("u");
-    const today = new Date().toISOString().split("T")[0];
     db.run(
-      `INSERT INTO users (id, openid, session_key, join_date) VALUES (?, ?, ?, ?)`,
-      [id, openid, session_key, today]
+      `INSERT INTO users (id, openid, session_key) VALUES (?, ?, ?)`,
+      [id, openid, session_key]
     );
     user = db.query("SELECT * FROM users WHERE id = ?").get(id) as Record<string, string | number>;
     isNewUser = true;

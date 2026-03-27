@@ -12,9 +12,9 @@ type Variables = { userId: string };
 const users = new Hono<{ Variables: Variables }>();
 
 function formatUser(row: Record<string, unknown>) {
-  const joinDate = row.join_date as string;
+  const createdAt = row.created_at as string;
   const now = new Date();
-  const join = new Date(joinDate);
+  const join = new Date(createdAt);
   const joinDays =
     Math.floor((now.getTime() - join.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -22,13 +22,9 @@ function formatUser(row: Record<string, unknown>) {
     id: row.id,
     nickName: row.nick_name,
     avatarUrl: row.avatar_url,
-    healthScore: row.health_score,
-    joinDate,
+    joinDate: createdAt.split(" ")[0],
     joinDays,
     settings: JSON.parse((row.settings as string) || "{}"),
-    emergencyContact: JSON.parse(
-      (row.emergency_contact as string) || "{}"
-    ),
   };
 }
 
@@ -121,33 +117,6 @@ users.patch("/me/settings", async (c) => {
   );
 
   return success(c, currentSettings);
-});
-
-users.patch("/me/emergency-contact", async (c) => {
-  const userId = c.get("userId");
-  const body = await c.req.json();
-
-  const name = optionalString(body.name, "name", 50);
-  const phone = optionalString(body.phone, "phone", 20);
-
-  const user = db
-    .query("SELECT * FROM users WHERE id = ?")
-    .get(userId) as Record<string, unknown> | null;
-
-  if (!user) {
-    return error(c, 40400, "用户不存在", 404);
-  }
-
-  const contact = JSON.parse((user.emergency_contact as string) || "{}");
-  if (name !== undefined) contact.name = name;
-  if (phone !== undefined) contact.phone = phone;
-
-  db.run(
-    "UPDATE users SET emergency_contact = ?, updated_at = datetime('now') WHERE id = ?",
-    [JSON.stringify(contact), userId]
-  );
-
-  return success(c, contact);
 });
 
 users.delete("/me/data", async (c) => {
