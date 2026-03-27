@@ -44,7 +44,9 @@
       >
         <text class="cal-day-num">{{item.day}}</text>
         <view wx:if="{{item.status === 'taken'}}" class="cal-dot taken"></view>
-        <view wx:elif="{{item.status === 'missed' || item.status === 'partial'}}" class="cal-dot missed"></view>
+        <view wx:elif="{{item.status === 'partial'}}" class="cal-dot partial"></view>
+        <view wx:elif="{{item.status === 'missed'}}" class="cal-dot missed"></view>
+        <view wx:elif="{{item.status === 'pending'}}" class="cal-dot pending"></view>
       </view>
     </view>
 
@@ -55,8 +57,16 @@
         <text>已服药</text>
       </view>
       <view class="legend-item">
+        <view class="legend-dot partial"></view>
+        <text>部分已服</text>
+      </view>
+      <view class="legend-item">
         <view class="legend-dot missed"></view>
         <text>漏服</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-dot pending"></view>
+        <text>待服</text>
       </view>
     </view>
   </view>

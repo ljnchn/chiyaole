@@ -152,6 +152,14 @@
   background-color: #e88b8b;
 }
 
+.cal-dot.partial {
+  background-color: #f59e0b;
+}
+
+.cal-dot.pending {
+  background-color: var(--primary);
+}
+
 /* 图例 */
 .legend {
   display: flex;
@@ -179,6 +187,14 @@
 
 .legend-dot.missed {
   background-color: #e88b8b;
+}
+
+.legend-dot.partial {
+  background-color: #f59e0b;
+}
+
+.legend-dot.pending {
+  background-color: var(--primary);
 }
 
 .legend-item text {

@@ -2,7 +2,14 @@
 const medicationService = require('../../utils/medicationService')
 const lowStock = require('../../utils/lowStock')
 
-const FOOD_LABELS = { 'before': '饭前', 'after': '饭后', 'empty': '空腹', '': '不限' }
+const FOOD_LABELS = {
+  '': '不限',
+  'before': '饭前',
+  'with': '随餐',
+  'after': '饭后',
+  'sleep': '睡前',
+  'empty': '空腹'
+}
 
 function getAvatarText(name) {
   const t = (name || '').toString().trim()

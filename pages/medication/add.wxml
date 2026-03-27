@@ -118,25 +118,31 @@
           <view class="form-col">
             <text class="card-label">药物总量</text>
             <view class="stock-input-wrap">
-              <input
-                class="stock-input"
-                type="number"
+              <t-stepper
+                class="stock-stepper"
+                style="width: 100%;"
                 value="{{total}}"
-                bindinput="onTotalInput"
+                min="{{0}}"
+                step="{{1}}"
+                theme="filled"
+                size="small"
+                bindchange="onTotalStepperChange"
               />
-              <text class="stock-unit">{{unit}}</text>
             </view>
           </view>
           <view class="form-col">
             <text class="card-label">当前剩余</text>
             <view class="stock-input-wrap">
-              <input
-                class="stock-input"
-                type="number"
+              <t-stepper
+                class="stock-stepper"
+                style="width: 100%;"
                 value="{{remaining}}"
-                bindinput="onRemainingInput"
+                min="{{0}}"
+                step="{{1}}"
+                theme="filled"
+                size="small"
+                bindchange="onRemainingStepperChange"
               />
-              <text class="stock-unit">{{unit}}</text>
             </view>
           </view>
         </view>
@@ -154,17 +160,15 @@
           <view wx:if="{{lowStockEnabled}}" class="slider-section">
             <view class="slider-row">
               <text class="slider-label">当少于</text>
-              <slider
-                class="threshold-slider"
-                min="{{1}}"
-                max="{{total || 100}}"
+              <t-stepper
                 value="{{lowStockThreshold}}"
-                activeColor="#006e28"
-                backgroundColor="#ededf2"
-                block-size="{{20}}"
-                bindchange="onThresholdSliderChange"
+                min="{{0}}"
+                max="{{total || 100}}"
+                step="{{1}}"
+                theme="filled"
+                size="small"
+                bindchange="onThresholdStepperChange"
               />
-              <text class="slider-value">{{lowStockThreshold}}</text>
               <text class="slider-suffix">时提醒</text>
             </view>
           </view>

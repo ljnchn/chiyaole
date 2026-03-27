@@ -28,6 +28,13 @@ function formatCheckin(row: Record<string, unknown>) {
   };
 }
 
+function applyStockDelta(userId: string, medicationId: string, delta: number) {
+  db.run(
+    "UPDATE medications SET remaining = MAX(0, remaining + ?), updated_at = datetime('now') WHERE id = ? AND user_id = ?",
+    [delta, medicationId, userId]
+  );
+}
+
 checkins.post("/", async (c) => {
   const userId = c.get("userId");
   const body = await c.req.json();
@@ -48,28 +55,23 @@ checkins.post("/", async (c) => {
     return error(c, 40400, "药品不存在", 404);
   }
 
-  const existing = db
-    .query(
-      "SELECT id FROM checkins WHERE user_id = ? AND medication_id = ? AND date = ? AND scheduled_time = ?"
-    )
-    .get(userId, medicationId, date, scheduledTime);
-
-  if (existing) {
-    return error(c, 40900, "该时段已打卡，不可重复提交", 409);
+  const id = generateId("c");
+  try {
+    db.run(
+      `INSERT INTO checkins (id, user_id, medication_id, date, scheduled_time, actual_time, status, dosage, note)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, userId, medicationId, date, scheduledTime, actualTime, status, dosage, note]
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("UNIQUE constraint failed")) {
+      return error(c, 40900, "该时段已打卡，不可重复提交", 409);
+    }
+    throw e;
   }
 
-  const id = generateId("c");
-  db.run(
-    `INSERT INTO checkins (id, user_id, medication_id, date, scheduled_time, actual_time, status, dosage, note)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [id, userId, medicationId, date, scheduledTime, actualTime, status, dosage, note]
-  );
-
   if (status === "taken") {
-    db.run(
-      "UPDATE medications SET remaining = MAX(0, remaining - 1), updated_at = datetime('now') WHERE id = ? AND user_id = ?",
-      [medicationId, userId]
-    );
+    applyStockDelta(userId, medicationId, -1);
   }
 
   const checkin = db.query("SELECT * FROM checkins WHERE id = ?").get(id) as Record<
@@ -122,11 +124,32 @@ checkins.patch("/:id", async (c) => {
     return error(c, 40001, "参数错误：未提供要更新的字段");
   }
 
-  values.push(id, userId);
+  const fromStatus = existing.status as string;
+  const toStatus = statusVal ?? fromStatus;
+  const medicationId = existing.medication_id as string;
+
   db.run(
-    `UPDATE checkins SET ${updates.join(", ")} WHERE id = ? AND user_id = ?`,
-    values
+    "BEGIN TRANSACTION"
   );
+  try {
+    values.push(id, userId);
+    db.run(
+      `UPDATE checkins SET ${updates.join(", ")} WHERE id = ? AND user_id = ?`,
+      values
+    );
+
+    if (fromStatus !== toStatus) {
+      if (fromStatus === "missed" && toStatus === "taken") {
+        applyStockDelta(userId, medicationId, -1);
+      } else if (fromStatus === "taken" && toStatus === "missed") {
+        applyStockDelta(userId, medicationId, 1);
+      }
+    }
+    db.run("COMMIT");
+  } catch (e) {
+    db.run("ROLLBACK");
+    throw e;
+  }
 
   const updated = db
     .query("SELECT * FROM checkins WHERE id = ?")
@@ -147,7 +170,22 @@ checkins.delete("/:id", async (c) => {
     return error(c, 40400, "打卡记录不存在", 404);
   }
 
-  db.run("DELETE FROM checkins WHERE id = ? AND user_id = ?", [id, userId]);
+  const checkin = existing as Record<string, unknown>;
+  const medicationId = checkin.medication_id as string;
+  const status = checkin.status as string;
+
+  db.run("BEGIN TRANSACTION");
+  try {
+    db.run("DELETE FROM checkins WHERE id = ? AND user_id = ?", [id, userId]);
+    if (status === "taken") {
+      applyStockDelta(userId, medicationId, 1);
+    }
+    db.run("COMMIT");
+  } catch (e) {
+    db.run("ROLLBACK");
+    throw e;
+  }
+
   return success(c, null);
 });
 

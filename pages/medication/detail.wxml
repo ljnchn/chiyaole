@@ -9,9 +9,6 @@
     <text class="header-dosage">每次 {{medication.dosage}}</text>
     <view class="header-tags">
       <view class="tag" style="background-color: {{medication.color}}15; color: {{medication.color}};">
-        {{medication.specification || '未设规格'}}
-      </view>
-      <view class="tag" style="background-color: {{medication.color}}15; color: {{medication.color}};">
         {{foodLabel}}
       </view>
     </view>

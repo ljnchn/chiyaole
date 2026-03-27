@@ -90,6 +90,13 @@ Page({
 
       var medications = await medicationService.getActive()
       var dayCheckins = await checkinService.getByDate(dateStr)
+      var weekDays = this.data.weekDays || []
+      var weekCheckins = []
+      if (weekDays.length > 0) {
+        var weekStart = weekDays[0].date
+        var weekEnd = weekDays[weekDays.length - 1].date
+        weekCheckins = await checkinService.getByDateRange(weekStart, weekEnd)
+      }
 
       medications.forEach(function (med) {
         var times = med.times || []
@@ -180,9 +187,23 @@ Page({
       } catch (e) { /* 忽略 */ }
 
       var isPastSelectedDay = dateStr < todayStr
+      var weekStatusMap = buildDayStatusMap(
+        medications,
+        weekCheckins,
+        weekDays.length > 0 ? weekDays[0].date : dateStr,
+        weekDays.length > 0 ? weekDays[weekDays.length - 1].date : dateStr,
+        todayStr
+      )
+      var weekDaysWithStatus = weekDays.map(function (d) {
+        return Object.assign({}, d, {
+          status: weekStatusMap[d.date] || null,
+          selected: d.date === dateStr
+        })
+      })
 
       this.setData({
         dayItems: items,
+        weekDays: weekDaysWithStatus,
         isPastSelectedDay: isPastSelectedDay,
         totalCount: total,
         completedCount: completed,
@@ -233,7 +254,6 @@ Page({
             if (targetItem.checkinId) {
               await checkinService.remove(targetItem.checkinId)
             }
-            await medicationService.updateStock(targetItem.medicationId, 1)
             wx.showToast({ title: '已取消打卡', icon: 'none' })
             this.loadDayData(selectedDate)
           } catch (err) {
@@ -276,8 +296,6 @@ Page({
           }
 
           await checkinService.add(payload)
-
-          await medicationService.updateStock(targetItem.medicationId, -1)
           wx.showToast({ title: isPastDay ? '补录成功' : '打卡成功', icon: 'success' })
           this.loadDayData(selectedDate)
 
@@ -319,4 +337,60 @@ function getISOWeekNumber(date) {
   d.setUTCDate(d.getUTCDate() + 4 - dayNum)
   var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+}
+
+function getMedicationSlotCount(med) {
+  var times = Array.isArray(med.times) ? med.times : []
+  return times.length > 0 ? times.length : 1
+}
+
+function buildDayStatusMap(medications, checkins, startDate, endDate, todayStr) {
+  var map = {}
+  var dayCheckinMap = {}
+
+  ;(checkins || []).forEach(function (c) {
+    var d = c.date
+    if (!dayCheckinMap[d]) {
+      dayCheckinMap[d] = { taken: 0 }
+    }
+    if (c.status === 'taken') {
+      dayCheckinMap[d].taken++
+    }
+  })
+
+  eachDate(startDate, endDate, function (dateStr) {
+    var planned = 0
+    ;(medications || []).forEach(function (m) {
+      var s = m && m.startDate ? m.startDate : ''
+      if (!s || s <= dateStr) {
+        planned += getMedicationSlotCount(m)
+      }
+    })
+
+    if (planned === 0 || dateStr > todayStr) {
+      map[dateStr] = null
+      return
+    }
+
+    var taken = dayCheckinMap[dateStr] ? dayCheckinMap[dateStr].taken : 0
+    if (taken >= planned) {
+      map[dateStr] = 'taken'
+    } else if (taken > 0) {
+      map[dateStr] = 'partial'
+    } else {
+      map[dateStr] = dateStr < todayStr ? 'missed' : 'pending'
+    }
+  })
+
+  return map
+}
+
+function eachDate(startDate, endDate, cb) {
+  if (!startDate || !endDate || typeof cb !== 'function') return
+  var cur = new Date(startDate + 'T00:00:00')
+  var end = new Date(endDate + 'T00:00:00')
+  while (cur <= end) {
+    cb(formatDateStr(cur))
+    cur.setDate(cur.getDate() + 1)
+  }
 }

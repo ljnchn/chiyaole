@@ -154,11 +154,13 @@ Page({
 
   // --- 库存 ---
 
-  onTotalInput(e) {
-    var val = e.detail.value
-    this.setData({ total: val })
+  onTotalStepperChange(e) {
+    var v = e && e.detail ? e.detail.value : 0
+    var totalNum = Number.isFinite(v) ? v : parseInt(v, 10)
+    if (!Number.isFinite(totalNum) || totalNum < 0) totalNum = 0
 
-    var totalNum = parseInt(val, 10)
+    this.setData({ total: totalNum })
+
     if (!this.data._thresholdTouched && totalNum > 0) {
       this.setData({
         lowStockThreshold: lowStock.calcDefaultLowStockThreshold(totalNum)
@@ -166,17 +168,22 @@ Page({
     }
   },
 
-  onRemainingInput(e) {
-    this.setData({ remaining: e.detail.value })
+  onRemainingStepperChange(e) {
+    var v = e && e.detail ? e.detail.value : 0
+    var remainingNum = Number.isFinite(v) ? v : parseInt(v, 10)
+    if (!Number.isFinite(remainingNum) || remainingNum < 0) remainingNum = 0
+
+    this.setData({ remaining: remainingNum })
   },
 
   onLowStockEnabledChange(e) {
     this.setData({ lowStockEnabled: !!e.detail.value })
   },
 
-  onThresholdSliderChange(e) {
+  onThresholdStepperChange(e) {
+    var v = e && e.detail ? e.detail.value : undefined
     this.setData({
-      lowStockThreshold: e.detail.value,
+      lowStockThreshold: v,
       _thresholdTouched: true
     })
   },

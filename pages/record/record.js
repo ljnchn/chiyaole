@@ -125,6 +125,7 @@ Page({
       var currentYear = this.data.currentYear
       var currentMonth = this.data.currentMonth
       var selectedDate = this.data.selectedDate
+      var todayStr = storage.today()
       var daysInMonth = new Date(currentYear, currentMonth, 0).getDate()
       var firstDay = new Date(currentYear, currentMonth - 1, 1).getDay()
 
@@ -132,19 +133,10 @@ Page({
         activeMeds = await medicationService.getActive()
       }
 
-      var calendarData = await checkinService.getCalendar(currentYear, currentMonth)
-      // /checkins/calendar 设计为 { year, month, days: { 'YYYY-MM-DD': 'taken'|'partial'|'missed'|null } }
-      // 同时兼容后端直接返回 map 的情况
-      var dayStatusMap = (calendarData && calendarData.days) ? calendarData.days : calendarData
-
-      function needCheckinOn(dateStr) {
-        if (!Array.isArray(activeMeds) || activeMeds.length === 0) return false
-        return activeMeds.some(function (m) {
-          var s = m && m.startDate ? m.startDate : ''
-          // YYYY-MM-DD 字符串可直接比较
-          return !s || s <= dateStr
-        })
-      }
+      var monthStart = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-01'
+      var monthEnd = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(daysInMonth).padStart(2, '0')
+      var monthCheckins = await checkinService.getByDateRange(monthStart, monthEnd)
+      var dayStatusMap = buildDayStatusMap(activeMeds, monthCheckins, monthStart, monthEnd, todayStr)
 
       var calendarDays = []
       var prevMonthDays = new Date(currentYear, currentMonth - 1, 0).getDate()
@@ -159,11 +151,10 @@ Page({
 
       for (var d = 1; d <= daysInMonth; d++) {
         var dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(d).padStart(2, '0')
-        var shouldShowStatus = needCheckinOn(dateStr)
         calendarDays.push({
           day: d,
           currentMonth: true,
-          status: shouldShowStatus && (dayStatusMap && dayStatusMap[dateStr]) ? dayStatusMap[dateStr] : null,
+          status: dayStatusMap[dateStr] || null,
           selected: d === selectedDate
         })
       }
@@ -204,7 +195,7 @@ Page({
           var status = 'pending'
           if (checkin) {
             status = checkin.status
-          } else if (dateStr < todayStr && time) {
+          } else if (dateStr < todayStr) {
             status = 'missed'
           }
 
@@ -377,4 +368,67 @@ function isYesterday(dateStr, todayStr) {
   var m = String(d.getMonth() + 1).padStart(2, '0')
   var day = String(d.getDate()).padStart(2, '0')
   return dateStr === (y + '-' + m + '-' + day)
+}
+
+function getMedicationSlotCount(med) {
+  var times = Array.isArray(med.times) ? med.times : []
+  return times.length > 0 ? times.length : 1
+}
+
+function buildDayStatusMap(medications, checkins, startDate, endDate, todayStr) {
+  var map = {}
+  var dayCheckinMap = {}
+
+  ;(checkins || []).forEach(function (c) {
+    var d = c.date
+    if (!dayCheckinMap[d]) {
+      dayCheckinMap[d] = { taken: 0 }
+    }
+    if (c.status === 'taken') {
+      dayCheckinMap[d].taken++
+    }
+  })
+
+  eachDate(startDate, endDate, function (dateStr) {
+    var planned = 0
+    ;(medications || []).forEach(function (m) {
+      var s = m && m.startDate ? m.startDate : ''
+      if (!s || s <= dateStr) {
+        planned += getMedicationSlotCount(m)
+      }
+    })
+
+    if (planned === 0 || dateStr > todayStr) {
+      map[dateStr] = null
+      return
+    }
+
+    var taken = dayCheckinMap[dateStr] ? dayCheckinMap[dateStr].taken : 0
+    if (taken >= planned) {
+      map[dateStr] = 'taken'
+    } else if (taken > 0) {
+      map[dateStr] = 'partial'
+    } else {
+      map[dateStr] = dateStr < todayStr ? 'missed' : 'pending'
+    }
+  })
+
+  return map
+}
+
+function eachDate(startDate, endDate, cb) {
+  if (!startDate || !endDate || typeof cb !== 'function') return
+  var cur = new Date(startDate + 'T00:00:00')
+  var end = new Date(endDate + 'T00:00:00')
+  while (cur <= end) {
+    cb(formatDate(cur))
+    cur.setDate(cur.getDate() + 1)
+  }
+}
+
+function formatDate(d) {
+  var y = d.getFullYear()
+  var m = String(d.getMonth() + 1).padStart(2, '0')
+  var day = String(d.getDate()).padStart(2, '0')
+  return y + '-' + m + '-' + day
 }

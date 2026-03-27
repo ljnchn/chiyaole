@@ -7,17 +7,17 @@ Page({
     userInfo: {},
     isLogged: false,
     settings: [
-      {
-        id: 'reminder',
-        icon: 'notification',
-        iconColor: '#0058bc',
-        title: '提醒设置',
-        desc: '管理服药提醒频率',
-        value: ''
-      },
+      // {
+      //   id: 'reminder',
+      //   icon: 'notification',
+      //   iconColor: '#0058bc',
+      //   title: '提醒设置',
+      //   desc: '管理服药提醒频率',
+      //   value: ''
+      // },
       {
         id: 'family',
-        icon: 'user-group',
+        icon: 'home',
         iconColor: '#4c4aca',
         title: '家庭成员绑定',
         desc: '关联老人或小孩的账号',
@@ -34,7 +34,7 @@ Page({
       {
         id: 'about',
         icon: 'info-circle',
-        iconColor: '#666',
+        iconColor: '#0052d9',
         title: '关于',
         desc: '版本 v1.0.0',
         value: ''

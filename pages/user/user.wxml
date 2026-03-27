@@ -10,15 +10,6 @@
     </view>
     <view class="user-info">
       <text class="user-name">{{userInfo.nickName}}</text>
-      <view class="user-stats">
-        <text>健康分: {{userInfo.healthScore}}</text>
-        <text class="divider">|</text>
-        <text>已加入 {{userInfo.joinDays}} 天</text>
-      </view>
-      <view class="user-status">
-        <view class="status-dot"></view>
-        <text>{{userInfo.status}}</text>
-      </view>
     </view>
     <t-icon name="chevron-right" size="40rpx" color="#c4c4c9" />
   </view>
@@ -54,7 +45,10 @@
   </view>
 
   <!-- Logout Button -->
-  <view class="logout-section">
-    <button class="btn-logout" bindtap="onLogout">退出登录</button>
+  <view class="logout-section" wx:if="{{isLogged}}">
+    <button class="btn-logout" bindtap="onLogout">
+      <t-icon name="logout" size="34rpx" color="#e53935" />
+      <text class="btn-logout-text">退出登录</text>
+    </button>
   </view>
 </view>

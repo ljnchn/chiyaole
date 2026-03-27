@@ -169,6 +169,10 @@ describe("Checkins", () => {
     expect(data.code).toBe(0);
     expect(data.data.id).toBeTruthy();
     checkinId = data.data.id;
+
+    const medData = await req("GET", `/medications/${medicationId}`);
+    expect(medData.code).toBe(0);
+    expect(medData.data.medication.remaining).toBe(21);
   });
 
   it("POST /checkins - should reject duplicate", async () => {
@@ -213,6 +217,30 @@ describe("Checkins", () => {
     });
     expect(data.code).toBe(0);
     expect(data.data.note).toBe("补录");
+  });
+
+  it("PATCH /checkins/:id - should restore stock when status changes to missed", async () => {
+    const data = await req("PATCH", `/checkins/${checkinId}`, {
+      status: "missed",
+    });
+    expect(data.code).toBe(0);
+    expect(data.data.status).toBe("missed");
+
+    const medData = await req("GET", `/medications/${medicationId}`);
+    expect(medData.code).toBe(0);
+    expect(medData.data.medication.remaining).toBe(22);
+  });
+
+  it("PATCH /checkins/:id - should consume stock when status changes back to taken", async () => {
+    const data = await req("PATCH", `/checkins/${checkinId}`, {
+      status: "taken",
+    });
+    expect(data.code).toBe(0);
+    expect(data.data.status).toBe("taken");
+
+    const medData = await req("GET", `/medications/${medicationId}`);
+    expect(medData.code).toBe(0);
+    expect(medData.data.medication.remaining).toBe(21);
   });
 });
 
@@ -261,6 +289,10 @@ describe("Cleanup", () => {
   it("DELETE /checkins/:id - should delete checkin", async () => {
     const data = await req("DELETE", `/checkins/${checkinId}`);
     expect(data.code).toBe(0);
+
+    const medData = await req("GET", `/medications/${medicationId}`);
+    expect(medData.code).toBe(0);
+    expect(medData.data.medication.remaining).toBe(22);
   });
 
   it("DELETE /medications/:id - should delete medication", async () => {

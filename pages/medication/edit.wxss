@@ -237,9 +237,14 @@
   display: flex;
   align-items: center;
   background-color: var(--surface);
-  border-radius: 12rpx;
-  padding: 16rpx 20rpx;
-  gap: 8rpx;
+  border-radius: 16rpx;
+  padding: 12rpx 12rpx;
+  gap: 12rpx;
+  box-shadow: 0 10rpx 24rpx rgba(0, 88, 188, 0.08);
+}
+
+.stock-stepper {
+  flex: 1;
 }
 
 .stock-input {

@@ -21,6 +21,10 @@
       <view class="week-day-num-wrap">
         <text class="week-day-num">{{item.day}}</text>
       </view>
+      <view wx:if="{{item.status === 'taken'}}" class="week-day-dot dot-taken"></view>
+      <view wx:elif="{{item.status === 'partial'}}" class="week-day-dot dot-partial"></view>
+      <view wx:elif="{{item.status === 'missed'}}" class="week-day-dot dot-missed"></view>
+      <view wx:elif="{{item.status === 'pending'}}" class="week-day-dot dot-pending"></view>
     </view>
   </view>
 
@@ -51,7 +55,7 @@
                 style="width: {{item.usagePercent}}%; background-color: {{item.taken ? '#006e28' : item.usagePercent < 20 ? '#e53935' : item.color || '#0058bc'}};"
               />
             </view>
-            <text class="med-usage-pct">{{item.usagePercent}}%</text>
+            <text class="med-usage-pct">{{item.total > 0 ? (item.remaining + '/' + item.total) : (item.remaining + '/0')}}</text>
           </view>
         </view>
 
