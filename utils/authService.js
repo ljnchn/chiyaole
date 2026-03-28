@@ -133,27 +133,6 @@ async function autoLogin() {
 }
 
 /**
- * 获取微信用户头像和昵称（需用户主动触发）
- * @returns {Promise<{ nickName: string, avatarUrl: string }>}
- */
-function getUserProfile() {
-  return new Promise(function (resolve, reject) {
-    wx.getUserProfile({
-      desc: "用于展示个人信息",
-      success: function (res) {
-        resolve({
-          nickName: res.userInfo.nickName,
-          avatarUrl: res.userInfo.avatarUrl,
-        });
-      },
-      fail: function (err) {
-        reject(err);
-      },
-    });
-  });
-}
-
-/**
  * 退出登录：清除本地认证信息，静默调用 DELETE /users/me/data
  */
 function logout() {
@@ -175,6 +154,5 @@ module.exports = {
   refresh,
   checkSession,
   autoLogin,
-  getUserProfile,
   logout,
 };

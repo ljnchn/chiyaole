@@ -108,6 +108,7 @@ describe("Medications", () => {
     expect(data.code).toBe(0);
     expect(data.data.name).toBe("阿莫西林胶囊");
     expect(data.data.id).toBeTruthy();
+    expect(data.data.doseIntervalDays).toBe(1);
     medicationId = data.data.id;
   });
 

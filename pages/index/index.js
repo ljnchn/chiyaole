@@ -3,6 +3,7 @@ const medicationService = require('../../utils/medicationService')
 const checkinService = require('../../utils/checkinService')
 const storage = require('../../utils/storage')
 const subscribeService = require('../../utils/subscribeService')
+const doseSchedule = require('../../utils/doseSchedule')
 
 const WEEKDAY_SHORT = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const FOOD_LABELS = { before: '饭前服用', after: '饭后服用', empty: '空腹服用' }
@@ -99,6 +100,12 @@ Page({
       }
 
       medications.forEach(function (med) {
+        var start = med.startDate || ''
+        var intervalDays = doseSchedule.getDoseIntervalDays(med)
+        if (!doseSchedule.isMedicationDueOnDate(start, dateStr, intervalDays)) {
+          return
+        }
+
         var times = med.times || []
         var usagePercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
         var foodLabel = FOOD_LABELS[med.withFood] || ''
@@ -141,8 +148,6 @@ Page({
           if (!taken && dateStr === todayStr) {
             if (nowTime > time) {
               urgent = true
-            } else if (nowTime < time) {
-              future = true
             }
           }
           if (dateStr > todayStr) {
@@ -230,12 +235,6 @@ Page({
     // 未来日期：不可打卡
     if (isFutureDay) {
       wx.showToast({ title: '不能为未来日期打卡', icon: 'none' })
-      return
-    }
-
-    // 待办（今天未到计划时间）不可操作
-    if (targetItem.future) {
-      wx.showToast({ title: '还没到服药时间', icon: 'none' })
       return
     }
 
@@ -339,7 +338,12 @@ function getISOWeekNumber(date) {
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
 }
 
-function getMedicationSlotCount(med) {
+function getMedicationSlotCountOnDate(med, dateStr) {
+  var start = med.startDate || ''
+  var intervalDays = doseSchedule.getDoseIntervalDays(med)
+  if (!doseSchedule.isMedicationDueOnDate(start, dateStr, intervalDays)) {
+    return 0
+  }
   var times = Array.isArray(med.times) ? med.times : []
   return times.length > 0 ? times.length : 1
 }
@@ -363,7 +367,7 @@ function buildDayStatusMap(medications, checkins, startDate, endDate, todayStr) 
     ;(medications || []).forEach(function (m) {
       var s = m && m.startDate ? m.startDate : ''
       if (!s || s <= dateStr) {
-        planned += getMedicationSlotCount(m)
+        planned += getMedicationSlotCountOnDate(m, dateStr)
       }
     })
 

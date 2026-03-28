@@ -1,6 +1,7 @@
 // pages/medication/detail.js
 const medicationService = require('../../utils/medicationService')
 const lowStock = require('../../utils/lowStock')
+const doseSchedule = require('../../utils/doseSchedule')
 
 const FOOD_LABELS = {
   '': '不限',
@@ -21,6 +22,7 @@ Page({
     medication: null,
     recentRecords: [],
     foodLabel: '',
+    intervalLabel: '',
     stockPercent: 0,
     lowStock: false
   },
@@ -55,6 +57,7 @@ Page({
       var stockPercent = med.total > 0 ? Math.round((med.remaining / med.total) * 100) : 0
       var lowStockFlag = lowStock.calcLowStock(med)
       var foodLabel = FOOD_LABELS[med.withFood] || '不限'
+      var intervalLabel = doseSchedule.getIntervalLabel(doseSchedule.getDoseIntervalDays(med))
 
       var records = (result.recentCheckins || []).map(function (r) {
         return Object.assign({}, r, {
@@ -67,6 +70,7 @@ Page({
         medication: med,
         recentRecords: records,
         foodLabel: foodLabel,
+        intervalLabel: intervalLabel,
         stockPercent: stockPercent,
         lowStock: lowStockFlag
       })

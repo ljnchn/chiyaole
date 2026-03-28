@@ -114,33 +114,6 @@ Page({
     }
   },
 
-  /**
-   * 获取微信头像和昵称（需用户主动触发）
-   */
-  async onSyncWxProfile() {
-    try {
-      const profile = await authService.getUserProfile()
-      if (!profile || !profile.nickName || !profile.avatarUrl) {
-        wx.showToast({ title: '未获取到微信头像/昵称', icon: 'none' })
-        return
-      }
-      await userService.update({
-        nickName: profile.nickName,
-        avatarUrl: profile.avatarUrl
-      })
-      wx.showToast({ title: '同步成功', icon: 'success' })
-      this.loadUserInfo()
-    } catch (err) {
-      // 仅用户拒绝授权时提示“已取消”，其他情况提示同步失败
-      const msg = err && err.errMsg ? String(err.errMsg) : ''
-      if (msg.includes('getUserProfile:fail') || msg.includes('auth deny') || msg.includes('cancel')) {
-        wx.showToast({ title: '授权已取消', icon: 'none' })
-      } else {
-        wx.showToast({ title: '同步失败，请稍后重试', icon: 'none' })
-      }
-    }
-  },
-
   onSettingTap(e) {
     const { id } = e.currentTarget.dataset
     const settingMap = {

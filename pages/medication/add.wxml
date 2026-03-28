@@ -30,38 +30,48 @@
         </view>
       </view>
 
-      <!-- 服用剂量 + 服用频率 -->
+      <!-- 开始时间、服用剂量、用药间隔、服用方式 -->
       <view class="form-card">
-        <view class="form-row">
-          <view class="form-col">
-            <text class="card-label">服用剂量</text>
-            <view class="input-box small">
-              <input
-                class="input-field"
-                placeholder="1 片 / 10ml"
-                placeholder-class="input-placeholder"
-                value="{{dosage}}"
-                bindinput="onDosageInput"
-              />
-            </view>
-          </view>
-          <view class="form-col">
-            <text class="card-label">服用频率</text>
-            <view class="input-box small picker" bindtap="onShowFreqPicker">
-              <text class="{{frequency ? 'input-value' : 'input-placeholder'}}">{{frequency || '1日3次'}}</text>
-              <t-icon name="chevron-down" size="32rpx" color="#8e8e93" />
-            </view>
-          </view>
-        </view>
-
         <!-- 开始时间 -->
-        <text class="card-label" style="margin-top: 28rpx;">开始时间</text>
+        <text class="card-label">开始时间</text>
         <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
           <view class="input-box small picker">
             <text class="{{startDate ? 'input-value' : 'input-placeholder'}}">{{startDate || '请选择开始日期'}}</text>
             <t-icon name="chevron-right" size="32rpx" color="#8e8e93" />
           </view>
         </picker>
+
+        <view class="form-row" style="margin-top: 28rpx;">
+          <view class="form-col">
+            <text class="card-label">服用剂量</text>
+            <view class="dosage-inline">
+              <view class="input-box small dosage-inline-input">
+                <input
+                  class="input-field"
+                  type="digit"
+                  placeholder="如 1、10"
+                  placeholder-class="input-placeholder"
+                  value="{{dosageInput}}"
+                  bindinput="onDosageInput"
+                />
+              </view>
+              <picker mode="selector" range="{{dosageUnitLabels}}" value="{{dosageUnitIndex}}" bindchange="onDosageUnitChange">
+                <view class="input-box small picker dosage-inline-unit">
+                  <text class="{{dosageUnit ? 'input-value' : 'input-placeholder'}}">{{dosageUnit || '单位'}}</text>
+                  <t-icon name="chevron-down" size="32rpx" color="#8e8e93" />
+                </view>
+              </picker>
+            </view>
+          </view>
+          <view class="form-col">
+            <text class="card-label">用药间隔</text>
+            <view class="input-box small picker" bindtap="onShowIntervalPicker">
+              <text class="input-value">{{intervalLabelText}}</text>
+              <t-icon name="chevron-down" size="32rpx" color="#8e8e93" />
+            </view>
+          </view>
+        </view>
+        <text class="card-hint">决定哪些日期需要服药；当天吃几顿由下方用药时间决定</text>
 
         <!-- 服用方式 -->
         <text class="card-label" style="margin-top: 28rpx;">服用方式</text>
@@ -78,12 +88,12 @@
         </view>
       </view>
 
-      <!-- 提醒时间设置 -->
+      <!-- 用药时间设置 -->
       <view class="form-card">
         <view class="card-header">
           <view class="card-header-left">
             <t-icon name="time-filled" size="36rpx" color="#0058bc" />
-            <text class="card-header-title">提醒时间设置</text>
+            <text class="card-header-title">用药时间设置</text>
           </view>
           <view class="card-header-action" bindtap="onAddTime">
             <t-icon name="add-circle" size="32rpx" color="#0058bc" />
@@ -219,15 +229,15 @@
   <t-picker-item options="{{timeMinuteOptions}}" />
 </t-picker>
 
-<!-- 频率选择器 -->
+<!-- 用药间隔 -->
 <t-picker
-  visible="{{showFreqPicker}}"
-  title="选择服用频率"
+  visible="{{showIntervalPicker}}"
+  title="选择用药间隔"
   cancelBtn="取消"
   confirmBtn="确认"
-  value="{{freqPickerValue}}"
-  bindconfirm="onFreqPickerConfirm"
-  bindcancel="onFreqPickerCancel"
+  value="{{intervalPickerValue}}"
+  bindconfirm="onIntervalPickerConfirm"
+  bindcancel="onIntervalPickerCancel"
 >
-  <t-picker-item options="{{freqOptions}}" />
+  <t-picker-item options="{{intervalOptions}}" />
 </t-picker>

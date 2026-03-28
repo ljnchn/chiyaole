@@ -10,6 +10,10 @@ import {
   optionalDate,
   parsePagination,
 } from "../utils/validate";
+import {
+  getDoseIntervalDays,
+  isMedicationDueOnDate,
+} from "../utils/doseSchedule";
 
 type Variables = { userId: string };
 const checkins = new Hono<{ Variables: Variables }>();
@@ -260,7 +264,7 @@ checkins.get("/today", async (c) => {
 
   const meds = db
     .query(
-      "SELECT id, name, dosage, icon, color, times FROM medications WHERE user_id = ? AND status = 'active' AND start_date <= ?"
+      "SELECT id, name, dosage, icon, color, times, start_date, frequency, dose_interval_days FROM medications WHERE user_id = ? AND status = 'active' AND start_date <= ?"
     )
     .all(userId, today) as Record<string, unknown>[];
 
@@ -281,8 +285,19 @@ checkins.get("/today", async (c) => {
   let completed = 0;
 
   for (const med of meds) {
+    if (
+      !isMedicationDueOnDate(
+        String(med.start_date),
+        today,
+        getDoseIntervalDays(med as Record<string, unknown>)
+      )
+    ) {
+      continue;
+    }
+
     const times: string[] = JSON.parse((med.times as string) || "[]");
-    for (const time of times) {
+    const slotTimes = times.length > 0 ? times : [""];
+    for (const time of slotTimes) {
       totalSlots++;
       const key = `${med.id}_${time}`;
       const ci = checkinMap.get(key);

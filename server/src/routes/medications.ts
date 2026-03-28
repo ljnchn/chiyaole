@@ -12,6 +12,12 @@ import {
   optionalDate,
   requireNumber,
 } from "../utils/validate";
+import {
+  frequencyStubForDb,
+  getDoseIntervalDays,
+  legacyFrequencyToInterval,
+  normalizeDoseIntervalInput,
+} from "../utils/doseSchedule";
 
 type Variables = { userId: string };
 const medications = new Hono<{ Variables: Variables }>();
@@ -32,6 +38,7 @@ function formatMedication(row: Record<string, unknown>) {
     name: row.name,
     dosage: row.dosage,
     frequency: row.frequency,
+    doseIntervalDays: getDoseIntervalDays(row),
     startDate: row.start_date,
     specification: row.specification,
     icon: row.icon,
@@ -150,8 +157,21 @@ medications.post("/", async (c) => {
 
   const name = requireString(body.name, "name", 1, 50);
   const dosage = requireString(body.dosage, "dosage", 1, 20);
-  const frequency =
-    optionalEnum(body.frequency, "frequency", [...FREQ_OPTIONS]) || "1日3次";
+
+  const b = body as Record<string, unknown>;
+  const parsedInterval = normalizeDoseIntervalInput(b);
+  const explicitInterval =
+    b.doseIntervalDays !== undefined || b.doseInterval !== undefined;
+  if (explicitInterval && parsedInterval === undefined) {
+    return error(c, 40001, "参数错误：doseIntervalDays 须为 0、1、2、3 或 7");
+  }
+  let doseIntervalDays = parsedInterval;
+  if (doseIntervalDays === undefined) {
+    const f = optionalEnum(body.frequency, "frequency", [...FREQ_OPTIONS]);
+    doseIntervalDays =
+      f !== undefined ? legacyFrequencyToInterval(f) : 1;
+  }
+  const frequency = frequencyStubForDb(doseIntervalDays);
   const startDate =
     optionalDate(body.startDate, "startDate") ||
     new Date().toISOString().split("T")[0];
@@ -183,14 +203,15 @@ medications.post("/", async (c) => {
   const id = generateId("m");
 
   db.run(
-    `INSERT INTO medications (id, user_id, name, dosage, frequency, start_date, specification, icon, color, remark, remaining, total, unit, times, with_food, status, low_stock_enabled, low_stock_threshold)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+    `INSERT INTO medications (id, user_id, name, dosage, frequency, dose_interval_days, start_date, specification, icon, color, remark, remaining, total, unit, times, with_food, status, low_stock_enabled, low_stock_threshold)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
     [
       id,
       userId,
       name,
       dosage,
       frequency,
+      doseIntervalDays,
       startDate,
       specification,
       icon,
@@ -228,6 +249,20 @@ medications.patch("/:id", async (c) => {
 
   const updates: string[] = [];
   const values: (string | number | null)[] = [];
+
+  const b = body as Record<string, unknown>;
+  const intervalPatch = normalizeDoseIntervalInput(b);
+  const intervalPatched =
+    b.doseIntervalDays !== undefined || b.doseInterval !== undefined;
+  if (intervalPatched) {
+    if (intervalPatch === undefined) {
+      return error(c, 40001, "参数错误：doseIntervalDays 须为 0、1、2、3 或 7");
+    }
+    updates.push("dose_interval_days = ?");
+    values.push(intervalPatch);
+    updates.push("frequency = ?");
+    values.push(frequencyStubForDb(intervalPatch));
+  }
 
   const fields: [string, string, string | number | undefined][] = [
     ["name", "name", optionalString(body.name, "name", 50)],
@@ -276,7 +311,7 @@ medications.patch("/:id", async (c) => {
   }
 
   for (const [col, , val] of fields) {
-    if (val !== undefined) {
+    if (val !== undefined && !(intervalPatched && col === "frequency")) {
       updates.push(`${col} = ?`);
       values.push(val);
     }

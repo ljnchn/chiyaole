@@ -2,6 +2,7 @@
 var medicationService = require('../../utils/medicationService')
 var checkinService = require('../../utils/checkinService')
 var storage = require('../../utils/storage')
+var doseSchedule = require('../../utils/doseSchedule')
 
 /** 计划日期 + 计划服药时刻（用于漏服/待服等） */
 function scheduleTimeLabel(record) {
@@ -14,14 +15,16 @@ function scheduleTimeLabel(record) {
 
 /**
  * 将记录数据转换为展示用的卡片字段
+ * @param {string} recordDateStr 该条记录对应的日期 YYYY-MM-DD（用于「今日」样式与补录日期）
  */
-function buildRecordDisplay(record, todayStr, selectedDateStr) {
-  var isToday = selectedDateStr === todayStr
+function buildRecordDisplay(record, todayStr, recordDateStr) {
+  var isToday = recordDateStr === todayStr
   var status = record.status
   var actualTime = record.actualTime || ''
   var scheduledTime = record.scheduledTime || ''
   var result = {
     id: record.id,
+    recordDate: recordDateStr,
     name: record.name,
     status: status,
     time: record.time,
@@ -88,7 +91,6 @@ Page({
     weekDays: ['日', '一', '二', '三', '四', '五', '六'],
     calendarDays: [],
     selectedDate: 0,
-    showCalendar: true,
     records: []
   },
 
@@ -114,7 +116,7 @@ Page({
     try {
       var activeMeds = await medicationService.getActive()
       await this.generateCalendar(activeMeds)
-      await this.loadSelectedDateRecords(activeMeds)
+      await this.loadRecentRecords(activeMeds)
     } catch (err) {
       console.error('[Record] loadData 失败:', err)
     }
@@ -165,82 +167,70 @@ Page({
     }
   },
 
-  async loadSelectedDateRecords(activeMeds) {
+  /**
+   * 最近记录：拉取近若干天内真实打卡数据（按日期倒序），不随日历选中单日变化
+   */
+  async loadRecentRecords(activeMeds) {
     try {
-      var currentYear = this.data.currentYear
-      var currentMonth = this.data.currentMonth
-      var selectedDate = this.data.selectedDate
-      var dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
       var todayStr = storage.today()
-
-      var dayCheckins = await checkinService.getByDate(dateStr)
+      var rangeStart = addDaysToDateStr(todayStr, -60)
       var medications = activeMeds
       if (!medications) {
         medications = await medicationService.getActive()
       }
+      var medMap = {}
+      ;(medications || []).forEach(function (m) {
+        if (m && m.id) medMap[m.id] = m
+      })
 
-      var rawRecords = []
-      medications.forEach(function (med) {
-        var startDate = med && med.startDate ? med.startDate : ''
-        if (startDate && dateStr < startDate) {
-          return
+      var checkins = await checkinService.getByDateRange(rangeStart, todayStr, {
+        page: 1,
+        pageSize: 100
+      })
+
+      var rawRecords = (checkins || []).map(function (c) {
+        var medId = c.medicationId || c.medication_id
+        var med = medMap[medId] || {}
+        var dateStr = c.date || ''
+        var datePrefix = ''
+        if (dateStr && dateStr !== todayStr) {
+          var parts = dateStr.split('-')
+          datePrefix = parseInt(parts[1], 10) + '月' + parseInt(parts[2], 10) + '日'
+          if (isYesterday(dateStr, todayStr)) {
+            datePrefix = '昨日'
+          }
         }
-
-        var times = Array.isArray(med.times) && med.times.length > 0 ? med.times : ['']
-        times.forEach(function (time) {
-          var checkin = dayCheckins.find(function (c) {
-            return c.medicationId === med.id && c.scheduledTime === time
-          })
-
-          var status = 'pending'
-          if (checkin) {
-            status = checkin.status
-          } else if (dateStr < todayStr) {
-            status = 'missed'
-          }
-
-          var datePrefix = ''
-          if (dateStr !== todayStr) {
-            var selMonth = parseInt(dateStr.split('-')[1], 10)
-            var selDay = parseInt(dateStr.split('-')[2], 10)
-            datePrefix = selMonth + '月' + selDay + '日'
-            if (isYesterday(dateStr, todayStr)) {
-              datePrefix = '昨日'
-            }
-          }
-
-          var actualFromApi = ''
-          if (checkin) {
-            actualFromApi = checkin.actualTime || checkin.actual_time || ''
-          }
-
-          rawRecords.push({
-            id: checkin ? checkin.id : med.id + '_' + time + '_pending',
-            name: med.name,
-            dosage: med.dosage,
-            frequency: med.frequency || '',
-            time: time || '未设定',
-            scheduledTime: time || '',
-            actualTime: actualFromApi,
-            status: status,
-            datePrefix: datePrefix,
-            subNote: checkin && checkin.note ? checkin.note : '按时服用',
-            confirmed: checkin && checkin.status === 'taken'
-          })
-        })
+        var sched = c.scheduledTime || c.scheduled_time || ''
+        var actual = c.actualTime || c.actual_time || ''
+        return {
+          id: c.id,
+          name: c.medicationName || c.medication_name || med.name || '药品',
+          dosage: c.dosage || med.dosage || '',
+          frequency: doseSchedule.getIntervalLabel(doseSchedule.getDoseIntervalDays(med)),
+          time: sched || '未设定',
+          scheduledTime: sched || '',
+          actualTime: actual,
+          status: c.status,
+          datePrefix: datePrefix,
+          subNote: c.note ? c.note : '按时服用',
+          confirmed: c.status === 'taken',
+          date: dateStr
+        }
       })
 
       rawRecords.sort(function (a, b) {
-        return (a.time || '').localeCompare(b.time || '')
+        var byDate = (b.date || '').localeCompare(a.date || '')
+        if (byDate !== 0) return byDate
+        return (b.time || '').localeCompare(a.time || '')
       })
 
       var records = rawRecords.map(function (r) {
-        return buildRecordDisplay(r, todayStr, dateStr)
+        return buildRecordDisplay(r, todayStr, r.date)
       })
 
       this.setData({ records: records })
     } catch (err) {
-      console.error('[Record] loadSelectedDateRecords 失败:', err)
+      console.error('[Record] loadRecentRecords 失败:', err)
     }
   },
 
@@ -250,7 +240,6 @@ Page({
 
     this.setData({ selectedDate: day.day }, function () {
       this.generateCalendar()
-      this.loadSelectedDateRecords()
     }.bind(this))
   },
 
@@ -280,24 +269,6 @@ Page({
     }.bind(this))
   },
 
-  onToggleCalendar() {
-    this.setData({ showCalendar: !this.data.showCalendar })
-  },
-
-  onMore() {
-    var self = this
-    wx.showActionSheet({
-      itemList: ['导出记录', '统计分析'],
-      success: function (res) {
-        if (res.tapIndex === 0) {
-          wx.showToast({ title: '导出功能开发中', icon: 'none' })
-        } else if (res.tapIndex === 1) {
-          wx.showToast({ title: '统计功能开发中', icon: 'none' })
-        }
-      }
-    })
-  },
-
   async onMakeup(e) {
     var id = e.currentTarget.dataset.id
     if (!id) return
@@ -317,10 +288,9 @@ Page({
             var parts = id.replace('_pending', '').split('_')
             var medId = parts.slice(0, parts.length - 1).join('_')
             var time = parts[parts.length - 1] || ''
-            var currentYear = self.data.currentYear
-            var currentMonth = self.data.currentMonth
-            var selectedDate = self.data.selectedDate
-            var dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
+            var dateStr =
+              record.recordDate ||
+              storage.today()
 
             await checkinService.add({
               medicationId: medId,
@@ -346,20 +316,17 @@ Page({
         }
       }
     })
-  },
-
-  onViewMore() {
-    var currentYear = this.data.currentYear
-    var currentMonth = this.data.currentMonth
-    var selectedDate = this.data.selectedDate
-    var dateStr = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(selectedDate).padStart(2, '0')
-    wx.showModal({
-      title: dateStr + ' 用药详情',
-      content: '当日共 ' + this.data.records.length + ' 条记录',
-      showCancel: false
-    })
   }
 })
+
+function addDaysToDateStr(dateStr, deltaDays) {
+  var d = new Date(dateStr + 'T12:00:00')
+  d.setDate(d.getDate() + deltaDays)
+  var y = d.getFullYear()
+  var m = String(d.getMonth() + 1).padStart(2, '0')
+  var day = String(d.getDate()).padStart(2, '0')
+  return y + '-' + m + '-' + day
+}
 
 function isYesterday(dateStr, todayStr) {
   var d = new Date(todayStr)
@@ -370,7 +337,12 @@ function isYesterday(dateStr, todayStr) {
   return dateStr === (y + '-' + m + '-' + day)
 }
 
-function getMedicationSlotCount(med) {
+function getMedicationSlotCountOnDate(med, dateStr) {
+  var start = med.startDate || ''
+  var intervalDays = doseSchedule.getDoseIntervalDays(med)
+  if (!doseSchedule.isMedicationDueOnDate(start, dateStr, intervalDays)) {
+    return 0
+  }
   var times = Array.isArray(med.times) ? med.times : []
   return times.length > 0 ? times.length : 1
 }
@@ -394,7 +366,7 @@ function buildDayStatusMap(medications, checkins, startDate, endDate, todayStr) 
     ;(medications || []).forEach(function (m) {
       var s = m && m.startDate ? m.startDate : ''
       if (!s || s <= dateStr) {
-        planned += getMedicationSlotCount(m)
+        planned += getMedicationSlotCountOnDate(m, dateStr)
       }
     })
 

@@ -11,6 +11,9 @@
       <view class="tag" style="background-color: {{medication.color}}15; color: {{medication.color}};">
         {{foodLabel}}
       </view>
+      <view class="tag tag-interval" style="background-color: {{medication.color}}12; color: {{medication.color}};">
+        {{intervalLabel}}
+      </view>
     </view>
   </view>
 

@@ -37,10 +37,17 @@ function getByDate(date) {
  * 获取日期范围内的打卡记录
  * @param {string} start - "2026-03-01"
  * @param {string} end - "2026-03-31"
+ * @param {Object} [extraQuery] - 可选查询参数，如 { page: 1, pageSize: 100 }
  * @returns {Promise<Array>}
  */
-function getByDateRange(start, end) {
-  return request.get('/checkins', { startDate: start, endDate: end }).then(normalizeCheckinList)
+function getByDateRange(start, end, extraQuery) {
+  var params = { startDate: start, endDate: end }
+  if (extraQuery && typeof extraQuery === 'object') {
+    Object.keys(extraQuery).forEach(function (k) {
+      params[k] = extraQuery[k]
+    })
+  }
+  return request.get('/checkins', params).then(normalizeCheckinList)
 }
 
 /**

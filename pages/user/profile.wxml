@@ -4,50 +4,47 @@
     <view class="form-section">
       <text class="section-title">基本信息</text>
 
-      <view class="form-item">
-        <text class="form-label">头像</text>
-        <view class="avatar-row">
+      <!-- 点击左侧头像即可选择；昵称在右侧 -->
+      <view class="profile-top-row">
+        <button
+          class="avatar-btn"
+          open-type="chooseAvatar"
+          bindchooseavatar="onChooseAvatar"
+          hover-class="avatar-btn-hover"
+        >
           <image
             wx:if="{{avatarUrl}}"
             class="avatar-preview"
             src="{{avatarUrl}}"
             mode="aspectFill"
             lazy-load
+            binderror="onAvatarImageError"
           />
           <view wx:else class="avatar-placeholder">
-            <text class="avatar-placeholder-text">
-              {{nickName ? nickName[0] : ''}}
-            </text>
+            <text class="avatar-placeholder-text">{{avatarLetter}}</text>
           </view>
-          <button
-            class="btn-choose-avatar"
-            open-type="chooseAvatar"
-            bindchooseavatar="onChooseAvatar"
-          >
-            选择头像
-          </button>
+        </button>
+        <view class="nickname-field">
+          <text class="form-label">昵称</text>
+          <input
+            class="nickname-input"
+            type="nickname"
+            name="nickName"
+            placeholder="请输入昵称"
+            value="{{nickName}}"
+            bindinput="onNickNameInput"
+            bindblur="onNickNameBlur"
+          />
         </view>
       </view>
 
-      <view class="form-item">
-        <text class="form-label">昵称</text>
-        <!--
-          使用微信原生输入能力：
-          - type="nickname" 会在键盘顶部展示微信昵称
-          - onBlur 触发微信安全检测；不通过会清空输入
-        -->
-        <input
-          class="nickname-input"
-          type="nickname"
-          name="nickName"
-          placeholder="请输入昵称"
-          value="{{nickName}}"
-          bindinput="onNickNameInput"
-          bindblur="onNickNameBlur"
-        />
+      <view class="profile-hints">
+        <text class="profile-hint">点击左侧头像，使用微信能力从相册或使用官方头像。</text>
+        <text class="profile-hint">在右侧填写昵称；无头像时将显示昵称首字，修改后请点「保存」。</text>
       </view>
     </view>
 
+    <!-- 紧急联系人（暂隐藏）
     <view class="form-section">
       <text class="section-title">紧急联系人</text>
       <view class="form-item">
@@ -70,6 +67,7 @@
         />
       </view>
     </view>
+    -->
 
     <view class="save-section">
       <button class="btn-save" formType="submit">保存</button>

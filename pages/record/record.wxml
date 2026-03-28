@@ -1,23 +1,7 @@
 <!--pages/record/record.wxml-->
 <view class="container">
-  <!-- 顶部栏 -->
-  <view class="top-bar">
-    <view class="top-left">
-      <t-icon name="logo-github--pure" size="44rpx" color="#0058bc" />
-      <text class="top-title">吃药记录</text>
-    </view>
-    <view class="top-right">
-      <view class="icon-btn" bindtap="onToggleCalendar">
-        <t-icon name="calendar" size="40rpx" color="#1b1b1f" />
-      </view>
-      <view class="icon-btn" bindtap="onMore">
-        <t-icon name="ellipsis" size="40rpx" color="#1b1b1f" />
-      </view>
-    </view>
-  </view>
-
   <!-- 日历卡片 -->
-  <view class="calendar-card" wx:if="{{showCalendar}}">
+  <view class="calendar-card">
     <view class="calendar-header">
       <text class="month-year">{{currentYear}}年{{currentMonth}}月</text>
       <view class="nav-arrows">
@@ -71,17 +55,16 @@
     </view>
   </view>
 
-  <!-- 最近记录 -->
+  <!-- 最近记录（多日内打卡，非仅当日） -->
   <view class="records-section">
     <view class="section-header">
       <text class="section-title">最近记录</text>
-      <text class="view-more" bindtap="onViewMore">查看更多</text>
     </view>
 
     <!-- 空态 -->
     <view wx:if="{{records.length === 0}}" class="empty-records">
       <t-icon name="calendar" size="80rpx" color="#c4c4c9" />
-      <text>该日暂无用药记录</text>
+      <text>最近暂无打卡记录</text>
     </view>
 
     <!-- 记录列表 -->

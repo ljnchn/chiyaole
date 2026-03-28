@@ -33,7 +33,8 @@ export function migrate() {
     user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name          TEXT NOT NULL,
     dosage        TEXT NOT NULL,
-    frequency     TEXT DEFAULT '1日3次' CHECK (frequency IN ('1日1次', '1日2次', '1日3次', '1日4次', '隔日1次', '每周1次', '必要时')),
+    frequency     TEXT DEFAULT '1日1次' CHECK (frequency IN ('1日1次', '1日2次', '1日3次', '1日4次', '隔日1次', '每周1次', '必要时')),
+    dose_interval_days INTEGER NOT NULL DEFAULT 1,
     start_date    TEXT NOT NULL DEFAULT (date('now')),
     specification TEXT DEFAULT '',
     icon          TEXT DEFAULT 'pill',
@@ -51,6 +52,22 @@ export function migrate() {
     updated_at    TEXT DEFAULT (datetime('now'))
   )`);
   db.run("CREATE INDEX IF NOT EXISTS idx_med_user_status ON medications(user_id, status)");
+
+  const medCols = db
+    .query("PRAGMA table_info(medications)")
+    .all() as { name: string }[];
+  if (!medCols.some((c) => c.name === "dose_interval_days")) {
+    try {
+      db.run(
+        "ALTER TABLE medications ADD COLUMN dose_interval_days INTEGER NOT NULL DEFAULT 1"
+      );
+    } catch {
+      /* ignore */
+    }
+  }
+  db.run(`UPDATE medications SET dose_interval_days = 2 WHERE frequency = '隔日1次'`);
+  db.run(`UPDATE medications SET dose_interval_days = 7 WHERE frequency = '每周1次'`);
+  db.run(`UPDATE medications SET dose_interval_days = 0 WHERE frequency = '必要时'`);
 
   db.run(`CREATE TABLE IF NOT EXISTS checkins (
     id              TEXT PRIMARY KEY,

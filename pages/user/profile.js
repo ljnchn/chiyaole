@@ -1,61 +1,76 @@
 // pages/user/profile.js
 const userService = require('../../utils/userService')
 
+/** 无头像时圆形文字：取昵称首字；无昵称时显示「用」；兼容 emoji 等多字节字符 */
+function avatarLetterFromName(name) {
+  var s = (name || '').trim()
+  if (!s) return '用'
+  var chars = Array.from(s)
+  return chars[0] || '用'
+}
+
 Page({
   data: {
     nickName: '',
     avatarUrl: '',
-    emergencyName: '',
-    emergencyPhone: ''
+    avatarLetter: '用'
   },
 
   async onLoad() {
     try {
       const user = await userService.get()
-      const ec = userService.getEmergencyContactFromUser(user)
+      // const ec = userService.getEmergencyContactFromUser(user)
+      var nick = user.nickName || ''
       this.setData({
-        nickName: user.nickName || '',
+        nickName: nick,
         avatarUrl: user.avatarUrl || '',
-        emergencyName: ec ? ec.name : '',
-        emergencyPhone: ec ? ec.phone : ''
+        avatarLetter: avatarLetterFromName(nick)
       })
     } catch (err) {
       console.error('[Profile] 加载用户信息失败:', err)
     }
   },
 
-  // 微信 chooseAvatar：获取头像临时路径
+  // 微信 chooseAvatar：点击头像区域触发
   onChooseAvatar(e) {
     const avatarUrl = e && e.detail ? e.detail.avatarUrl : ''
     this.setData({ avatarUrl: avatarUrl || '' })
   },
 
-  // 原生 input[type="nickname"]：实时回填输入内容
+  onAvatarImageError() {
+    this.setData({ avatarUrl: '' })
+  },
+
   onNickNameInput(e) {
     const nickName = e && e.detail ? e.detail.value : ''
-    this.setData({ nickName: nickName || '' })
+    this.setData({
+      nickName: nickName || '',
+      avatarLetter: avatarLetterFromName(nickName)
+    })
   },
 
-  // onBlur：微信侧会做安全检测，失败会清空输入
   onNickNameBlur(e) {
     const nickName = e && e.detail ? e.detail.value : ''
-    this.setData({ nickName: nickName || '' })
+    this.setData({
+      nickName: nickName || '',
+      avatarLetter: avatarLetterFromName(nickName)
+    })
   },
 
-  onEmergencyNameInput(e) {
-    this.setData({ emergencyName: e.detail.value })
-  },
+  // onEmergencyNameInput(e) {
+  //   this.setData({ emergencyName: e.detail.value })
+  // },
 
-  onEmergencyPhoneInput(e) {
-    this.setData({ emergencyPhone: e.detail.value })
-  },
+  // onEmergencyPhoneInput(e) {
+  //   this.setData({ emergencyPhone: e.detail.value })
+  // },
 
   async onSubmitSave(e) {
     // form submit 的字段取值（更符合微信文档：onBlur 后的值）
     const submitted = e && e.detail ? e.detail.value : {}
     const nickName = submitted && submitted.nickName !== undefined ? submitted.nickName : this.data.nickName
-    const emergencyName = this.data.emergencyName
-    const emergencyPhone = this.data.emergencyPhone
+    // const emergencyName = this.data.emergencyName
+    // const emergencyPhone = this.data.emergencyPhone
 
     const trimmedNick = (nickName || '').trim()
 
@@ -71,10 +86,10 @@ Page({
         nickName: trimmedNick,
         avatarUrl: this.data.avatarUrl || ''
       })
-      await userService.updateEmergencyContact({
-        name: emergencyName.trim(),
-        phone: emergencyPhone.trim()
-      })
+      // await userService.updateEmergencyContact({
+      //   name: emergencyName.trim(),
+      //   phone: emergencyPhone.trim()
+      // })
 
       wx.showToast({ title: '保存成功', icon: 'success' })
       setTimeout(function () { wx.navigateBack() }, 500)

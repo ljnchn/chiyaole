@@ -29,13 +29,6 @@
     </button>
   </view>
 
-  <!-- 同步微信信息 -->
-  <view wx:if="{{!userInfo.avatarUrl}}" class="sync-card" bindtap="onSyncWxProfile">
-    <t-icon name="logo-wechat" size="36rpx" color="#07c160" />
-    <text class="sync-text">同步微信头像和昵称</text>
-    <t-icon name="chevron-right" size="28rpx" color="#c4c4c9" />
-  </view>
-
   <!-- Settings List -->
   <view class="settings-group">
     <view
