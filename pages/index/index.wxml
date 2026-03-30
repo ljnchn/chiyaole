@@ -9,24 +9,37 @@
   </view>
 
   <!-- 周日历 -->
-  <view class="week-calendar">
-    <view
-      wx:for="{{weekDays}}"
-      wx:key="date"
-      class="week-day {{item.selected ? 'selected' : ''}} {{item.isToday ? 'today' : ''}}"
-      bindtap="onSelectDay"
-      data-date="{{item.date}}"
-    >
-      <text class="week-day-name">{{item.shortName}}</text>
-      <view class="week-day-num-wrap">
-        <text class="week-day-num">{{item.day}}</text>
+  <swiper
+    class="week-swiper"
+    current="{{currentWeekIndex}}"
+    bindchange="onWeekSwipe"
+    duration="300"
+    easing-function="easeInOutCubic"
+    indicator-dots="{{false}}"
+    circular="{{false}}"
+  >
+    <swiper-item wx:for="{{weeks}}" wx:key="index">
+      <view class="week-calendar">
+        <view
+          wx:for="{{item}}"
+          wx:for-item="day"
+          wx:key="date"
+          class="week-day {{day.selected ? 'selected' : ''}} {{day.isToday ? 'today' : ''}}"
+          bindtap="onSelectDay"
+          data-date="{{day.date}}"
+        >
+          <text class="week-day-name">{{day.shortName}}</text>
+          <view class="week-day-num-wrap">
+            <text class="week-day-num">{{day.day}}</text>
+          </view>
+          <view wx:if="{{day.status === 'taken'}}" class="week-day-dot dot-taken"></view>
+          <view wx:elif="{{day.status === 'partial'}}" class="week-day-dot dot-partial"></view>
+          <view wx:elif="{{day.status === 'missed'}}" class="week-day-dot dot-missed"></view>
+          <view wx:elif="{{day.status === 'pending'}}" class="week-day-dot dot-pending"></view>
+        </view>
       </view>
-      <view wx:if="{{item.status === 'taken'}}" class="week-day-dot dot-taken"></view>
-      <view wx:elif="{{item.status === 'partial'}}" class="week-day-dot dot-partial"></view>
-      <view wx:elif="{{item.status === 'missed'}}" class="week-day-dot dot-missed"></view>
-      <view wx:elif="{{item.status === 'pending'}}" class="week-day-dot dot-pending"></view>
-    </view>
-  </view>
+    </swiper-item>
+  </swiper>
 
   <!-- 空态 -->
   <view wx:if="{{dayItems.length === 0}}" class="empty-state">

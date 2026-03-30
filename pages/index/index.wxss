@@ -70,10 +70,15 @@
 }
 
 /* ========== 周日历 ========== */
+.week-swiper {
+  height: 172rpx;
+  margin-bottom: 40rpx;
+}
+
 .week-calendar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 40rpx;
+  height: 100%;
 }
 
 .week-day {

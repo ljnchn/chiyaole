@@ -16,7 +16,8 @@ Page({
   data: {
     yearMonth: '',
     weekNumber: 0,
-    weekDays: [],
+    weeks: [],
+    currentWeekIndex: 0,
     selectedDate: '',
     streakDays: 0,
     progress: 0,
@@ -45,29 +46,25 @@ Page({
     var dayOfWeek = today.getDay()
     var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
 
-    var monday = new Date(today)
-    monday.setDate(today.getDate() + mondayOffset)
+    var currentWeekMonday = new Date(today)
+    currentWeekMonday.setDate(today.getDate() + mondayOffset)
 
-    var weekDays = []
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(monday)
-      d.setDate(monday.getDate() + i)
-      var dateStr = formatDateStr(d)
-      weekDays.push({
-        shortName: WEEKDAY_SHORT[(d.getDay() + 7) % 7],
-        day: d.getDate(),
-        date: dateStr,
-        isToday: dateStr === todayStr,
-        selected: dateStr === todayStr
-      })
+    var weeks = []
+    for (var weekOffset = -4; weekOffset <= 1; weekOffset++) {
+      var monday = new Date(currentWeekMonday)
+      monday.setDate(currentWeekMonday.getDate() + weekOffset * 7)
+      weeks.push(createWeekDaysFromMonday(monday, todayStr, todayStr))
     }
 
-    var weekNum = getISOWeekNumber(today)
+    var currentWeekIndex = 4
+    var headerDate = new Date(currentWeekMonday)
+    var weekNum = getISOWeekNumber(headerDate)
 
     this.setData({
-      yearMonth: today.getFullYear() + '年' + (today.getMonth() + 1) + '月',
+      yearMonth: headerDate.getFullYear() + '年' + (headerDate.getMonth() + 1) + '月',
       weekNumber: weekNum,
-      weekDays: weekDays,
+      weeks: weeks,
+      currentWeekIndex: currentWeekIndex,
       selectedDate: todayStr
     })
 
@@ -76,11 +73,45 @@ Page({
 
   onSelectDay(e) {
     var date = e.currentTarget.dataset.date
-    var weekDays = this.data.weekDays.map(function (d) {
-      return Object.assign({}, d, { selected: d.date === date })
+    var weeks = (this.data.weeks || []).map(function (week) {
+      return (week || []).map(function (d) {
+        return Object.assign({}, d, { selected: d.date === date })
+      })
     })
-    this.setData({ weekDays: weekDays, selectedDate: date })
+    this.setData({ weeks: weeks, selectedDate: date })
     this.loadDayData(date)
+  },
+
+  onWeekSwipe(e) {
+    var current = e.detail.current
+    var weeks = this.data.weeks || []
+    var weekDays = weeks[current] || []
+    if (weekDays.length === 0) {
+      return
+    }
+
+    var selectedDay = weekDays.find(function (d) { return d.selected })
+    var selectedDate = selectedDay ? selectedDay.date : weekDays[0].date
+
+    var weekDaysWithSelection = weekDays.map(function (d) {
+      return Object.assign({}, d, { selected: d.date === selectedDate })
+    })
+    var updatedWeeks = weeks.map(function (w, index) {
+      if (index === current) {
+        return weekDaysWithSelection
+      }
+      return w
+    })
+
+    var mondayDate = new Date(weekDays[0].date + 'T00:00:00')
+    this.setData({
+      currentWeekIndex: current,
+      weeks: updatedWeeks,
+      yearMonth: mondayDate.getFullYear() + '年' + (mondayDate.getMonth() + 1) + '月',
+      weekNumber: getISOWeekNumber(mondayDate),
+      selectedDate: selectedDate
+    })
+    this.loadDayData(selectedDate)
   },
 
   async loadDayData(dateStr) {
@@ -91,7 +122,9 @@ Page({
 
       var medications = await medicationService.getActive()
       var dayCheckins = await checkinService.getByDate(dateStr)
-      var weekDays = this.data.weekDays || []
+      var weeks = this.data.weeks || []
+      var currentWeekIndex = this.data.currentWeekIndex || 0
+      var weekDays = weeks[currentWeekIndex] || []
       var weekCheckins = []
       if (weekDays.length > 0) {
         var weekStart = weekDays[0].date
@@ -205,10 +238,16 @@ Page({
           selected: d.date === dateStr
         })
       })
+      var weeksWithStatus = weeks.map(function (week, index) {
+        if (index === currentWeekIndex) {
+          return weekDaysWithStatus
+        }
+        return week
+      })
 
       this.setData({
         dayItems: items,
-        weekDays: weekDaysWithStatus,
+        weeks: weeksWithStatus,
         isPastSelectedDay: isPastSelectedDay,
         totalCount: total,
         completedCount: completed,
@@ -336,6 +375,24 @@ function getISOWeekNumber(date) {
   d.setUTCDate(d.getUTCDate() + 4 - dayNum)
   var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+}
+
+function createWeekDaysFromMonday(mondayDate, todayStr, selectedDate) {
+  var weekDays = []
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(mondayDate)
+    d.setDate(mondayDate.getDate() + i)
+    var dateStr = formatDateStr(d)
+    weekDays.push({
+      shortName: WEEKDAY_SHORT[(d.getDay() + 7) % 7],
+      day: d.getDate(),
+      date: dateStr,
+      isToday: dateStr === todayStr,
+      selected: dateStr === selectedDate,
+      status: null
+    })
+  }
+  return weekDays
 }
 
 function getMedicationSlotCountOnDate(med, dateStr) {
