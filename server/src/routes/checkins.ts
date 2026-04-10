@@ -10,10 +10,7 @@ import {
   optionalDate,
   parsePagination,
 } from "../utils/validate";
-import {
-  getDoseIntervalDays,
-  isMedicationDueOnDate,
-} from "../utils/doseSchedule";
+import { getTodayMedicationProgress } from "../services/todayProgress";
 
 type Variables = { userId: string };
 const checkins = new Hono<{ Variables: Variables }>();
@@ -261,76 +258,7 @@ checkins.get("/", async (c) => {
 checkins.get("/today", async (c) => {
   const userId = c.get("userId");
   const today = new Date().toISOString().split("T")[0];
-
-  const meds = db
-    .query(
-      "SELECT id, name, dosage, icon, color, times, start_date, frequency, dose_interval_days FROM medications WHERE user_id = ? AND status = 'active' AND start_date <= ?"
-    )
-    .all(userId, today) as Record<string, unknown>[];
-
-  const todayCheckins = db
-    .query(
-      "SELECT * FROM checkins WHERE user_id = ? AND date = ?"
-    )
-    .all(userId, today) as Record<string, unknown>[];
-
-  const checkinMap = new Map<string, Record<string, unknown>>();
-  for (const ci of todayCheckins) {
-    const key = `${ci.medication_id}_${ci.scheduled_time}`;
-    checkinMap.set(key, ci);
-  }
-
-  const items: unknown[] = [];
-  let totalSlots = 0;
-  let completed = 0;
-
-  for (const med of meds) {
-    if (
-      !isMedicationDueOnDate(
-        String(med.start_date),
-        today,
-        getDoseIntervalDays(med as Record<string, unknown>)
-      )
-    ) {
-      continue;
-    }
-
-    const times: string[] = JSON.parse((med.times as string) || "[]");
-    const slotTimes = times.length > 0 ? times : [""];
-    for (const time of slotTimes) {
-      totalSlots++;
-      const key = `${med.id}_${time}`;
-      const ci = checkinMap.get(key);
-
-      items.push({
-        medicationId: med.id,
-        medicationName: med.name,
-        dosage: med.dosage,
-        icon: med.icon,
-        color: med.color,
-        scheduledTime: time,
-        checkin: ci
-          ? {
-              id: ci.id,
-              status: ci.status,
-              actualTime: ci.actual_time,
-            }
-          : null,
-      });
-
-      if (ci && ci.status === "taken") completed++;
-    }
-  }
-
-  return success(c, {
-    date: today,
-    items,
-    progress: {
-      total: totalSlots,
-      completed,
-      percentage: totalSlots > 0 ? Math.round((completed / totalSlots) * 100) : 0,
-    },
-  });
+  return success(c, getTodayMedicationProgress(userId, today));
 });
 
 checkins.get("/calendar", async (c) => {

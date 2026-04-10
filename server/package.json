@@ -8,6 +8,7 @@
     "start": "bun run src/index.ts",
     "build": "bun build --compile src/index.ts --outfile chiyaole-server",
     "test": "bun test",
+    "remind:webhook": "bun run src/scripts/webhookDailyReminder.ts",
     "lint": "bunx --bun tsc --noEmit"
   },
   "dependencies": {
