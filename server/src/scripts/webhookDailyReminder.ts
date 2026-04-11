@@ -1,4 +1,5 @@
 import db from "../db";
+import { sendFeishuWebhookText } from "../services/feishuWebhook";
 import {
   formatYmdInTimeZone,
   getTodayMedicationProgress,
@@ -40,19 +41,9 @@ if (progress.completed === progress.total) {
   process.exit(0);
 }
 
-const body = JSON.stringify({
-  msg_type: "text",
-  content: { text: webhookText },
-});
-
-const res = await fetch(webhookUrl, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body,
-});
-
-if (!res.ok) {
-  fail(`Webhook 请求失败: HTTP ${res.status}`);
+const ok = await sendFeishuWebhookText(webhookText);
+if (!ok) {
+  fail("Webhook 请求失败或未返回成功状态");
 }
 
 console.log(

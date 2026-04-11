@@ -11,6 +11,7 @@ import {
   parsePagination,
 } from "../utils/validate";
 import { getTodayMedicationProgress } from "../services/todayProgress";
+import { notifyCheckinTakenFireAndForget } from "../services/feishuWebhook";
 
 type Variables = { userId: string };
 const checkins = new Hono<{ Variables: Variables }>();
@@ -73,6 +74,11 @@ checkins.post("/", async (c) => {
 
   if (status === "taken") {
     applyStockDelta(userId, medicationId, -1);
+  }
+
+  if (status === "taken") {
+    const tz = process.env.REMINDER_TZ?.trim() || "Asia/Shanghai";
+    notifyCheckinTakenFireAndForget(userId, { date, timeZone: tz });
   }
 
   const checkin = db.query("SELECT * FROM checkins WHERE id = ?").get(id) as Record<
@@ -155,6 +161,14 @@ checkins.patch("/:id", async (c) => {
   const updated = db
     .query("SELECT * FROM checkins WHERE id = ?")
     .get(id) as Record<string, unknown>;
+
+  if (fromStatus === "missed" && toStatus === "taken") {
+    const tz = process.env.REMINDER_TZ?.trim() || "Asia/Shanghai";
+    notifyCheckinTakenFireAndForget(userId, {
+      date: String(existing.date),
+      timeZone: tz,
+    });
+  }
 
   return success(c, formatCheckin(updated));
 });
