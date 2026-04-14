@@ -26,12 +26,54 @@ export function shouldSendCheckinFeishu(userId: string): boolean {
 export async function sendFeishuWebhookText(text: string): Promise<boolean> {
   const url = getReminderWebhookUrl();
   if (!url) return false;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: feishuTextMessageBody(text),
-  });
-  return res.ok;
+
+  const payload = feishuTextMessageBody(text);
+  const maxRetries = 3;
+
+  for (let retry = 0; retry <= maxRetries; retry += 1) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      });
+      const raw = await res.text();
+      let parsed: unknown = raw;
+      try {
+        parsed = raw ? JSON.parse(raw) : undefined;
+      } catch {
+        // ignore JSON parse failure and keep raw body for logging
+      }
+
+      if (
+        res.ok &&
+        typeof parsed === "object" &&
+        parsed !== null &&
+        (parsed as { code?: number }).code === 0
+      ) {
+        console.log(JSON.stringify(parsed, null, 2));
+        return true;
+      }
+
+      throw new Error(
+        `[feishuWebhook] 响应异常 status=${res.status}, body=${raw || "<empty>"}`
+      );
+    } catch (error) {
+      if (retry === maxRetries) {
+        console.error(
+          `[feishuWebhook] webhook 发送失败（已重试 ${maxRetries} 次）:`,
+          error
+        );
+        return false;
+      }
+      console.warn(
+        `[feishuWebhook] webhook 发送失败，准备第 ${retry + 1} 次重试`,
+        error
+      );
+    }
+  }
+
+  return false;
 }
 
 export type CheckinNotifyContext = {
