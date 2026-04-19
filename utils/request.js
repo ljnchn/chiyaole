@@ -1,11 +1,9 @@
 /**
  * HTTP 请求封装
- * 基于 wx.request，自动注入 Authorization 头，支持 token 刷新重试
+ * 基于 wx.request，自动注入 Authorization 头，支持鉴权恢复与重试
  */
-
 const { apiBaseUrl: BASE_URL } = require("./apiConfig");
-const AUTH_KEY = "cym_auth";
-let _loginPromise = null;
+const authService = require("./authService");
 
 /**
  * 将对象转为查询字符串
@@ -20,117 +18,17 @@ function toQuery(params) {
     .join("&");
 }
 
-/**
- * 获取本地存储的认证信息
- * @returns {{ token: string, refreshToken: string, expireAt: number }|null}
- */
-function _getAuth() {
-  try {
-    return wx.getStorageSync(AUTH_KEY) || null;
-  } catch (e) {
-    return null;
-  }
+function isAuthPath(path) {
+  return path === "/auth/login" || path === "/auth/refresh";
 }
 
-/**
- * 无 token 时执行静默登录（单飞）
- * - 避免首次进入页面时业务接口抢跑
- * - 避免并发请求触发多次 wx.login
- * @returns {Promise<string>} token
- */
-function _ensureToken() {
-  const auth = _getAuth();
-  if (auth && auth.token) return Promise.resolve(auth.token);
-  if (_loginPromise) return _loginPromise;
-
-  _loginPromise = new Promise((resolve, reject) => {
-    wx.login({
-      success(res) {
-        if (!res.code) {
-          _loginPromise = null;
-          reject(new Error("wx.login 获取 code 失败"));
-          return;
-        }
-
-        wx.request({
-          url: `${BASE_URL}/auth/login`,
-          method: "POST",
-          data: { code: res.code },
-          header: { "content-type": "application/json" },
-          success(r) {
-            const body = r.data;
-            if (body && body.code === 0 && body.data) {
-              const newAuth = {
-                token: body.data.token,
-                refreshToken: body.data.refreshToken,
-                expireAt: body.data.expireAt,
-              };
-              try {
-                wx.setStorageSync(AUTH_KEY, newAuth);
-              } catch (e) {
-                /* ignore */
-              }
-              _loginPromise = null;
-              resolve(newAuth.token);
-            } else {
-              _loginPromise = null;
-              reject(new Error("登录失败"));
-            }
-          },
-          fail(err) {
-            _loginPromise = null;
-            reject(err);
-          },
-        });
-      },
-      fail(err) {
-        _loginPromise = null;
-        reject(err);
-      },
-    });
-  });
-
-  return _loginPromise;
-}
-
-/**
- * 尝试使用 refreshToken 刷新 access token
- * @returns {Promise<string>} 新的 access token
- */
-function _refreshToken() {
-  const auth = _getAuth();
-  if (!auth || !auth.refreshToken) {
-    return Promise.reject(new Error("无 refreshToken"));
-  }
-
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${BASE_URL}/auth/refresh`,
-      method: "POST",
-      data: { refreshToken: auth.refreshToken },
-      header: { "content-type": "application/json" },
-      success(res) {
-        if (res.data && res.data.code === 0 && res.data.data) {
-          const newAuth = {
-            token: res.data.data.token,
-            refreshToken: res.data.data.refreshToken,
-            expireAt: res.data.data.expireAt,
-          };
-          try {
-            wx.setStorageSync("cym_auth", newAuth);
-          } catch (e) {
-            /* ignore */
-          }
-          resolve(newAuth.token);
-        } else {
-          reject(new Error("刷新 token 失败"));
-        }
-      },
-      fail(err) {
-        reject(err);
-      },
-    });
-  });
+function isAuthError(code, statusCode) {
+  return (
+    code === 40100 ||
+    code === 40101 ||
+    code === 40102 ||
+    statusCode === 401
+  );
 }
 
 /**
@@ -144,16 +42,15 @@ function _refreshToken() {
  */
 function request(method, path, data, extraHeaders, isRetry) {
   return new Promise((resolve, reject) => {
-    const isAuthPath = path === "/auth/login" || path === "/auth/refresh";
-    const auth = _getAuth();
+    const pathIsAuth = isAuthPath(path);
 
     const doRequest = () => {
-      const auth2 = _getAuth();
       const header = {
         "content-type": "application/json",
       };
-      if (auth2 && auth2.token) {
-        header["Authorization"] = "Bearer " + auth2.token;
+      const token = authService.getToken();
+      if (token) {
+        header["Authorization"] = "Bearer " + token;
       }
       if (extraHeaders) {
         Object.assign(header, extraHeaders);
@@ -175,24 +72,27 @@ function request(method, path, data, extraHeaders, isRetry) {
         data: reqData,
         header: header,
         success(res) {
-          const body = res.data;
+          const body = res.data || {};
+          const code = body.code;
 
-          // 40100 表示 token 过期，尝试刷新后重试一次
-          if (body && body.code === 40100 && !isRetry) {
-            _refreshToken()
+          // 登录态失效：尝试恢复认证后重试一次
+          if (!pathIsAuth && !isRetry && isAuthError(code, res.statusCode)) {
+            authService
+              .recoverAuth()
               .then(function () {
                 request(method, path, data, extraHeaders, true)
                   .then(resolve)
                   .catch(reject);
               })
               .catch(function () {
+                authService.clearAuth();
                 wx.showToast({ title: "登录已过期，请重新登录", icon: "none" });
                 reject(new Error("登录已过期"));
               });
             return;
           }
 
-          if (body && body.code === 0) {
+          if (code === 0) {
             resolve(body.data);
           } else {
             var msg = body && body.message ? body.message : "请求失败";
@@ -207,14 +107,15 @@ function request(method, path, data, extraHeaders, isRetry) {
       });
     };
 
-    // 首次登录：业务接口在无 token 时先执行静默登录再发起请求
-    if (!isAuthPath && (!auth || !auth.token) && !isRetry) {
-      _ensureToken()
+    // 业务接口请求前先确保登录态可用，减少“先失败再恢复”的感知
+    if (!pathIsAuth && !isRetry) {
+      authService
+        .ensureAuthorized()
         .then(function () {
           doRequest();
         })
         .catch(function (err) {
-          wx.showToast({ title: "登录中，请稍后再试", icon: "none" });
+          wx.showToast({ title: "登录失败，请稍后重试", icon: "none" });
           reject(err);
         });
       return;

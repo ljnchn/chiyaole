@@ -101,8 +101,8 @@ Page({
     this.setData({ isRetryingLogin: true })
     try {
       // 重新登录前清理认证缓存，避免旧 token 干扰
-      wx.removeStorageSync('cym_auth')
-      await authService.autoLogin()
+      authService.clearAuth()
+      await authService.ensureAuthorized({ forceLogin: true })
       await this.loadUserInfo()
       wx.showToast({ title: '重新登录成功', icon: 'success' })
     } catch (err) {
